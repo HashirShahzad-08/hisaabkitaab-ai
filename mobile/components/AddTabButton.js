@@ -1,26 +1,37 @@
-// The raised green center "+" button (56px). It sits on top of the tab bar.
-import { useRef } from 'react';
+// The raised green center "+" button (56px). It turns 45 degrees into an x while the sheet is open.
+import { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { useAddSheet } from '../context/AddSheetContext';
 import { colors, sizes } from '../theme';
 
-export default function AddTabButton({ onPress, accessibilityLabel }) {
+export default function AddTabButton({ accessibilityLabel }) {
+  const { open, toggle } = useAddSheet();
   const scale = useRef(new Animated.Value(1)).current;
+  const rotation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(rotation, { toValue: open ? 1 : 0, damping: 14, stiffness: 180, useNativeDriver: true }).start();
+  }, [open]);
+
   const to = (v) =>
     Animated.spring(scale, { toValue: v, damping: 15, stiffness: 300, useNativeDriver: true }).start();
+  const rotate = rotation.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '45deg'] });
 
   return (
     <View style={styles.slot}>
       <Pressable
-        onPress={onPress}
+        onPress={toggle}
         onPressIn={() => to(0.97)}
         onPressOut={() => to(1)}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
       >
         <Animated.View style={[styles.circle, { transform: [{ scale }] }]}>
-          <Ionicons name="add" size={32} color="#FFFFFF" />
+          <Animated.View style={{ transform: [{ rotate }] }}>
+            <Ionicons name="add" size={32} color="#FFFFFF" />
+          </Animated.View>
         </Animated.View>
       </Pressable>
     </View>

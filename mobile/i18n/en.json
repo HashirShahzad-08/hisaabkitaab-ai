@@ -15,7 +15,26 @@
     "signedInAs": "Signed in as {{name}}"
   },
   "history": {
-    "title": "History"
+    "title": "History",
+    "month": "Month",
+    "category": "Category",
+    "paymentType": "Payment type",
+    "allTime": "All time",
+    "allCategories": "All categories",
+    "allPayments": "All payment types",
+    "delete": "Delete",
+    "deleteTitle": "Delete this transaction?",
+    "deleteText": "This cannot be undone.",
+    "deleted": "Transaction deleted",
+    "deleteFailed": "Could not delete. Please try again",
+    "emptyTitle": "No transactions yet",
+    "emptyText": "Add your first one and it will show up here.",
+    "addFirst": "Add transaction",
+    "noMatch": "Nothing matches these filters",
+    "clearFilters": "Show everything",
+    "retry": "Try again",
+    "errorGeneric": "Could not load your transactions. Check your internet and try again.",
+    "errorPermission": "Could not load your transactions. Please check the Firestore rules in Firebase."
   },
   "add": {
     "title": "Add"
@@ -27,7 +46,11 @@
     "title": "Goals and Budgets"
   },
   "common": {
-    "comingSoon": "This screen is coming soon."
+    "comingSoon": "This screen is coming soon.",
+    "rupees": "Rs",
+    "back": "Back",
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "auth": {
     "login": "Login",
@@ -54,5 +77,102 @@
       "tooManyAttempts": "Too many tries. Please wait a few minutes and try again",
       "generic": "Something went wrong. Please try again"
     }
+  },
+  "addSheet": {
+    "manual": {
+      "title": "Manual entry",
+      "caption": "Type in an expense or income"
+    },
+    "sms": {
+      "title": "Paste SMS",
+      "caption": "Read a JazzCash, Easypaisa or bank SMS"
+    },
+    "quick": {
+      "title": "Urdu quick entry",
+      "caption": "Type or speak, in Urdu or English"
+    },
+    "afford": {
+      "title": "Can I afford it?",
+      "caption": "Ask AI before you buy"
+    }
+  },
+  "smsEntry": {
+    "title": "Paste SMS"
+  },
+  "quickEntry": {
+    "title": "Quick entry"
+  },
+  "afford": {
+    "title": "Can I afford it?"
+  },
+  "addTx": {
+    "title": "Add transaction",
+    "expense": "Expense",
+    "income": "Income",
+    "amount": "Amount",
+    "category": "Category",
+    "paymentType": "Payment type",
+    "date": "Date",
+    "note": "Note (optional)",
+    "save": "Save",
+    "errors": {
+      "amount": "Please enter an amount",
+      "category": "Please choose a category",
+      "permission": "Could not save. Please check the Firestore rules in Firebase.",
+      "generic": "Could not save. Please try again"
+    }
+  },
+  "categories": {
+    "Food": "Food",
+    "Transport": "Transport",
+    "Bills": "Bills",
+    "Shopping": "Shopping",
+    "Health": "Health",
+    "Education": "Education",
+    "Mobile": "Mobile",
+    "Family": "Family",
+    "Rent": "Rent",
+    "Other": "Other",
+    "Income": "Income"
+  },
+  "payments": {
+    "Cash": "Cash",
+    "JazzCash": "JazzCash",
+    "Easypaisa": "Easypaisa",
+    "BankCard": "Bank Card"
+  },
+  "dates": {
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "months": {
+    "short": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ],
+    "long": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ]
   }
 }

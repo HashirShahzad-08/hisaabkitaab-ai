@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
@@ -56,6 +57,10 @@ function Routes() {
       {/* Logged in: the tabs */}
       <Stack.Protected guard={!!user}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="add-transaction" />
+        <Stack.Screen name="sms-entry" />
+        <Stack.Screen name="quick-entry" />
+        <Stack.Screen name="afford" />
       </Stack.Protected>
       {/* Logged out: login and sign up */}
       <Stack.Protected guard={!user}>
@@ -72,6 +77,7 @@ export default function RootLayout() {
   const theme = useMemo(() => getPaperTheme(lang), [lang]);
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
         <AuthProvider>
@@ -80,5 +86,6 @@ export default function RootLayout() {
         </AuthProvider>
       </PaperProvider>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

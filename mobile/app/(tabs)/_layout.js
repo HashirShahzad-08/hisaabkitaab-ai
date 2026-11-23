@@ -1,13 +1,16 @@
 // Bottom tab bar from DESIGN.md section 7.
+import { View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
+import AddSheet from '../../components/AddSheet';
 import AddTabButton from '../../components/AddTabButton';
 import TabIcon from '../../components/TabIcon';
+import { AddSheetProvider } from '../../context/AddSheetContext';
 import { colors, fonts, sizes } from '../../theme';
 
-export default function TabsLayout() {
+function TabsInner() {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const isUrdu = i18n.language === 'ur';
@@ -17,6 +20,7 @@ export default function TabsLayout() {
   });
 
   return (
+    <View style={{ flex: 1 }}>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -45,12 +49,22 @@ export default function TabsLayout() {
           title: t('tabs.add'),
           tabBarLabel: () => null,
           tabBarButton: (props) => (
-            <AddTabButton onPress={props.onPress} accessibilityLabel={t('tabs.add')} />
+            <AddTabButton accessibilityLabel={t('tabs.add')} />
           ),
         }}
       />
       <Tabs.Screen name="bills" options={{ title: t('tabs.bills'), ...icon('flash') }} />
       <Tabs.Screen name="goals" options={{ title: t('tabs.goals'), ...icon('trophy') }} />
     </Tabs>
+    <AddSheet />
+    </View>
+  );
+}
+
+export default function TabsLayout() {
+  return (
+    <AddSheetProvider>
+      <TabsInner />
+    </AddSheetProvider>
   );
 }
