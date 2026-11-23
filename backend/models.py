@@ -21,6 +21,8 @@ Lang = Literal["en", "ur"]
 TxType = Literal["income", "expense"]
 PaymentType = Literal["Cash", "JazzCash", "Easypaisa", "Bank card"]
 
+Confidence = Literal["high", "medium", "low"]
+
 DATE_PATTERN = r"^\d{4}-\d{2}-\d{2}$"
 
 
@@ -31,7 +33,7 @@ class TextRequest(BaseModel):
     today: str = Field(..., pattern=DATE_PATTERN, examples=["2026-11-23"])
 
 
-# ---------- Responses (what Gemini must give us) ----------
+# ---------- Responses (what the AI must give us) ----------
 class SmsResult(BaseModel):
     amount: float = Field(..., ge=0)
     type: TxType
@@ -41,6 +43,8 @@ class SmsResult(BaseModel):
     date: str = Field(..., pattern=DATE_PATTERN)
     isScam: bool
     scamReason: Optional[str] = ""
+    # How sure we are. Set by our code after checking the AI's answer against the rules.
+    confidence: Confidence = "medium"
 
     _fix_category = field_validator("category", mode="before")(_clean_category)
 
@@ -53,6 +57,7 @@ class Transaction(BaseModel):
     merchant: str = ""
     date: str = Field(..., pattern=DATE_PATTERN)
     note: str = ""
+    confidence: Confidence = "medium"
 
     _fix_category = field_validator("category", mode="before")(_clean_category)
 

@@ -9,7 +9,11 @@ const withTimeout = (promise, ms) =>
 
 // date: a JS Date (the day the user picked). We keep today's clock time on it
 // so the History list can show a time and sort inside a day.
-export async function addTransaction(uid, { amount, type, category, paymentType, date, note }) {
+// source: "manual", "sms" or "quick" (how the transaction was entered)
+export async function addTransaction(
+  uid,
+  { amount, type, category, paymentType, date, note = '', merchant = '', source = 'manual' }
+) {
   const now = new Date();
   const when = new Date(
     date.getFullYear(), date.getMonth(), date.getDate(),
@@ -21,11 +25,11 @@ export async function addTransaction(uid, { amount, type, category, paymentType,
     type,
     category,
     paymentType,
-    merchant: '',
+    merchant: merchant.trim(),
     note: note.trim(),
     date: toDateKey(date),
     dateTime: Timestamp.fromDate(when),
-    source: 'manual',
+    source,
     createdAt: serverTimestamp(),
   });
   // Online: finishes fast. Offline: Firestore keeps the write and sends it later,

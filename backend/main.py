@@ -3,9 +3,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from gemini_client import GeminiError, ask_gemini
+import pipeline
+from ai_client import AIError
 from models import QuickEntryResult, SmsResult, TextRequest
-from prompts import quick_entry_prompt, sms_prompt
 
 app = FastAPI(title="HisaabKitaab AI")
 
@@ -19,9 +19,9 @@ app.add_middleware(
 )
 
 
-@app.exception_handler(GeminiError)
-async def gemini_error_handler(request: Request, exc: GeminiError):
-    return JSONResponse(status_code=exc.status_code, content={"error": exc.message})
+@app.exception_handler(AIError)
+async def ai_error_handler(request: Request, exc: AIError):
+    return JSONResponse(status_code=exc.status_code, content={"error": exc.message, "code": exc.code})
 
 
 @app.get("/health")
@@ -31,9 +31,9 @@ def health():
 
 @app.post("/parse-sms", response_model=SmsResult)
 def parse_sms(req: TextRequest):
-    return ask_gemini(sms_prompt(req.text, req.lang, req.today), SmsResult)
+    return pipeline.parse_sms(req.text, req.lang, req.today)
 
 
 @app.post("/quick-entry", response_model=QuickEntryResult)
 def quick_entry(req: TextRequest):
-    return ask_gemini(quick_entry_prompt(req.text, req.lang, req.today), QuickEntryResult)
+    return pipeline.quick_entry(req.text, req.lang, req.today)

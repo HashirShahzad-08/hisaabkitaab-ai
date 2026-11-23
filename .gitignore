@@ -11,3 +11,4 @@ node_modules/
 !.env.example
 .expo/
 dist/
+backend/tests/last_results.json

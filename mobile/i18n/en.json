@@ -66,7 +66,8 @@
     "rupees": "Rs",
     "back": "Back",
     "close": "Close",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "checkDetails": "Please check these details"
   },
   "auth": {
     "login": "Login",
@@ -113,10 +114,38 @@
     }
   },
   "smsEntry": {
-    "title": "Paste SMS"
+    "title": "Paste SMS",
+    "helper": "Paste a JazzCash, Easypaisa or bank SMS",
+    "placeholder": "Paste the SMS here",
+    "paste": "Paste",
+    "analyze": "Analyze with AI",
+    "found": "We found this transaction",
+    "errors": {
+      "empty": "Please paste an SMS first"
+    },
+    "scam": {
+      "title": "This SMS looks like fraud",
+      "never": "Never share your PIN or OTP with anyone.",
+      "delete": "Delete message",
+      "report": "Report to PTA (0800-55055)"
+    }
   },
   "quickEntry": {
-    "title": "Quick entry"
+    "title": "Quick entry",
+    "placeholder": "aaj 800 ka petrol aur 300 ka doodh",
+    "hint": "Tap the keyboard mic and speak in Urdu",
+    "examples": [
+      "aaj 800 ka petrol aur 300 ka doodh",
+      "kal mainy 2000 ki grocery li",
+      "parson 15000 salary mili JazzCash mein"
+    ],
+    "add": "Add with AI",
+    "none": "We could not find any amount in that text. Try writing it a little differently.",
+    "entryNumber": "Entry {{number}}",
+    "saveAll": "Save all ({{count}})",
+    "errors": {
+      "empty": "Please type or speak something first"
+    }
   },
   "afford": {
     "title": "Can I afford it?"
@@ -136,7 +165,8 @@
       "category": "Please choose a category",
       "permission": "Could not save. Please check the Firestore rules in Firebase.",
       "generic": "Could not save. Please try again"
-    }
+    },
+    "merchant": "Shop or sender (optional)"
   },
   "categories": {
     "Food": "Food",
@@ -213,5 +243,29 @@
   },
   "settings": {
     "title": "Settings"
+  },
+  "api": {
+    "errors": {
+      "notConfigured": "The app does not know the server address. Check EXPO_PUBLIC_API_URL in the .env file.",
+      "network": "Cannot reach the server. Check that the backend is running and your phone is on the same Wi-Fi.",
+      "timeout": "The server took too long to answer. Please try again.",
+      "ai": "The AI could not read that. Please try again, or enter it by hand.",
+      "badInput": "That text could not be sent. Please check it and try again.",
+      "generic": "Something went wrong. Please try again.",
+      "aiSetup": "The AI service is not set up. Check the AI key (GROQ_API_KEY) in the backend .env file.",
+      "aiBusy": "The AI is busy right now (too many requests). Please wait a minute and try again."
+    }
+  },
+  "thinking": {
+    "sms": [
+      "Reading the SMS...",
+      "Working out the numbers...",
+      "Just a second..."
+    ],
+    "quick": [
+      "Reading your note...",
+      "Working out the numbers...",
+      "Just a second..."
+    ]
   }
 }

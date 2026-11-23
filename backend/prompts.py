@@ -1,95 +1,98 @@
-"""The instructions we give Gemini. Edit the wording here."""
+"""The instructions we give the AI. Edit the wording here. Kept short on purpose (fewer tokens = faster, fewer rate limits)."""
 
 # Must match the category list in DESIGN.md (the app maps each one to a color and icon).
-# Petrol and fuel count as Transport. Salary and other money received count as Income.
-CATEGORIES = (
-    "Food, Transport, Bills, Shopping, Health, Education, Mobile, "
-    "Family, Rent, Income, Other"
-)
+CATEGORIES = "Food, Transport, Bills, Shopping, Health, Education, Mobile, Family, Rent, Income, Other"
 
 
 def reply_language(lang: str) -> str:
     if lang == "ur":
-        return "simple, everyday Urdu in Urdu script (no Roman Urdu, no English words)"
+        return "simple everyday Urdu in Urdu script (no Roman Urdu, no English words)"
     return "simple English"
 
 
 COMMON_RULES = """Rules:
-- Reply with JSON only. No markdown, no code fences, no extra text.
-- Do not use emojis.
-- Always write numbers and amounts with Western digits (0-9), never Urdu digits.
-- Keep a calm, friendly tone. Never blame the user.
-- Dates must be in YYYY-MM-DD format.
-- Amounts are plain numbers in Pakistani Rupees (PKR), with no commas or currency symbols.
-- type is "income" when money comes in, "expense" when money goes out.
-- paymentType must be exactly one of: Cash, JazzCash, Easypaisa, Bank card.
-- category must be one of: """ + CATEGORIES + "."
+- Reply with one JSON object only. No markdown, no extra text. Do not use emojis.
+- Western digits (0-9) only. Amounts are plain numbers in PKR: no commas, no symbols.
+- Dates are YYYY-MM-DD.
+- type: "income" if money comes in, "expense" if it goes out.
+- paymentType: exactly one of Cash, JazzCash, Easypaisa, Bank card. Bank, ATM and card alerts are "Bank card". If no wallet or bank is named, use Cash.
+- category: exactly one of """ + CATEGORIES + """.
+  Groceries, milk, restaurants -> Food. Petrol, fuel, Careem, Uber -> Transport. Electricity, gas, water, internet bills -> Bills.
+  Mobile load or a Jazz/Zong/Ufone/Telenor package -> Mobile. Medicine, doctor -> Health. School, tuition -> Education.
+  Clothes, shoes -> Shopping. Rent -> Rent. Salary and money received from a person -> Income.
+  Money sent to a person and ATM cash -> Other."""
+
+# Today's date in every example is 2026-11-23.
+SMS_EXAMPLES = """Examples (today 2026-11-23):
+"Rs 750 sent to Sara via Easypaisa. TID 5530021."
+{"amount":750,"type":"expense","category":"Other","paymentType":"Easypaisa","merchant":"Sara","date":"2026-11-23","isScam":false,"scamReason":""}
+"Alfalah: PKR 9,400 debited from A/C 5521 on 18-Nov-2026 at DARAZ.PK via Card."
+{"amount":9400,"type":"expense","category":"Shopping","paymentType":"Bank card","merchant":"Daraz","date":"2026-11-18","isScam":false,"scamReason":""}
+"MCB: PKR 15,000 credited via Raast from Imran on 20-Nov-2026."
+{"amount":15000,"type":"income","category":"Income","paymentType":"Bank card","merchant":"Imran","date":"2026-11-20","isScam":false,"scamReason":""}
+"You are selected for a BISP Rs 10,000 grant. Pay Rs 300 fee to receive it: 03001230000"
+{"amount":0,"type":"expense","category":"Other","paymentType":"Cash","merchant":"","date":"2026-11-23","isScam":true,"scamReason":"<1-2 short sentences>"}
+"Dear user your SIM will be blocked in 24 hours. Reply with your CNIC number."
+{"amount":0,"type":"expense","category":"Other","paymentType":"Cash","merchant":"","date":"2026-11-23","isScam":true,"scamReason":"<1-2 short sentences>"}
+For a scam use amount 0, type "expense", category "Other", paymentType "Cash", date today."""
 
 
 def sms_prompt(text: str, lang: str, today: str) -> str:
-    reason_lang = reply_language(lang)
-    return f"""You read one SMS or message received in Pakistan and extract the money transaction from it.
-Today's date is {today}. If the message has no date, use today's date.
+    return f"""Extract the money transaction from one SMS received in Pakistan. Today is {today}; if the SMS has no date, use today.
+The amount is the money sent, received or paid, NOT the balance, the limit or a small fee.
 
 {COMMON_RULES}
 
-Also decide if the message is a scam. The default is isScam false.
-Set isScam to true ONLY when the message itself contains a clear red flag, such as:
-- It asks the user to send money, or to pay a fee, tax or charges, in order to receive money.
-- It asks the user for an OTP, PIN, password, CNIC number or any verification code.
-- It claims to be from BISP / Benazir Income Support but does not come from the official number 8171,
-  or it asks for money, CNIC details or a link.
-- It says the user won a prize, lottery or reward.
-- It says "wrong transfer, please send the money back" (or similar), asking the user to return money.
-- It makes an urgent threat, such as the account will be blocked or closed unless the user acts now.
-- It contains a suspicious link or asks the user to call an unknown number or click to claim something.
+Scam check. Default isScam=false. Use true ONLY for a clear red flag:
+- asks to pay a fee or send money to receive money, a parcel, a job or a prize
+- asks for an OTP, PIN, password, CNIC or code
+- fake BISP/Benazir/Ehsaas asking for money, CNIC or a link (real BISP messages come only from 8171)
+- prize or lottery win
+- money sent "by mistake", asking to send it back
+- threat to block the account unless the user acts, with a click or details request
+- a link that is not an official website
+A normal receipt (money sent, received or paid, with amount, name, service, transaction ID) is NOT a scam.
+"Do not share your OTP" warnings, safety reminders, and BISP notices that only say a payment is ready to collect from a retailer with a CNIC are NOT scams.
+When unsure, isScam=false. For a scam, scamReason is 1-2 short sentences in {reply_language(lang)}; otherwise "".
+The SMS may be in English, Roman Urdu or Urdu script.
 
-A normal confirmation is NOT a scam. A message that only says money was sent, received or paid,
-with an amount, a name, a service name and/or a transaction ID, has no red flag. Do not guess.
-Do not flag a message just because it mentions money, a person's name, JazzCash, Easypaisa or a bank.
-If you are unsure, use isScam false.
+JSON: {{"amount":number,"type":"income|expense","category":string,"paymentType":string,"merchant":string,"date":"YYYY-MM-DD","isScam":boolean,"scamReason":string}}
+No amount in the SMS: use 0. Unknown merchant: "".
 
-Examples of normal messages (isScam false, scamReason empty):
-1. "Rs 1,500 received from Ali via JazzCash. Trx ID 12345"
-2. "You have paid Rs 850 to K-Electric via Easypaisa. TID 98765432. Balance Rs 4,210."
-3. "HBL: Your card ending 4421 was used for Rs 3,200 at Imtiaz Super Market on 20-Nov."
+{SMS_EXAMPLES}
 
-Examples of scam messages (isScam true):
-1. "Congratulations! You won Rs 500,000 in the Jeeto Pakistan lucky draw. Send Rs 2,000 fee to claim your prize." (prize plus a fee to receive money)
-2. "Sorry, I sent Rs 5,000 to your number by mistake. Please send it back to this number urgently." (wrong transfer, send back)
-3. "Your account will be blocked today. Share the 6-digit code you just received and your CNIC to verify." (urgent threat plus asking for a code and CNIC)
-
-If it is not a scam, set isScam to false and scamReason to an empty string.
-If it is a scam, scamReason is one or two short sentences in {reason_lang}. Say why it looks like a scam.
-If it is a fake BISP message, add that real BISP messages come only from 8171.
-If it asks for a PIN or OTP, add that the user should never share a PIN or OTP.
-The input message itself may be in Urdu script, Roman Urdu or English, in either language mode.
-
-Return exactly this JSON object:
-{{"amount": number, "type": "income|expense", "category": string, "paymentType": string, "merchant": string, "date": "YYYY-MM-DD", "isScam": boolean, "scamReason": string}}
-If there is no amount in the message, use 0. If the merchant is unknown, use an empty string.
-
-Message:
+SMS:
 \"\"\"{text}\"\"\"
 """
 
 
+QUICK_EXAMPLES = """Examples (today 2026-11-23):
+"aaj 500 ka khana aur 200 ki chai"
+{"transactions":[{"amount":500,"type":"expense","category":"Food","paymentType":"Cash","merchant":"","date":"2026-11-23","note":"food"},{"amount":200,"type":"expense","category":"Food","paymentType":"Cash","merchant":"","date":"2026-11-23","note":"tea"}]}
+"kal 1200 ka petrol dalwaya"
+{"transactions":[{"amount":1200,"type":"expense","category":"Transport","paymentType":"Cash","merchant":"","date":"2026-11-22","note":"petrol"}]}
+"پانچ سو کا لوڈ کیا ایزی پیسہ سے"
+{"transactions":[{"amount":500,"type":"expense","category":"Mobile","paymentType":"Easypaisa","merchant":"","date":"2026-11-23","note":"mobile load"}]}
+"dedh hazaar ki dawai li kal"
+{"transactions":[{"amount":1500,"type":"expense","category":"Health","paymentType":"Cash","merchant":"","date":"2026-11-22","note":"medicine"}]}
+"bhai ne 5000 diye aaj"
+{"transactions":[{"amount":5000,"type":"income","category":"Income","paymentType":"Cash","merchant":"","date":"2026-11-23","note":"money from brother"}]}"""
+
+
 def quick_entry_prompt(text: str, lang: str, today: str) -> str:
-    return f"""The user typed or spoke a short note about their money in Urdu script, Roman Urdu or English.
-Example: "kal mainy 100 ka petrol barwaya" means one expense of 100, category Transport, dated yesterday.
-Today's date is {today}. Convert relative words into real dates using today:
-aaj = today, kal = yesterday (kal means tomorrow only if the sentence is clearly about the future),
-parson = the day before yesterday (or the day after tomorrow if clearly about the future).
-If no day is mentioned, use today.
-The note may contain more than one transaction. Return one item per transaction.
-If paymentType is not mentioned, use Cash.
+    return f"""The user typed or spoke a short note about their money in Urdu script, Roman Urdu or English. Today is {today}.
+Days: aaj/today = today, kal/yesterday = yesterday, parson = the day before yesterday. No day word = today.
+A day word applies to the amounts after it until the next day word.
+Numbers: dedh=1.5, dhai=2.5, sawa=1.25, sau=100, hazaar=1000, lakh=100000, so "dhai sau"=250, "do hazaar"=2000, "1.5k"=1500.
+Return one item per amount. No payment method named: Cash. Salary or money received: income.
 
 {COMMON_RULES}
 
-Return exactly this JSON object:
-{{"transactions": [{{"amount": number, "type": "income|expense", "category": string, "paymentType": string, "merchant": string, "date": "YYYY-MM-DD", "note": string}}]}}
-note is a very short description in {reply_language(lang)}. Keep merchant names as the user wrote them. If there is no transaction in the text, return {{"transactions": []}}.
+JSON: {{"transactions":[{{"amount":number,"type":"income|expense","category":string,"paymentType":string,"merchant":string,"date":"YYYY-MM-DD","note":string}}]}}
+note: a few words in {reply_language(lang)}. Keep merchant names as written. No transaction: {{"transactions":[]}}.
 
-User note:
+{QUICK_EXAMPLES}
+
+Note:
 \"\"\"{text}\"\"\"
 """

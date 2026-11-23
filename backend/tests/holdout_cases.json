@@ -1,0 +1,467 @@
+[
+  {
+    "id": "h01",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "HBL: Rs 4,500 debited from A/C XXXX2210 at FOODPANDA via Card on 22-Nov-2026. Never share your OTP/PIN with anyone.",
+    "expected": {
+      "isScam": false,
+      "amount": 4500,
+      "type": "expense",
+      "category": "Food",
+      "paymentType": "Bank card",
+      "date": "2026-11-22"
+    }
+  },
+  {
+    "id": "h02",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Easypaisa: Rs 25,000 received from Zainab Malik. Trx ID 7712 on 21/11/2026. Get our app: https://easypaisa.com.pk/app",
+    "expected": {
+      "isScam": false,
+      "amount": 25000,
+      "type": "income",
+      "category": "Income",
+      "paymentType": "Easypaisa",
+      "date": "2026-11-21"
+    }
+  },
+  {
+    "id": "h03",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Meezan: PKR 1,250 charged at KFC GULBERG on 23-Nov-2026 using card ending 8812. Avl Limit PKR 48,750.",
+    "expected": {
+      "isScam": false,
+      "amount": 1250,
+      "type": "expense",
+      "category": "Food",
+      "paymentType": "Bank card",
+      "date": "2026-11-23"
+    }
+  },
+  {
+    "id": "h04",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "JazzCash: You paid Rs 650 to Daraz for order 88421. Fee Rs 10. Trx 99120044",
+    "expected": {
+      "isScam": false,
+      "amount": 650,
+      "type": "expense",
+      "category": "Shopping",
+      "paymentType": "JazzCash",
+      "date": "2026-11-23"
+    }
+  },
+  {
+    "id": "h05",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "UBL: Rs 30,000 withdrawn from ATM Johar Town. Bal Rs 12,480.",
+    "expected": {
+      "isScam": false,
+      "amount": 30000,
+      "type": "expense",
+      "category": "Other",
+      "paymentType": "Bank card",
+      "date": "2026-11-23"
+    }
+  },
+  {
+    "id": "h06",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Aap ne Rs 2,000 Zong package ke liye ada kiye Easypaisa se. TID 66721",
+    "expected": {
+      "isScam": false,
+      "amount": 2000,
+      "type": "expense",
+      "category": "Mobile",
+      "paymentType": "Easypaisa",
+      "date": "2026-11-23"
+    }
+  },
+  {
+    "id": "h07",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Rs 45,000 aap ke Bank Alfalah account mein salary ke tor par jama hue 22-Nov-2026",
+    "expected": {
+      "isScam": false,
+      "amount": 45000,
+      "type": "income",
+      "category": "Income",
+      "paymentType": "Bank card",
+      "date": "2026-11-22"
+    }
+  },
+  {
+    "id": "h08",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "You received Rs 800 from 0311-2223344 on JazzCash. Fee Rs 0. Trx 54112. Total balance Rs 3,900",
+    "expected": {
+      "isScam": false,
+      "amount": 800,
+      "type": "income",
+      "category": "Income",
+      "paymentType": "JazzCash",
+      "date": "2026-11-23"
+    }
+  },
+  {
+    "id": "h09",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "HBL: Rs 6,800 paid to LESCO bill via mobile app on 20-Nov-2026. Ref 1129",
+    "expected": {
+      "isScam": false,
+      "amount": 6800,
+      "type": "expense",
+      "category": "Bills",
+      "paymentType": "Bank card",
+      "date": "2026-11-20"
+    }
+  },
+  {
+    "id": "h10",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Easypaisa: Rs 15,000 sent to Hira Khan (03451230000). TID 9981. Charges Rs 15.",
+    "expected": {
+      "isScam": false,
+      "amount": 15000,
+      "type": "expense",
+      "category": "Other",
+      "paymentType": "Easypaisa",
+      "date": "2026-11-23"
+    }
+  },
+  {
+    "id": "hs01",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "ALERT: Your Easypaisa account has been temporarily limited. Verify at bit.ly/ep-verify-now or lose access.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "hs02",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Aap ka Rs 1,50,000 ka Honda 125 inaam nikla hai Jazz Mega Draw mein. Winner banne ke liye 3000 processing fee bhejein.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "hs03",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Hi, this is Imran. I accidentally transferred Rs 22,000 to your account. Kindly return it to my other number 0300-9876543 asap.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "hs04",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Dear customer, your debit card is expired. Update your PIN and card number at hbl-secure-login.com to avoid blocking.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "hs05",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "NADRA: Your CNIC is blocked. Send your CNIC number and mother name to 0333-5551212 to unblock.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "hs06",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Congratulations! Your number won Rs 25,00,000 in Nestle Promo. WhatsApp 03215554433 to claim.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "hs07",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Daraz: Your order is held at customs. Pay Rs 499 clearance charges via JazzCash 03001239999 to get delivery.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "hs08",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Government job offer in Dubai. Pay Rs 15,000 advance for visa processing to this Easypaisa number to confirm your seat.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "hs09",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Mubarak! BISP 8171 se aap ko Rs 9,000 milenge. Apna CNIC aur PIN is number par SMS karein 03441112233.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "hs10",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Your Meezan account shows a suspicious login. Call 0300-1112233 now and share your OTP to secure it.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "hq01",
+    "kind": "quick",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "aaj subah 250 ka naashta kiya aur 1000 ka petrol",
+    "expected": {
+      "transactions": [
+        {
+          "amount": 250,
+          "type": "expense",
+          "category": "Food",
+          "paymentType": "Cash",
+          "date": "2026-11-23"
+        },
+        {
+          "amount": 1000,
+          "type": "expense",
+          "category": "Transport",
+          "paymentType": "Cash",
+          "date": "2026-11-23"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hq02",
+    "kind": "quick",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "kal sawa sau ki chai pi",
+    "expected": {
+      "transactions": [
+        {
+          "amount": 125,
+          "type": "expense",
+          "category": "Food",
+          "paymentType": "Cash",
+          "date": "2026-11-22"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hq03",
+    "kind": "quick",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "parson Easypaisa se 3 hazaar ka load kia",
+    "expected": {
+      "transactions": [
+        {
+          "amount": 3000,
+          "type": "expense",
+          "category": "Mobile",
+          "paymentType": "Easypaisa",
+          "date": "2026-11-21"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hq04",
+    "kind": "quick",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "aaj 15k rent diya aur 2.5k ka gas bill",
+    "expected": {
+      "transactions": [
+        {
+          "amount": 15000,
+          "type": "expense",
+          "category": "Rent",
+          "paymentType": "Cash",
+          "date": "2026-11-23"
+        },
+        {
+          "amount": 2500,
+          "type": "expense",
+          "category": "Bills",
+          "paymentType": "Cash",
+          "date": "2026-11-23"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hq05",
+    "kind": "quick",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "I spent 4500 on shoes yesterday and 800 on lunch today",
+    "expected": {
+      "transactions": [
+        {
+          "amount": 4500,
+          "type": "expense",
+          "category": "Shopping",
+          "paymentType": "Cash",
+          "date": "2026-11-22"
+        },
+        {
+          "amount": 800,
+          "type": "expense",
+          "category": "Food",
+          "paymentType": "Cash",
+          "date": "2026-11-23"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hq06",
+    "kind": "quick",
+    "lang": "ur",
+    "today": "2026-11-23",
+    "text": "پرسوں 3000 کا پٹرول ڈلوایا",
+    "expected": {
+      "transactions": [
+        {
+          "amount": 3000,
+          "type": "expense",
+          "category": "Transport",
+          "paymentType": "Cash",
+          "date": "2026-11-21"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hq07",
+    "kind": "quick",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "ek lakh salary aaj aayi Bank Alfalah mein",
+    "expected": {
+      "transactions": [
+        {
+          "amount": 100000,
+          "type": "income",
+          "category": "Income",
+          "paymentType": "Bank card",
+          "date": "2026-11-23"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hq08",
+    "kind": "quick",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "aaj 600 ki dawai aur 1.2k ka doctor fees",
+    "expected": {
+      "transactions": [
+        {
+          "amount": 600,
+          "type": "expense",
+          "category": "Health",
+          "paymentType": "Cash",
+          "date": "2026-11-23"
+        },
+        {
+          "amount": 1200,
+          "type": "expense",
+          "category": "Health",
+          "paymentType": "Cash",
+          "date": "2026-11-23"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hq09",
+    "kind": "quick",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "kal bachon ki school fees 8500 jama karwayi",
+    "expected": {
+      "transactions": [
+        {
+          "amount": 8500,
+          "type": "expense",
+          "category": "Education",
+          "paymentType": "Cash",
+          "date": "2026-11-22"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hq10",
+    "kind": "quick",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "do sau ka mobile package aur teen sau ka khana, dono aaj JazzCash se",
+    "expected": {
+      "transactions": [
+        {
+          "amount": 200,
+          "type": "expense",
+          "category": "Mobile",
+          "paymentType": "JazzCash",
+          "date": "2026-11-23"
+        },
+        {
+          "amount": 300,
+          "type": "expense",
+          "category": "Food",
+          "paymentType": "JazzCash",
+          "date": "2026-11-23"
+        }
+      ]
+    }
+  }
+]
