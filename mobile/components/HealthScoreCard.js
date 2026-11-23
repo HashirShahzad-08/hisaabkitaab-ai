@@ -18,7 +18,7 @@ export default function HealthScoreCard({ result, restartKey }) {
         <View style={styles.texts}>
           <AppText variant="caption" color={colors.textSecondary}>{t('health.title')}</AppText>
           <AppText variant="h2" color={scoreColor(score)}>{t(`health.bands.${band}`)}</AppText>
-          <AppText variant="body" color={colors.textSecondary}>{t(tip)}</AppText>
+          <AppText variant="caption" color={colors.textSecondary} numberOfLines={3}>{t(tip)}</AppText>
         </View>
       </View>
     </Card>

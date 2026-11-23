@@ -1,34 +1,19 @@
-// Animated ring, 0 to 100. Fills in 800ms and its color shifts as the number rises:
-// danger -> warning -> green -> gold.
+// Animated ring, 0 to 100. Fills in 800ms. The score sits in the middle with "/100" under it.
+// The color changes in steps as the number rises: red, orange, green, gold.
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { colors, fonts } from '../theme';
+import { getBand } from '../utils/healthScore';
 import useAnimatedNumber from '../utils/useAnimatedNumber';
 
-const STOPS = [
-  { at: 0, color: colors.danger },
-  { at: 40, color: colors.warning },
-  { at: 60, color: colors.primary },
-  { at: 80, color: colors.accent },
-];
-
-const hexToRgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-
+// Exact colors per band (DESIGN.md 8.3). No blending between them.
 export function scoreColor(value) {
-  if (value >= STOPS[3].at) return STOPS[3].color;
-  for (let i = 0; i < STOPS.length - 1; i += 1) {
-    const a = STOPS[i];
-    const b = STOPS[i + 1];
-    if (value >= a.at && value < b.at) {
-      const p = (value - a.at) / (b.at - a.at);
-      const [r1, g1, b1] = hexToRgb(a.color);
-      const [r2, g2, b2] = hexToRgb(b.color);
-      const mix = (x, y) => Math.round(x + (y - x) * p);
-      return `rgb(${mix(r1, r2)}, ${mix(g1, g2)}, ${mix(b1, b2)})`;
-    }
-  }
-  return STOPS[0].color;
+  const band = getBand(Math.round(value));
+  if (band === 'excellent') return colors.accent; // 80+ gold
+  if (band === 'good') return colors.primary; // 60-79 green
+  if (band === 'okay') return colors.warning; // 40-59 orange
+  return colors.danger; // under 40 red
 }
 
 const SIZE = 96;
@@ -59,6 +44,7 @@ export default function HealthRing({ score, restartKey }) {
       </Svg>
       <View style={styles.center} pointerEvents="none">
         <Text style={[styles.number, { color }]}>{Math.round(value)}</Text>
+        <Text style={styles.outOf}>/100</Text>
       </View>
     </View>
   );
@@ -67,5 +53,6 @@ export default function HealthRing({ score, restartKey }) {
 const styles = StyleSheet.create({
   wrap: { width: SIZE, height: SIZE },
   center: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
-  number: { fontFamily: fonts.en.bold, fontSize: 28 },
+  number: { fontFamily: fonts.en.bold, fontSize: 28, lineHeight: 32 },
+  outOf: { fontFamily: fonts.en.regular, fontSize: 11, lineHeight: 14, color: colors.textSecondary },
 });

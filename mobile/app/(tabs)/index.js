@@ -152,7 +152,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  scroll: { paddingBottom: 32 },
+  scroll: { paddingBottom: 64 }, // clears the raised + button above the tab bar
   flex: { flex: 1 },
   cards: { paddingHorizontal: screenPadding, gap: 12 },
   overlap: { marginTop: -24 },
