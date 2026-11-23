@@ -32,16 +32,23 @@ export default function TransactionRow({ item, onDelete }) {
     </Pressable>
   );
 
+  const content = (
+    <View style={[styles.row, isUrdu && styles.rowUrdu]}>
+      <CategoryIcon category={item.category} />
+      <View style={styles.texts}>
+        <AppText variant="bodyMedium" numberOfLines={1}>{title}</AppText>
+        <AppText variant="caption" color={colors.textSecondary}>{caption}</AppText>
+      </View>
+      <AmountText amount={item.amount} type={item.type} />
+    </View>
+  );
+
+  // Without onDelete (for example on Home) the row is plain, with no swipe.
+  if (!onDelete) return content;
+
   return (
     <ReanimatedSwipeable ref={ref} renderRightActions={renderRight} overshootRight={false} friction={2}>
-      <View style={[styles.row, isUrdu && styles.rowUrdu]}>
-        <CategoryIcon category={item.category} />
-        <View style={styles.texts}>
-          <AppText variant="bodyMedium" numberOfLines={1}>{title}</AppText>
-          <AppText variant="caption" color={colors.textSecondary}>{caption}</AppText>
-        </View>
-        <AmountText amount={item.amount} type={item.type} />
-      </View>
+      {content}
     </ReanimatedSwipeable>
   );
 }

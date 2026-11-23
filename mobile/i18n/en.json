@@ -12,7 +12,23 @@
   },
   "home": {
     "title": "Home",
-    "signedInAs": "Signed in as {{name}}"
+    "signedInAs": "Signed in as {{name}}",
+    "greeting": "Assalam-o-Alaikum, {{name}}",
+    "greetingNoName": "Assalam-o-Alaikum",
+    "balanceThisMonth": "Balance this month",
+    "income": "Income",
+    "expense": "Expense",
+    "notifications": "Notifications",
+    "noNotifications": "No new notifications",
+    "listen": "Listen",
+    "spendingByCategory": "Spending by category",
+    "spent": "spent",
+    "noSpending": "No spending recorded this month yet.",
+    "recent": "Recent transactions",
+    "seeAll": "See all",
+    "emptyTitle": "Let's start your hisaab",
+    "emptyText": "Add your first transaction and your dashboard will come alive.",
+    "addFirst": "Add first transaction"
   },
   "history": {
     "title": "History",
@@ -174,5 +190,28 @@
       "November",
       "December"
     ]
+  },
+  "health": {
+    "title": "Health Score",
+    "bands": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "okay": "Okay",
+      "care": "Needs care"
+    },
+    "tips": {
+      "great": "Great job! You are saving well this month.",
+      "lowSavings": "Try to save at least 10% of your income.",
+      "overspending": "A bit more went out than came in this month. Look at your biggest category.",
+      "noIncome": "Add your income so we can work out how much you save.",
+      "overBudget": "One of your budgets is used up. Slow down a little there."
+    }
+  },
+  "insight": {
+    "topCategory": "{{percent}}% of your spending this month went to {{category}}.",
+    "empty": "Add a few expenses and your tips will show up here."
+  },
+  "settings": {
+    "title": "Settings"
   }
 }

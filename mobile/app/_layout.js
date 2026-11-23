@@ -61,6 +61,7 @@ function Routes() {
         <Stack.Screen name="sms-entry" />
         <Stack.Screen name="quick-entry" />
         <Stack.Screen name="afford" />
+        <Stack.Screen name="settings" />
       </Stack.Protected>
       {/* Logged out: login and sign up */}
       <Stack.Protected guard={!user}>
