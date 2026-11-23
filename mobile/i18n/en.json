@@ -1,0 +1,31 @@
+{
+  "app": {
+    "name": "HisaabKitaab AI",
+    "tagline": "Hisaab bhi, hifazat bhi"
+  },
+  "tabs": {
+    "home": "Home",
+    "history": "History",
+    "add": "Add",
+    "bills": "Bills",
+    "goals": "Goals"
+  },
+  "home": {
+    "title": "Home"
+  },
+  "history": {
+    "title": "History"
+  },
+  "add": {
+    "title": "Add"
+  },
+  "bills": {
+    "title": "Bill Analyzer"
+  },
+  "goals": {
+    "title": "Goals and Budgets"
+  },
+  "common": {
+    "comingSoon": "This screen is coming soon."
+  }
+}
