@@ -1,4 +1,4 @@
-// Root layout: loads fonts + saved language, then shows the app inside the Paper theme.
+// Root layout: loads fonts + saved language + login state, then shows Login or the tabs.
 import { useEffect, useMemo, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -20,12 +20,14 @@ import {
 } from '@expo-google-fonts/noto-nastaliq-urdu';
 import { useTranslation } from 'react-i18next';
 
-import i18n, { loadSavedLanguage } from '../i18n';
+import { loadSavedLanguage } from '../i18n';
+import { AuthProvider, useAuth } from '../context/AuthContext';
 import { getPaperTheme } from '../theme';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function Routes() {
+  const { user, loading } = useAuth();
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,
@@ -37,16 +39,12 @@ export default function RootLayout() {
     NotoNastaliqUrdu_700Bold,
   });
   const [langReady, setLangReady] = useState(false);
-  const { i18n: i18nInstance } = useTranslation();
 
   useEffect(() => {
     loadSavedLanguage().finally(() => setLangReady(true));
   }, []);
 
-  const lang = i18nInstance.language === 'ur' ? 'ur' : 'en';
-  const theme = useMemo(() => getPaperTheme(lang), [lang]);
-
-  const ready = fontsLoaded && langReady;
+  const ready = fontsLoaded && langReady && !loading;
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
@@ -54,10 +52,32 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
+    <Stack screenOptions={{ headerShown: false }}>
+      {/* Logged in: the tabs */}
+      <Stack.Protected guard={!!user}>
+        <Stack.Screen name="(tabs)" />
+      </Stack.Protected>
+      {/* Logged out: login and sign up */}
+      <Stack.Protected guard={!user}>
+        <Stack.Screen name="login" />
+        <Stack.Screen name="signup" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  const { i18n } = useTranslation();
+  const lang = i18n.language === 'ur' ? 'ur' : 'en';
+  const theme = useMemo(() => getPaperTheme(lang), [lang]);
+
+  return (
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false }} />
+        <AuthProvider>
+          <StatusBar style="dark" />
+          <Routes />
+        </AuthProvider>
       </PaperProvider>
     </SafeAreaProvider>
   );

@@ -11,7 +11,8 @@
     "goals": "Goals"
   },
   "home": {
-    "title": "Home"
+    "title": "Home",
+    "signedInAs": "Signed in as {{name}}"
   },
   "history": {
     "title": "History"
@@ -27,5 +28,31 @@
   },
   "common": {
     "comingSoon": "This screen is coming soon."
+  },
+  "auth": {
+    "login": "Login",
+    "createAccount": "Create account",
+    "name": "Your name",
+    "email": "Email",
+    "password": "Password",
+    "monthlyIncome": "Monthly income (optional)",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "noAccount": "New here? Create an account",
+    "haveAccount": "Already have an account? Login",
+    "logout": "Log out",
+    "errors": {
+      "nameRequired": "Please enter your name",
+      "emailRequired": "Please enter your email",
+      "invalidEmail": "This email does not look right",
+      "passwordRequired": "Please enter your password",
+      "weakPassword": "Password must be at least 6 characters",
+      "incomeInvalid": "Use numbers only, for example 50000",
+      "emailInUse": "This email is already used. Try logging in",
+      "wrongCredentials": "Email or password is wrong",
+      "noInternet": "No internet. Please check your connection and try again",
+      "tooManyAttempts": "Too many tries. Please wait a few minutes and try again",
+      "generic": "Something went wrong. Please try again"
+    }
   }
 }
