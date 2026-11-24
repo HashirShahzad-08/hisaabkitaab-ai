@@ -49,7 +49,7 @@ export default function SettingsScreen() {
   async function confirmDemo() {
     setDemoBusy(true);
     try {
-      await loadDemoData(user.uid);
+      await loadDemoData(user.uid, current);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setDemoMessage('settings.demoDone');
     } catch (e) {
