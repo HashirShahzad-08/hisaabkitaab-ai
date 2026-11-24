@@ -56,7 +56,74 @@
     "title": "Add"
   },
   "bills": {
-    "title": "Bill Analyzer"
+    "title": "Bill Analyzer",
+    "checkMyBill": "Check my electricity bill",
+    "emptyTitle": "No bills checked yet",
+    "emptyText": "Enter the numbers from your electricity bill. We will check it for overbilling, explain it in simple words and suggest ways to save.",
+    "pastBills": "Checked bills",
+    "unitsCount": "{{count}} units",
+    "unitsPerMonth": "Units per month",
+    "errorLoad": "Could not load your bills. Check your internet and try again.",
+    "errorPermission": "Could not load your bills. Please check the Firestore rules in Firebase.",
+    "retry": "Try again",
+    "saved": "Bill saved",
+    "expenseNote": "Electricity bill {{month}}",
+    "chip": {
+      "looks_ok": "Looks OK",
+      "check": "Check",
+      "likely_overbilled": "Likely overbilled"
+    },
+    "verdict": {
+      "looks_ok": "Your bill looks fine",
+      "check": "Please check this bill",
+      "likely_overbilled": "This bill may be too high"
+    },
+    "verdictLine": {
+      "looks_ok": "Nothing unusual was found.",
+      "check": "A few things need a look.",
+      "likely_overbilled": "The units billed do not match your meter readings."
+    },
+    "form": {
+      "title": "Check my bill",
+      "month": "Bill month",
+      "previous": "Previous reading",
+      "current": "Current reading",
+      "units": "Units billed",
+      "amount": "Total amount",
+      "readingsHelp": "You can find the previous and current readings in the meter reading box on your electricity bill.",
+      "more": "More details (optional)",
+      "lastMonth": "Last month units",
+      "lastYear": "Same month last year units",
+      "company": "Company",
+      "autoFilled": "Filled from your last saved bill",
+      "check": "Check bill",
+      "retry": "Try again",
+      "errors": {
+        "required": "Please fill this in",
+        "number": "Use numbers only, for example 150"
+      }
+    },
+    "result": {
+      "title": "Bill result",
+      "missing": "There is no bill to show. Go back and check a bill.",
+      "back": "Back to Bills",
+      "meterUnits": "Meter units",
+      "billedUnits": "Billed units",
+      "extraUnits": "Extra units",
+      "costPerUnit": "Cost per unit",
+      "found": "What we found",
+      "noIssues": "No problems found.",
+      "tips": "Tips to save",
+      "complaint": "Complaint message",
+      "helpline": "{{company}} helpline: {{number}}",
+      "copy": "Copy",
+      "share": "Share",
+      "copied": "Copied",
+      "addExpense": "Add this bill to my expenses",
+      "save": "Save",
+      "retrySave": "Try saving again",
+      "saveError": "Could not save. Please try again."
+    }
   },
   "goals": {
     "title": "Goals and Budgets"
@@ -265,6 +332,11 @@
     "quick": [
       "Reading your note...",
       "Working out the numbers...",
+      "Just a second..."
+    ],
+    "bill": [
+      "Reading your bill...",
+      "Checking the units...",
       "Just a second..."
     ]
   },

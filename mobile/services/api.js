@@ -16,7 +16,8 @@ export class ApiError extends Error {
   }
 }
 
-async function post(path, text) {
+// fields: what this route needs (for example { text }). lang and today are added to every request.
+async function post(path, fields) {
   if (!BASE_URL) throw new ApiError('api.errors.notConfigured');
 
   // Every call needs the logged-in user's Firebase token. No user: do not call the backend at all.
@@ -37,9 +38,9 @@ async function post(path, text) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({
-        text,
         lang: i18n.language === 'ur' ? 'ur' : 'en',
         today: toDateKey(new Date()),
+        ...fields,
       }),
       signal: controller.signal,
     });
@@ -78,7 +79,13 @@ async function post(path, text) {
 }
 
 // Returns { amount, type, category, paymentType, merchant, date, isScam, scamReason }
-export const parseSms = (text) => post('/parse-sms', text);
+export const parseSms = (text) => post('/parse-sms', { text });
 
 // Returns { transactions: [{ amount, type, category, paymentType, merchant, date, note }] }
-export const quickEntry = (text) => post('/quick-entry', text);
+export const quickEntry = (text) => post('/quick-entry', { text });
+
+// payload: { company, bill_month ("2026-10"), previous_reading, current_reading, units_billed, amount,
+//            last_month_units?, same_month_last_year_units? }
+// Returns { verdict, reading_units, units_billed, extra_units, cost_per_unit, issues: [{code, message}],
+//           explanation, tips: [..], complaint }
+export const analyzeBill = (payload) => post('/analyze-bill', payload);
