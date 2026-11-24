@@ -1,0 +1,19 @@
+# Secrets: never copy these into the image (this also excludes .env.example)
+.env
+.env.*
+*adminsdk*.json
+serviceAccount*.json
+service-account*.json
+*.pem
+*.key
+
+# Not needed to run the server
+.venv
+venv
+__pycache__
+*.pyc
+tests
+.git
+.gitignore
+.dockerignore
+Dockerfile
