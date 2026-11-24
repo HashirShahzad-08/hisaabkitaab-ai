@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse  # noqa: E402
 import pipeline  # noqa: E402
 from ai_client import AIError  # noqa: E402
 from auth import Unauthorized  # noqa: E402
-from models import BillRequest, BillResult, QuickEntryResult, SmsResult, TextRequest  # noqa: E402
+from models import AffordRequest, AffordResult, BillRequest, BillResult, QuickEntryResult, SmsResult, TextRequest  # noqa: E402
 from rate_limit import RateLimited, limit_ai_requests  # noqa: E402
 
 log = logging.getLogger("uvicorn.error")
@@ -67,3 +67,9 @@ def quick_entry(req: TextRequest, uid: str = Depends(limit_ai_requests)):
 def analyze_bill(req: BillRequest, uid: str = Depends(limit_ai_requests)):
     log.info("route=/analyze-bill")  # no bill details in the logs
     return pipeline.analyze_bill(req)
+
+
+@app.post("/afford", response_model=AffordResult)
+def afford(req: AffordRequest, uid: str = Depends(limit_ai_requests)):
+    log.info("route=/afford")  # the item name and the money details are never logged
+    return pipeline.afford(req)

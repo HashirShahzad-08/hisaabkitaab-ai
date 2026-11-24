@@ -89,3 +89,9 @@ export const quickEntry = (text) => post('/quick-entry', { text });
 // Returns { verdict, reading_units, units_billed, extra_units, cost_per_unit, issues: [{code, message}],
 //           explanation, tips: [..], complaint }
 export const analyzeBill = (payload) => post('/analyze-bill', payload);
+
+// payload: { item, price, monthly_income, spent_this_month, days_left_in_month, avg_daily_spend,
+//            upcoming_bills_estimate?, savings_goal_monthly? }
+// Returns { verdict ("yes" | "careful" | "not_now"), price, remaining, safe_to_spend,
+//           needed_until_month_end, weeks_to_save, weekly_saving, explanation, suggestion }
+export const askAfford = (payload) => post('/afford', payload);

@@ -104,3 +104,38 @@ class BillResult(BaseModel):
     explanation: str
     tips: List[str]
     complaint: str = ""
+
+
+# ---------- Can I afford it? ----------
+AffordVerdict = Literal["yes", "careful", "not_now"]
+
+
+class AffordRequest(BaseModel):
+    lang: Lang = "en"
+    item: str = Field(..., min_length=1, max_length=80)  # what the user wants to buy
+    price: float = Field(..., gt=0, le=100_000_000)
+    today: str = Field(..., pattern=DATE_PATTERN)
+    monthly_income: float = Field(..., gt=0, le=100_000_000)
+    spent_this_month: float = Field(..., ge=0, le=100_000_000)
+    days_left_in_month: int = Field(..., ge=0, le=31)
+    avg_daily_spend: float = Field(..., ge=0, le=10_000_000)  # last 30 days
+    upcoming_bills_estimate: Optional[float] = Field(None, ge=0, le=100_000_000)
+    savings_goal_monthly: Optional[float] = Field(None, ge=0, le=100_000_000)
+
+
+class AffordAiText(BaseModel):
+    """What we ask the AI for. Words only, never numbers."""
+    explanation: str
+    suggestion: str
+
+
+class AffordResult(BaseModel):
+    verdict: AffordVerdict
+    price: float
+    remaining: float
+    safe_to_spend: float
+    needed_until_month_end: float
+    weeks_to_save: int
+    weekly_saving: float
+    explanation: str
+    suggestion: str

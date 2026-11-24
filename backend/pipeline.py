@@ -17,12 +17,13 @@ import re
 from datetime import date, timedelta
 from typing import List, Optional
 
+import afford_rules
 import bill_rules
 import config
 import rules
 from ai_client import AIError, ask_ai
-from models import BillAiText, BillIssue, BillRequest, BillResult, QuickEntryResult, SmsResult, Transaction
-from prompts import bill_prompt, quick_entry_prompt, sms_prompt
+from models import AffordAiText, AffordRequest, AffordResult, BillAiText, BillIssue, BillRequest, BillResult, QuickEntryResult, SmsResult, Transaction
+from prompts import afford_prompt, bill_prompt, quick_entry_prompt, sms_prompt
 
 log = logging.getLogger("uvicorn.error")
 
@@ -375,4 +376,51 @@ def analyze_bill(req: BillRequest) -> BillResult:
         extra_units=result["extra_units"], cost_per_unit=result["cost_per_unit"],
         issues=[BillIssue(**i) for i in result["issues"]],
         explanation=explanation, tips=tips, complaint=complaint,
+    )
+
+
+# ======================================================================= /afford
+def afford(req: AffordRequest) -> AffordResult:
+    """Rules first (every number and the verdict), then one AI call for the words. Template if the AI fails."""
+    result = afford_rules.analyze(
+        price=req.price, monthly_income=req.monthly_income, spent_this_month=req.spent_this_month,
+        days_left_in_month=req.days_left_in_month, avg_daily_spend=req.avg_daily_spend,
+        upcoming_bills_estimate=req.upcoming_bills_estimate, savings_goal_monthly=req.savings_goal_monthly,
+    )
+    item = req.item.strip()
+    facts = {
+        "verdict": result["verdict"], "item": item, "price": result["price"], "remaining": result["remaining"],
+        "safe_to_spend": result["safe_to_spend"], "needed_until_month_end": result["needed_until_month_end"],
+        "weeks_to_save": result["weeks_to_save"], "weekly_saving": result["weekly_saving"],
+    }
+
+    explanation = suggestion = ""
+    used_ai = False
+    try:
+        ai = ask_ai(afford_prompt(facts, req.lang), AffordAiText)
+        # The AI may only write words around OUR numbers (and any digits that are part of the item name).
+        allowed = [float(v) for v in (
+            result["price"], result["remaining"], abs(result["safe_to_spend"]), result["needed_until_month_end"],
+            result["weeks_to_save"], result["weekly_saving"], req.monthly_income, req.spent_this_month,
+            req.days_left_in_month, req.avg_daily_spend, req.upcoming_bills_estimate, 10, 30,
+        ) if v is not None] + _numbers_in(item)
+        if ai.explanation.strip() and _only_allowed_numbers(ai.explanation, allowed):
+            explanation = ai.explanation.strip()
+        if ai.suggestion.strip() and _only_allowed_numbers(ai.suggestion, allowed):
+            suggestion = ai.suggestion.strip()
+        used_ai = True
+    except AIError:
+        log.warning("afford: AI unavailable, using the template texts")
+
+    if not explanation:
+        explanation = afford_rules.fallback_explanation(result, item, req.lang)
+    if not suggestion:
+        suggestion = afford_rules.fallback_suggestion(result, req.lang)
+
+    log.info("route=/afford verdict=%s ai=%s", result["verdict"], used_ai)
+    return AffordResult(
+        verdict=result["verdict"], price=result["price"], remaining=result["remaining"],
+        safe_to_spend=result["safe_to_spend"], needed_until_month_end=result["needed_until_month_end"],
+        weeks_to_save=result["weeks_to_save"], weekly_saving=result["weekly_saving"],
+        explanation=explanation, suggestion=suggestion,
     )

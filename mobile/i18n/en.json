@@ -215,7 +215,37 @@
     }
   },
   "afford": {
-    "title": "Can I afford it?"
+    "title": "Can I afford it?",
+    "itemLabel": "What do you want to buy?",
+    "itemHint": "Tap the keyboard mic to speak",
+    "priceLabel": "Price",
+    "check": "Check",
+    "retry": "Try again",
+    "another": "Check another item",
+    "errors": {
+      "item": "Please type what you want to buy",
+      "price": "Please enter a price, numbers only"
+    },
+    "noIncomeTitle": "Add your income first",
+    "noIncomeText": "To see if you can afford something, we need to know how much money came in this month. Add your income, then come back.",
+    "addIncome": "Add income",
+    "errorLoad": "Could not load your data. Check your internet and try again.",
+    "errorPermission": "Could not load your data. Please check the Firestore rules in Firebase.",
+    "verdict": {
+      "yes": "Yes, you can",
+      "careful": "Yes, but carefully",
+      "not_now": "Not right now"
+    },
+    "moneyLeft": "Money left this month",
+    "safeToSpend": "Safe to spend",
+    "price": "Price",
+    "saveWeekly": "Save {{amount}} per week for {{weeks}} weeks",
+    "healthTitle": "Health Score",
+    "healthNow": "Now",
+    "healthAfter": "After buying",
+    "healthSame": "Your Health Score would stay the same.",
+    "healthDown": "Your Health Score would go down by {{points}} points.",
+    "healthUp": "Your Health Score would go up by {{points}} points."
   },
   "addTx": {
     "title": "Add transaction",
@@ -337,6 +367,11 @@
     "bill": [
       "Reading your bill...",
       "Checking the units...",
+      "Just a second..."
+    ],
+    "afford": [
+      "Looking at your month...",
+      "Working out what is safe...",
       "Just a second..."
     ]
   },

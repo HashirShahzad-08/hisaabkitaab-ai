@@ -1,0 +1,50 @@
+[
+  {
+    "id": "a1",
+    "name": "plenty of room: yes",
+    "input": {"price": 3000, "monthly_income": 50000, "spent_this_month": 20000, "days_left_in_month": 10, "avg_daily_spend": 800},
+    "expected": {"verdict": "yes", "remaining": 30000, "needed_until_month_end": 8000, "safe_to_spend": 17000, "weeks_to_save": 0, "weekly_saving": 1163, "after_salary": false}
+  },
+  {
+    "id": "a2",
+    "name": "only the safety buffer would be used: careful (with an upcoming bill)",
+    "input": {"price": 3000, "monthly_income": 50000, "spent_this_month": 35000, "days_left_in_month": 10, "avg_daily_spend": 800, "upcoming_bills_estimate": 2000},
+    "expected": {"verdict": "careful", "remaining": 15000, "needed_until_month_end": 10000, "safe_to_spend": 0, "weeks_to_save": 0, "weekly_saving": 1163, "after_salary": false}
+  },
+  {
+    "id": "a3",
+    "name": "cannot afford, but cheap enough to wait for the next salary",
+    "input": {"price": 5000, "monthly_income": 40000, "spent_this_month": 36000, "days_left_in_month": 15, "avg_daily_spend": 700},
+    "expected": {"verdict": "not_now", "remaining": 4000, "needed_until_month_end": 10500, "safe_to_spend": -10500, "weeks_to_save": 6, "weekly_saving": 930, "after_salary": true}
+  },
+  {
+    "id": "a4",
+    "name": "big purchase: not now, many weeks, not an after-salary item",
+    "input": {"price": 50000, "monthly_income": 30000, "spent_this_month": 10000, "days_left_in_month": 20, "avg_daily_spend": 500},
+    "expected": {"verdict": "not_now", "remaining": 20000, "needed_until_month_end": 10000, "safe_to_spend": 7000, "weeks_to_save": 72, "weekly_saving": 698, "after_salary": false}
+  },
+  {
+    "id": "a5",
+    "name": "boundary: price exactly equals safe_to_spend is still yes",
+    "input": {"price": 17000, "monthly_income": 50000, "spent_this_month": 20000, "days_left_in_month": 10, "avg_daily_spend": 800},
+    "expected": {"verdict": "yes", "remaining": 30000, "needed_until_month_end": 8000, "safe_to_spend": 17000, "weeks_to_save": 0, "weekly_saving": 1163, "after_salary": false}
+  },
+  {
+    "id": "a6",
+    "name": "boundary: price exactly equals remaining minus needed is careful",
+    "input": {"price": 22000, "monthly_income": 50000, "spent_this_month": 20000, "days_left_in_month": 10, "avg_daily_spend": 800},
+    "expected": {"verdict": "careful", "remaining": 30000, "needed_until_month_end": 8000, "safe_to_spend": 17000, "weeks_to_save": 0, "weekly_saving": 1163, "after_salary": false}
+  },
+  {
+    "id": "a7",
+    "name": "boundary: one rupee more than that is not_now",
+    "input": {"price": 22001, "monthly_income": 50000, "spent_this_month": 20000, "days_left_in_month": 10, "avg_daily_spend": 800},
+    "expected": {"verdict": "not_now", "remaining": 30000, "needed_until_month_end": 8000, "safe_to_spend": 17000, "weeks_to_save": 19, "weekly_saving": 1163, "after_salary": false}
+  },
+  {
+    "id": "a8",
+    "name": "low income: weekly saving never goes below Rs 500",
+    "input": {"price": 2000, "monthly_income": 8000, "spent_this_month": 7000, "days_left_in_month": 10, "avg_daily_spend": 200},
+    "expected": {"verdict": "not_now", "remaining": 1000, "needed_until_month_end": 2000, "safe_to_spend": -1800, "weeks_to_save": 4, "weekly_saving": 500, "after_salary": true}
+  }
+]
