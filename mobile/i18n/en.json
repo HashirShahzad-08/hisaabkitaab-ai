@@ -408,7 +408,14 @@
     "restartTitle": "Change language?",
     "restartText": "The app will restart to change language.",
     "restart": "Restart",
-    "restartManually": "Please close the app and open it again to finish changing the language."
+    "restartManually": "Please close the app and open it again to finish changing the language.",
+    "demoLoad": "Load demo data",
+    "demoTitle": "Load demo data?",
+    "demoText": "This will replace your data with a sample month for demo.",
+    "demoConfirm": "Load",
+    "demoLoading": "Loading...",
+    "demoDone": "Demo data is ready. Open Home to see it.",
+    "demoError": "Could not load the demo data. Please check your internet and try again."
   },
   "api": {
     "errors": {

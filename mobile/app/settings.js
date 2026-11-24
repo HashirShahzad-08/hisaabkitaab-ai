@@ -16,6 +16,7 @@ import { useSettings } from '../context/SettingsContext';
 import { db } from '../firebase';
 import { changeLanguageAndRestart } from '../i18n';
 import { logout } from '../services/authService';
+import { loadDemoData } from '../services/demoService';
 import { colors, fonts, radius, screenPadding, sizes } from '../theme';
 
 const LANGUAGES = [
@@ -41,6 +42,22 @@ export default function SettingsScreen() {
   const [pending, setPending] = useState(null); // the language the user tapped, waiting for "Restart"
   const [restarting, setRestarting] = useState(false);
   const [manualRestart, setManualRestart] = useState(false);
+  const [demoAsk, setDemoAsk] = useState(false);
+  const [demoBusy, setDemoBusy] = useState(false);
+  const [demoMessage, setDemoMessage] = useState(''); // an i18n key, shown under About
+
+  async function confirmDemo() {
+    setDemoBusy(true);
+    try {
+      await loadDemoData(user.uid);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setDemoMessage('settings.demoDone');
+    } catch (e) {
+      setDemoMessage('settings.demoError');
+    }
+    setDemoBusy(false);
+    setDemoAsk(false);
+  }
 
   async function confirmRestart() {
     const language = pending;
@@ -136,6 +153,19 @@ export default function SettingsScreen() {
             <AppText variant="bodyMedium" style={styles.flex}>{t('settings.scamHelp')}</AppText>
           </Pressable>
         </View>
+        <Pressable
+          onPress={() => { setDemoMessage(''); setDemoAsk(true); }}
+          style={styles.demoLink}
+          accessibilityRole="button"
+        >
+          <Ionicons name="flask-outline" size={16} color={colors.textSecondary} />
+          <AppText variant="caption" color={colors.textSecondary}>{t('settings.demoLoad')}</AppText>
+        </Pressable>
+        {demoMessage ? (
+          <View style={styles.notice}>
+            <AppText variant="body" color={colors.text}>{t(demoMessage)}</AppText>
+          </View>
+        ) : null}
       </ScrollView>
 
       <Portal>
@@ -145,6 +175,14 @@ export default function SettingsScreen() {
           <Dialog.Actions>
             <Button onPress={() => setPending(null)} textColor={colors.textSecondary} disabled={restarting}>{t('common.cancel')}</Button>
             <Button onPress={confirmRestart} textColor={colors.primary} loading={restarting} disabled={restarting}>{t('settings.restart')}</Button>
+          </Dialog.Actions>
+        </Dialog>
+        <Dialog visible={demoAsk} onDismiss={() => !demoBusy && setDemoAsk(false)} style={styles.dialog}>
+          <Dialog.Title><AppText variant="h2">{t('settings.demoTitle')}</AppText></Dialog.Title>
+          <Dialog.Content><AppText variant="body">{t('settings.demoText')}</AppText></Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDemoAsk(false)} textColor={colors.textSecondary} disabled={demoBusy}>{t('common.cancel')}</Button>
+            <Button onPress={confirmDemo} textColor={colors.primary} loading={demoBusy} disabled={demoBusy}>{t('settings.demoConfirm')}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -179,5 +217,6 @@ const styles = StyleSheet.create({
   logout: { borderRadius: radius.button, borderColor: colors.danger },
   aboutRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: sizes.touch },
   version: { fontFamily: fonts.en.medium, fontSize: 15, color: colors.text },
+  demoLink: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: sizes.touch },
   dialog: { backgroundColor: colors.surface, borderRadius: radius.card },
 });
