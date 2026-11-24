@@ -17,11 +17,12 @@ import re
 from datetime import date, timedelta
 from typing import List, Optional
 
+import bill_rules
 import config
 import rules
 from ai_client import AIError, ask_ai
-from models import QuickEntryResult, SmsResult, Transaction
-from prompts import quick_entry_prompt, sms_prompt
+from models import BillAiText, BillIssue, BillRequest, BillResult, QuickEntryResult, SmsResult, Transaction
+from prompts import bill_prompt, quick_entry_prompt, sms_prompt
 
 log = logging.getLogger("uvicorn.error")
 
@@ -270,3 +271,108 @@ def quick_entry(text: str, lang: str, today: str) -> QuickEntryResult:
             )
         )
     return QuickEntryResult(transactions=final)
+
+
+# ======================================================================= /analyze-bill
+_NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?")
+
+
+def _numbers_in(text: str) -> List[float]:
+    out = []
+    for m in _NUMBER.findall(text or ""):
+        try:
+            out.append(float(m.replace(",", "")))
+        except ValueError:
+            pass
+    return out
+
+
+def _allowed_numbers(req: BillRequest, rules_result: dict) -> List[float]:
+    """Every number the AI may mention: the ones from the rules, the request, and the 40/180/200 limits."""
+    year, month = req.bill_month.split("-")
+    values = [
+        req.previous_reading, req.current_reading, req.units_billed, req.amount,
+        req.last_month_units, req.same_month_last_year_units,
+        rules_result["reading_units"], rules_result["units_billed"], abs(rules_result["extra_units"]),
+        rules_result["cost_per_unit"], round(rules_result["cost_per_unit"]),
+        int(year), int(month), 40, 180, 200,
+    ]
+    values += list(rules_result["facts"].values())
+    return [float(v) for v in values if v is not None]
+
+
+def _only_allowed_numbers(text: str, allowed: List[float]) -> bool:
+    return all(any(abs(n - a) < 0.06 for a in allowed) for n in _numbers_in(text))
+
+
+def _issue_facts(req: BillRequest, rules_result: dict) -> list:
+    """The issues, with their numbers, as the AI sees them."""
+    out = []
+    for issue in rules_result["issues"]:
+        code = issue["code"]
+        if code == "units_mismatch":
+            out.append({"code": code, "reading_units": rules_result["reading_units"],
+                        "extra_units": rules_result["extra_units"]})
+        elif code == "sudden_jump":
+            out.append({"code": code, "percent": rules_result["facts"]["sudden_jump_percent"],
+                        "last_month_units": req.last_month_units})
+        elif code == "higher_than_last_year":
+            out.append({"code": code, "percent": rules_result["facts"]["higher_than_last_year_percent"],
+                        "same_month_last_year_units": req.same_month_last_year_units})
+        elif code == "reading_error":
+            out.append({"code": code, "previous_reading": req.previous_reading, "current_reading": req.current_reading})
+        else:
+            out.append({"code": code})
+    return out
+
+
+def analyze_bill(req: BillRequest) -> BillResult:
+    """Rules first (all the numbers), then one AI call for the words. If the AI fails, templates fill in."""
+    result = bill_rules.analyze(
+        previous_reading=req.previous_reading, current_reading=req.current_reading,
+        units_billed=req.units_billed, amount=req.amount, last_month_units=req.last_month_units,
+        same_month_last_year_units=req.same_month_last_year_units, lang=req.lang,
+    )
+    req_dict = req.model_dump()
+    facts = {
+        "verdict": result["verdict"], "company": (req.company or "").strip(), "bill_month": req.bill_month,
+        "previous_reading": req.previous_reading, "current_reading": req.current_reading,
+        "units_billed": req.units_billed, "extra_units": result["extra_units"],
+        "cost_per_unit": result["cost_per_unit"], "amount": req.amount, "issues": _issue_facts(req, result),
+    }
+
+    explanation = complaint = ""
+    tips: List[str] = []
+    used_ai = False
+    try:
+        ai = ask_ai(bill_prompt(facts, req.lang), BillAiText)
+        allowed = _allowed_numbers(req, result)
+        # The AI may only write words around OUR numbers. Any other number means we do not trust its text.
+        if ai.explanation.strip() and _only_allowed_numbers(ai.explanation, allowed):
+            explanation = ai.explanation.strip()
+        if (result["verdict"] == "likely_overbilled" and ai.complaint.strip()
+                and _only_allowed_numbers(ai.complaint, allowed)):
+            complaint = ai.complaint.strip()
+        tips = [t.strip() for t in ai.tips if t and t.strip()][:3]
+        used_ai = True
+    except AIError:
+        log.warning("analyze-bill: AI unavailable, using the template texts")
+
+    if not explanation:
+        explanation = bill_rules.fallback_explanation(result, req.amount, req.lang)
+    if result["verdict"] != "likely_overbilled":
+        complaint = ""
+    elif not complaint:
+        complaint = bill_rules.fallback_complaint(result, req_dict, req.lang)
+    for tip in bill_rules.fallback_tips(req.lang):  # top up to 3 tips
+        if len(tips) >= 3:
+            break
+        tips.append(tip)
+
+    log.info("route=/analyze-bill verdict=%s ai=%s", result["verdict"], used_ai)
+    return BillResult(
+        verdict=result["verdict"], reading_units=result["reading_units"], units_billed=result["units_billed"],
+        extra_units=result["extra_units"], cost_per_unit=result["cost_per_unit"],
+        issues=[BillIssue(**i) for i in result["issues"]],
+        explanation=explanation, tips=tips, complaint=complaint,
+    )

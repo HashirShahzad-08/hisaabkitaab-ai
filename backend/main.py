@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse  # noqa: E402
 import pipeline  # noqa: E402
 from ai_client import AIError  # noqa: E402
 from auth import Unauthorized  # noqa: E402
-from models import QuickEntryResult, SmsResult, TextRequest  # noqa: E402
+from models import BillRequest, BillResult, QuickEntryResult, SmsResult, TextRequest  # noqa: E402
 from rate_limit import RateLimited, limit_ai_requests  # noqa: E402
 
 log = logging.getLogger("uvicorn.error")
@@ -61,3 +61,9 @@ def parse_sms(req: TextRequest, uid: str = Depends(limit_ai_requests)):
 def quick_entry(req: TextRequest, uid: str = Depends(limit_ai_requests)):
     log.info("route=/quick-entry text_length=%d", len(req.text))
     return pipeline.quick_entry(req.text, req.lang, req.today)
+
+
+@app.post("/analyze-bill", response_model=BillResult)
+def analyze_bill(req: BillRequest, uid: str = Depends(limit_ai_requests)):
+    log.info("route=/analyze-bill")  # no bill details in the logs
+    return pipeline.analyze_bill(req)

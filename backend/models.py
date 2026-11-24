@@ -64,3 +64,43 @@ class Transaction(BaseModel):
 
 class QuickEntryResult(BaseModel):
     transactions: List[Transaction]
+
+
+# ---------- Bill Analyzer ----------
+BillVerdict = Literal["looks_ok", "check", "likely_overbilled"]
+
+
+class BillRequest(BaseModel):
+    lang: Lang = "en"
+    company: Optional[str] = Field(None, max_length=60)  # for example "IESCO"
+    bill_month: str = Field(..., pattern=r"^\d{4}-(0[1-9]|1[0-2])$", examples=["2026-10"])
+    previous_reading: float = Field(..., ge=0, le=100_000_000)
+    current_reading: float = Field(..., ge=0, le=100_000_000)
+    units_billed: float = Field(..., ge=0, le=1_000_000)
+    amount: float = Field(..., ge=0, le=100_000_000)  # total payable, in Rs
+    last_month_units: Optional[float] = Field(None, ge=0, le=1_000_000)
+    same_month_last_year_units: Optional[float] = Field(None, ge=0, le=1_000_000)
+
+
+class BillIssue(BaseModel):
+    code: str
+    message: str
+
+
+class BillAiText(BaseModel):
+    """What we ask the AI for. The AI writes words only, never numbers."""
+    explanation: str
+    tips: List[str]
+    complaint: str = ""
+
+
+class BillResult(BaseModel):
+    verdict: BillVerdict
+    reading_units: float
+    units_billed: float
+    extra_units: float
+    cost_per_unit: float
+    issues: List[BillIssue]
+    explanation: str
+    tips: List[str]
+    complaint: str = ""

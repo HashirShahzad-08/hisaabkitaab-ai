@@ -1,0 +1,50 @@
+[
+  {
+    "id": "b1",
+    "name": "normal bill, everything matches",
+    "input": {"previous_reading": 1000, "current_reading": 1150, "units_billed": 150, "amount": 3300},
+    "expected": {"verdict": "looks_ok", "reading_units": 150, "extra_units": 0, "cost_per_unit": 22.0, "issue_codes": []}
+  },
+  {
+    "id": "b2",
+    "name": "billed 40 units more than the meter shows (and near 200)",
+    "input": {"previous_reading": 2000, "current_reading": 2150, "units_billed": 190, "amount": 6000},
+    "expected": {"verdict": "likely_overbilled", "reading_units": 150, "extra_units": 40, "cost_per_unit": 31.6, "issue_codes": ["near_200", "units_mismatch"]}
+  },
+  {
+    "id": "b3",
+    "name": "current reading is lower than the previous reading",
+    "input": {"previous_reading": 5000, "current_reading": 4900, "units_billed": 120, "amount": 3000},
+    "expected": {"verdict": "likely_overbilled", "reading_units": -100, "extra_units": 0, "cost_per_unit": 25.0, "issue_codes": ["reading_error"]}
+  },
+  {
+    "id": "b4",
+    "name": "sudden jump of 87 percent over last month, above 200 units",
+    "input": {"previous_reading": 100, "current_reading": 380, "units_billed": 280, "amount": 12000, "last_month_units": 150},
+    "expected": {"verdict": "check", "reading_units": 280, "extra_units": 0, "cost_per_unit": 42.9, "issue_codes": ["above_200", "sudden_jump"]}
+  },
+  {
+    "id": "b5",
+    "name": "60 percent higher than the same month last year only",
+    "input": {"previous_reading": 300, "current_reading": 460, "units_billed": 160, "amount": 3600, "last_month_units": 150, "same_month_last_year_units": 100},
+    "expected": {"verdict": "check", "reading_units": 160, "extra_units": 0, "cost_per_unit": 22.5, "issue_codes": ["higher_than_last_year"]}
+  },
+  {
+    "id": "b6",
+    "name": "exactly 200 units is still the near_200 warning",
+    "input": {"previous_reading": 0, "current_reading": 200, "units_billed": 200, "amount": 6400},
+    "expected": {"verdict": "check", "reading_units": 200, "extra_units": 0, "cost_per_unit": 32.0, "issue_codes": ["near_200"]}
+  },
+  {
+    "id": "b7",
+    "name": "201 units is only a note (above_200), the verdict stays looks_ok",
+    "input": {"previous_reading": 0, "current_reading": 201, "units_billed": 201, "amount": 7000},
+    "expected": {"verdict": "looks_ok", "reading_units": 201, "extra_units": 0, "cost_per_unit": 34.8, "issue_codes": ["above_200"]}
+  },
+  {
+    "id": "b8",
+    "name": "boundaries: 5 extra units is allowed and exactly 40 percent is not a jump",
+    "input": {"previous_reading": 500, "current_reading": 600, "units_billed": 105, "amount": 2100, "last_month_units": 75},
+    "expected": {"verdict": "looks_ok", "reading_units": 100, "extra_units": 5, "cost_per_unit": 20.0, "issue_codes": []}
+  }
+]
