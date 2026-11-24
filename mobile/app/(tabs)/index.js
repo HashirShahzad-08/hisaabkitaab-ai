@@ -10,14 +10,17 @@ import AppText from '../../components/AppText';
 import FadeInCard from '../../components/FadeInCard';
 import HealthScoreCard from '../../components/HealthScoreCard';
 import HomeHeader from '../../components/HomeHeader';
+import BudgetWarning from '../../components/BudgetWarning';
 import InsightCard from '../../components/InsightCard';
 import SpendingCard from '../../components/SpendingCard';
 import TransactionRow from '../../components/TransactionRow';
 import { categoryKey } from '../../constants/categories';
 import { useAuth } from '../../context/AuthContext';
+import { useBudgets } from '../../hooks/useBudgetsAndGoals';
 import useProfile from '../../hooks/useProfile';
 import useTransactions from '../../hooks/useTransactions';
 import { colors, fonts, radius, screenPadding, sizes } from '../../theme';
+import { budgetProgress, budgetsForScore, worstBudget } from '../../utils/budgets';
 import { calculateHealthScore } from '../../utils/healthScore';
 import { getMonthStats } from '../../utils/stats';
 
@@ -34,6 +37,7 @@ export default function HomeScreen() {
 
   const { items, loading } = useTransactions(user?.uid, reloadKey);
   const profile = useProfile(user?.uid, reloadKey);
+  const budgetData = useBudgets(user?.uid, reloadKey);
 
   // Play the opening animations again each time the user comes back to Home (not on first load).
   const firstFocus = useRef(true);
@@ -48,12 +52,13 @@ export default function HomeScreen() {
   );
 
   const stats = useMemo(() => getMonthStats(items), [items]);
+  const progress = useMemo(() => budgetProgress(budgetData.items, stats), [budgetData.items, stats]);
 
   // Health Score. Income = this month's income transactions; if none yet, the monthly income from the profile.
   const health = useMemo(() => {
     const income = stats.income > 0 ? stats.income : Number(profile?.monthlyIncome) || 0;
-    return calculateHealthScore({ income, expense: stats.expense, budgets: [] }); // budgets come later
-  }, [stats, profile]);
+    return calculateHealthScore({ income, expense: stats.expense, budgets: budgetsForScore(progress) });
+  }, [stats, profile, progress]);
 
   // Rule-based insight for now: the biggest spending category this month.
   const insightText = useMemo(() => {
@@ -122,7 +127,10 @@ export default function HomeScreen() {
                 <HealthScoreCard result={health} restartKey={playKey} />
               </FadeInCard>
               <FadeInCard key={`i${playKey}`} index={2}>
-                <InsightCard text={insightText} />
+                <View style={styles.insightStack}>
+                  <InsightCard text={insightText} />
+                  <BudgetWarning budget={worstBudget(progress)} />
+                </View>
               </FadeInCard>
               <FadeInCard key={`p${playKey}`} index={3}>
                 <SpendingCard stats={stats} />
@@ -156,6 +164,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   cards: { paddingHorizontal: screenPadding, gap: 12 },
   overlap: { marginTop: -24 },
+  insightStack: { gap: 8 },
   loader: { marginTop: 48 },
   emptyCard: { marginTop: 24, backgroundColor: colors.surface, borderRadius: radius.card, padding: 24, alignItems: 'center' },
   emptyCircle: {

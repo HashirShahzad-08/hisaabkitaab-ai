@@ -72,6 +72,8 @@ function Routes() {
         <Stack.Screen name="settings" />
         <Stack.Screen name="bill-form" />
         <Stack.Screen name="bill-result" />
+        <Stack.Screen name="budget-form" />
+        <Stack.Screen name="goal-form" />
       </Stack.Protected>
       {/* Logged out: login and sign up */}
       <Stack.Protected guard={!user}>
