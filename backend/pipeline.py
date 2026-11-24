@@ -17,6 +17,7 @@ import re
 from datetime import date, timedelta
 from typing import List, Optional
 
+import config
 import rules
 from ai_client import AIError, ask_ai
 from models import QuickEntryResult, SmsResult, Transaction
@@ -142,7 +143,7 @@ def parse_sms(text: str, lang: str, today: str) -> SmsResult:
         merchant=ai.merchant or "", date=final_date.isoformat(),
         isScam=is_scam, scamReason=reason, confidence=_confidence(disagreements, amount_ok),
     )
-    if notes:
+    if notes and not config.PRODUCTION:  # the notes contain amounts taken from the message
         log.info("parse-sms corrections (%s): %s", result.confidence, " | ".join(notes))
     return result
 
@@ -259,7 +260,7 @@ def quick_entry(text: str, lang: str, today: str) -> QuickEntryResult:
         confidence = _confidence(disagreements, amount_ok)
         if item.confidence == "low":
             confidence = "low"
-        if notes:
+        if notes and not config.PRODUCTION:
             log.info("quick-entry item %d corrections (%s): %s", i + 1, confidence, " | ".join(notes))
         final.append(
             Transaction(

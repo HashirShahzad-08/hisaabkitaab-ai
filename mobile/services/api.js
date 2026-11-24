@@ -1,5 +1,6 @@
 // Talks to the HisaabKitaab backend (FastAPI). The address comes from .env: EXPO_PUBLIC_API_URL
 // Every request sends the app language (lang) and today's date (today).
+import { auth } from '../firebase';
 import i18n from '../i18n';
 import { toDateKey } from '../utils/format';
 
@@ -18,13 +19,23 @@ export class ApiError extends Error {
 async function post(path, text) {
   if (!BASE_URL) throw new ApiError('api.errors.notConfigured');
 
+  // Every call needs the logged-in user's Firebase token. No user: do not call the backend at all.
+  const user = auth.currentUser;
+  if (!user) throw new ApiError('errors.session_expired');
+  let token;
+  try {
+    token = await user.getIdToken(); // refreshes by itself when it is about to expire
+  } catch (e) {
+    throw new ApiError('errors.session_expired', String(e));
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   let response;
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({
         text,
         lang: i18n.language === 'ur' ? 'ur' : 'en',
@@ -52,7 +63,9 @@ async function post(path, text) {
     // Log the real reason in the Expo terminal so it is easy to debug.
     console.log(`[api] ${path} failed: HTTP ${response.status}`, JSON.stringify(data));
     let key = 'api.errors.ai';
-    if (response.status === 422) key = 'api.errors.badInput';
+    if (response.status === 401) key = 'errors.session_expired';
+    else if (response.status === 429) key = 'errors.too_many';
+    else if (response.status === 422) key = 'api.errors.badInput';
     else if (data?.code === 'ai_permission' || data?.code === 'ai_key') key = 'api.errors.aiSetup';
     else if (data?.code === 'ai_quota') key = 'api.errors.aiBusy';
     throw new ApiError(key, data?.error);

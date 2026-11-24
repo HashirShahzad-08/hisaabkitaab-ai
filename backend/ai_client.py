@@ -20,6 +20,8 @@ from typing import List, Optional, Type, TypeVar
 
 import openai
 from dotenv import load_dotenv
+
+import config
 from openai import OpenAI
 from pydantic import BaseModel, ValidationError
 
@@ -27,6 +29,14 @@ load_dotenv()
 
 # Shows in the same terminal as uvicorn
 log = logging.getLogger("uvicorn.error")
+
+
+def _safe(error: Exception) -> str:
+    """Error text for the logs. In production only the kind of error and its HTTP status,
+    because provider messages can contain account details and our own replies can contain user text."""
+    if config.PRODUCTION:
+        return f"{type(error).__name__} status={getattr(error, 'status_code', None)}"
+    return repr(error)
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -102,6 +112,9 @@ def get_providers() -> List[Provider]:
         )
 
     zai_key = (os.getenv("ZAI_API_KEY") or "").strip()
+    if zai_key and not config.looks_like_real_key(zai_key):
+        log.warning("ZAI_API_KEY looks like placeholder text, so the Z.ai backup is switched off.")
+        zai_key = ""
     if zai_key:
         result.append(
             Provider(
@@ -167,7 +180,7 @@ def _chat(provider: Provider, prompt: str) -> str:
             # The provider or model does not accept JSON mode: remember, and parse tolerantly instead.
             log.warning(
                 "%s/%s rejected JSON mode, switching to tolerant parsing: %s",
-                provider.name, provider.model, e,
+                provider.name, provider.model, _safe(e),
             )
             provider.json_mode = False
 
@@ -216,6 +229,7 @@ def ask_ai(prompt: str, schema: Type[T]) -> T:
 
     last_code = "ai_failed"
     last_message = "The AI request failed."
+    first_failure = None  # (code, message) of the first provider that failed: the one the user cares about
 
     for provider in providers:
         for attempt in (1, 2):  # try, then one retry
@@ -231,10 +245,12 @@ def ask_ai(prompt: str, schema: Type[T]) -> T:
                 return result
             except Exception as e:  # noqa: BLE001 - we log everything and decide below
                 code, can_retry = _classify(e)
-                last_code, last_message = code, f"{provider.name} ({provider.model}): {e}"
+                last_code, last_message = code, f"{provider.name} ({provider.model}): {_safe(e) if config.PRODUCTION else e}"
+                if first_failure is None:
+                    first_failure = (last_code, last_message)
                 log.error(
                     "AI FAILED: provider=%s model=%s attempt=%d code=%s error=%r",
-                    provider.name, provider.model, attempt, code, e,
+                    provider.name, provider.model, attempt, code, _safe(e),
                 )
                 if attempt == 1 and can_retry:
                     pause = _retry_after_seconds(e) if code == "ai_quota" else RETRY_PAUSE_SECONDS
@@ -243,5 +259,7 @@ def ask_ai(prompt: str, schema: Type[T]) -> T:
                     continue
                 break  # next provider (if any)
 
+    if first_failure:  # e.g. Groq is out of quota but the backup key is wrong: say "busy", not "not set up"
+        last_code, last_message = first_failure
     http_status = 503 if last_code in ("ai_permission", "ai_quota") else 502
-    raise AIError(f"AI request failed: {last_message}", http_status, last_code)
+    raise AIError("AI request failed" if config.PRODUCTION else f"AI request failed: {last_message}", http_status, last_code)

@@ -12,3 +12,8 @@ node_modules/
 .expo/
 dist/
 backend/tests/last_results.json
+
+# Firebase / Google service account keys (never commit these)
+*adminsdk*.json
+serviceAccount*.json
+service-account*.json
