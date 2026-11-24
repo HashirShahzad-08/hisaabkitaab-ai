@@ -12,7 +12,7 @@ export default function ScreenHeader({ title }) {
   const { t, i18n } = useTranslation();
   const isUrdu = i18n.language === 'ur';
   return (
-    <View style={[styles.row, isUrdu && styles.rowUrdu]}>
+    <View style={styles.row}>
       <Pressable
         onPress={() => router.back()}
         style={styles.back}
@@ -29,7 +29,6 @@ export default function ScreenHeader({ title }) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: screenPadding - 8, paddingVertical: 8 },
-  rowUrdu: { flexDirection: 'row-reverse' },
   back: { width: sizes.touch, height: sizes.touch, alignItems: 'center', justifyContent: 'center' },
   title: { flex: 1, marginHorizontal: 4 },
 });

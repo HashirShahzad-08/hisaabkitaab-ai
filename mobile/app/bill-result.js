@@ -133,7 +133,7 @@ export default function BillResultScreen() {
           <View style={styles.card}>
             <AppText variant="h2">{t('bills.result.found')}</AppText>
             {result.issues.length === 0 ? (
-              <View style={[styles.issueRow, isUrdu && styles.rowUrdu]}>
+              <View style={styles.issueRow}>
                 <Ionicons name="checkmark-circle" size={22} color={colors.primary} />
                 <AppText variant="body" style={styles.flex}>{t('bills.result.noIssues')}</AppText>
               </View>
@@ -141,7 +141,7 @@ export default function BillResultScreen() {
               result.issues.map((issue) => {
                 const style = ISSUE_STYLE[issue.code] || ISSUE_STYLE.above_200;
                 return (
-                  <View key={issue.code} style={[styles.issueRow, isUrdu && styles.rowUrdu]}>
+                  <View key={issue.code} style={styles.issueRow}>
                     <Ionicons name={style.icon} size={22} color={style.color} />
                     <AppText variant="body" style={styles.flex}>{issue.message}</AppText>
                   </View>
@@ -160,7 +160,7 @@ export default function BillResultScreen() {
             <View style={styles.card}>
               <AppText variant="h2">{t('bills.result.tips')}</AppText>
               {result.tips.map((tip, i) => (
-                <View key={i} style={[styles.issueRow, isUrdu && styles.rowUrdu]}>
+                <View key={i} style={styles.issueRow}>
                   <Ionicons name="bulb-outline" size={22} color={colors.accent} />
                   <AppText variant="body" style={styles.flex}>{tip}</AppText>
                 </View>
@@ -176,14 +176,14 @@ export default function BillResultScreen() {
               <AppText variant="h2">{t('bills.result.complaint')}</AppText>
               <AppText variant="body" selectable style={styles.complaintText}>{result.complaint}</AppText>
               {helpline ? (
-                <View style={[styles.issueRow, isUrdu && styles.rowUrdu]}>
+                <View style={styles.issueRow}>
                   <Ionicons name="call-outline" size={20} color={colors.primary} />
                   <AppText variant="bodyMedium" style={styles.flex}>
                     {t('bills.result.helpline', { company: (request.company || '').toUpperCase(), number: helpline })}
                   </AppText>
                 </View>
               ) : null}
-              <View style={[styles.buttonRow, isUrdu && styles.rowUrdu]}>
+              <View style={styles.buttonRow}>
                 <PrimaryButton label={t('bills.result.copy')} icon="copy-outline" variant="outlined" onPress={copy} style={styles.flex} />
                 <PrimaryButton
                   label={t('bills.result.share')}
@@ -200,7 +200,7 @@ export default function BillResultScreen() {
         {/* 7. Add to expenses */}
         {!saved ? (
           <FadeInCard index={6}>
-            <View style={[styles.card, styles.switchRow, isUrdu && styles.rowUrdu]}>
+            <View style={[styles.card, styles.switchRow]}>
               <AppText variant="bodyMedium" style={styles.flex}>{t('bills.result.addExpense')}</AppText>
               <Switch value={addExpense} onValueChange={setAddExpense} color={colors.primary} disabled={saving} />
             </View>
@@ -236,7 +236,6 @@ const styles = StyleSheet.create({
   value: { fontFamily: fonts.en.semibold, fontSize: 20, color: colors.text },
   valueRow: { flexDirection: 'row', alignItems: 'baseline', direction: 'ltr' },
   issueRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  rowUrdu: { flexDirection: 'row-reverse' },
   complaintText: { backgroundColor: colors.background, borderRadius: radius.input, padding: 12 },
   buttonRow: { flexDirection: 'row', gap: 8 },
   switchRow: { flexDirection: 'row', alignItems: 'center' },

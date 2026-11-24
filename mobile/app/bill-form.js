@@ -143,7 +143,7 @@ export default function BillFormScreen() {
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           {/* Month */}
           <AppText variant="caption" color={colors.textSecondary}>{t('bills.form.month')}</AppText>
-          <View style={[styles.monthRow, isUrdu && styles.rowUrdu]}>
+          <View style={styles.monthRow}>
             {stepper(isUrdu ? 'chevron-forward' : 'chevron-back', () => setMonth((m) => shiftMonth(m, -1)), false)}
             <AppText variant="h2" style={styles.monthText}>{monthLabel(month, t)}</AppText>
             {stepper(isUrdu ? 'chevron-back' : 'chevron-forward', () => setMonth((m) => shiftMonth(m, 1)), isCurrentMonth)}
@@ -152,7 +152,7 @@ export default function BillFormScreen() {
           {/* Readings */}
           {field('previous', t('bills.form.previous'), previous, setPrevious)}
           {field('current', t('bills.form.current'), current, setCurrent)}
-          <View style={[styles.helper, isUrdu && styles.rowUrdu]}>
+          <View style={styles.helper}>
             <Ionicons name="information-circle-outline" size={18} color={colors.info} />
             <AppText variant="caption" color={colors.textSecondary} style={styles.helperText}>{t('bills.form.readingsHelp')}</AppText>
           </View>
@@ -161,7 +161,7 @@ export default function BillFormScreen() {
           {field('amount', t('bills.form.amount'), amount, setAmount, { left: <TextInput.Affix text="Rs" /> })}
 
           {/* More details */}
-          <Pressable onPress={() => setMoreOpen((o) => !o)} style={[styles.moreHeader, isUrdu && styles.rowUrdu]} accessibilityRole="button" accessibilityState={{ expanded: moreOpen }}>
+          <Pressable onPress={() => setMoreOpen((o) => !o)} style={styles.moreHeader} accessibilityRole="button" accessibilityState={{ expanded: moreOpen }}>
             <AppText variant="bodyMedium" color={colors.primary} style={styles.flex}>{t('bills.form.more')}</AppText>
             <Ionicons name={moreOpen ? 'chevron-up' : 'chevron-down'} size={20} color={colors.primary} />
           </Pressable>
@@ -212,7 +212,6 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
   scroll: { padding: screenPadding, paddingBottom: 24, gap: 12 },
-  rowUrdu: { flexDirection: 'row-reverse' },
   monthRow: {
     flexDirection: 'row',
     alignItems: 'center',

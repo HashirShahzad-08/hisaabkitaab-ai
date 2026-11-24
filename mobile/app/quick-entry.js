@@ -118,7 +118,7 @@ export default function QuickEntryScreen() {
             editable={!busy}
           />
 
-          <View style={[styles.hintRow, isUrdu && styles.rowUrdu]}>
+          <View style={styles.hintRow}>
             <Ionicons name="mic-outline" size={18} color={colors.textSecondary} />
             <AppText variant="caption" color={colors.textSecondary} style={styles.hintText}>{t('quickEntry.hint')}</AppText>
           </View>
@@ -164,7 +164,7 @@ export default function QuickEntryScreen() {
                   <View style={[styles.entryCard, !en.checked && styles.entryOff]}>
                     <Pressable
                       onPress={() => update(i, { checked: !en.checked })}
-                      style={[styles.checkRow, isUrdu && styles.rowUrdu]}
+                      style={styles.checkRow}
                       accessibilityRole="checkbox"
                       accessibilityState={{ checked: en.checked }}
                     >
@@ -212,7 +212,6 @@ const styles = StyleSheet.create({
   scroll: { padding: screenPadding, gap: 12, paddingBottom: 32 },
   input: { backgroundColor: colors.surface },
   hintRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  rowUrdu: { flexDirection: 'row-reverse' },
   hintText: { flex: 1 },
   exampleRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   exampleChip: {

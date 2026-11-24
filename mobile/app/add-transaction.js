@@ -151,7 +151,7 @@ export default function AddTransactionScreen() {
 
           {/* Date */}
           <AppText variant="h2" style={styles.section}>{t('addTx.date')}</AppText>
-          <Pressable onPress={() => setShowPicker(true)} style={[styles.dateRow, isUrdu && styles.rowReverse]} accessibilityRole="button">
+          <Pressable onPress={() => setShowPicker(true)} style={styles.dateRow} accessibilityRole="button">
             <Ionicons name="calendar-outline" size={20} color={colors.primary} />
             <AppText variant="body" style={styles.dateText}>{dateLabel}</AppText>
             <Ionicons name="chevron-down" size={18} color={colors.textSecondary} />
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   amountInput: { fontFamily: fonts.en.bold, fontSize: 34, color: colors.text, minWidth: 80, textAlign: 'center', padding: 0 },
   centerError: { alignItems: 'center', marginTop: 4 },
   section: { marginTop: 24, marginBottom: 12 },
-  chipRow: { gap: 8, paddingRight: 8 },
+  chipRow: { gap: 8, paddingEnd: 8 },
   wrapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     flexDirection: 'row',
@@ -238,7 +238,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  rowReverse: { flexDirection: 'row-reverse' },
   dateText: { flex: 1, marginHorizontal: 12 },
   note: { marginTop: 24, backgroundColor: colors.surface },
   error: { marginTop: 8 },

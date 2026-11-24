@@ -37,7 +37,6 @@ function Stat({ icon, label, amount }) {
 export default function HomeHeader({ name, balance, income, expense, restartKey, onBell, onSettings }) {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
-  const isUrdu = i18n.language === 'ur';
   // The numbers count up from 0 when Home opens, and roll to new values when they change.
   const shownBalance = useAnimatedNumber(balance, { restartKey });
   const shownIncome = useAnimatedNumber(income, { restartKey });
@@ -45,7 +44,7 @@ export default function HomeHeader({ name, balance, income, expense, restartKey,
 
   return (
     <LinearGradient colors={[colors.primary, colors.primaryDark]} style={[styles.header, { paddingTop: insets.top + 12 }]}>
-      <View style={[styles.topRow, isUrdu && styles.rowUrdu]}>
+      <View style={styles.topRow}>
         <View style={styles.flex}>
           <AppText variant="caption" color={WHITE_80}>
             {name ? t('home.greeting', { name }) : t('home.greetingNoName')}
@@ -56,11 +55,11 @@ export default function HomeHeader({ name, balance, income, expense, restartKey,
       </View>
 
       <AppText variant="caption" color={WHITE_80} style={styles.balanceLabel}>{t('home.balanceThisMonth')}</AppText>
-      <View style={isUrdu ? styles.alignEnd : null}>
+      <View style={styles.balanceWrap}>
         <AmountText amount={shownBalance} variant="display" color="#FFFFFF" />
       </View>
 
-      <View style={[styles.statsRow, isUrdu && styles.rowUrdu]}>
+      <View style={styles.statsRow}>
         <Stat icon="arrow-up" label={t('home.income')} amount={shownIncome} />
         <Stat icon="arrow-down" label={t('home.expense')} amount={shownExpense} />
       </View>
@@ -77,8 +76,7 @@ const styles = StyleSheet.create({
   },
   flex: { flex: 1 },
   topRow: { flexDirection: 'row', alignItems: 'center' },
-  rowUrdu: { flexDirection: 'row-reverse' },
-  alignEnd: { alignItems: 'flex-end' },
+  balanceWrap: { alignItems: 'flex-start' }, // start = left in English, right in Urdu
   iconButton: { width: sizes.touch, height: sizes.touch, alignItems: 'center', justifyContent: 'center' },
   balanceLabel: { marginTop: 16 },
   statsRow: { flexDirection: 'row', gap: 24, marginTop: 16 },

@@ -339,7 +339,21 @@
     "empty": "Add a few expenses and your tips will show up here."
   },
   "settings": {
-    "title": "Settings"
+    "title": "Settings",
+    "language": "Language",
+    "languageNote": "The whole app, including AI replies, will switch.",
+    "voice": "Voice",
+    "readAloud": "Read aloud",
+    "readAloudHint": "Show the speaker button and read tips and explanations out loud.",
+    "account": "Account",
+    "email": "Email",
+    "about": "About",
+    "version": "Version",
+    "scamHelp": "Scam help: PTA 0800-55055",
+    "restartTitle": "Change language?",
+    "restartText": "The app will restart to change language.",
+    "restart": "Restart",
+    "restartManually": "Please close the app and open it again to finish changing the language."
   },
   "api": {
     "errors": {

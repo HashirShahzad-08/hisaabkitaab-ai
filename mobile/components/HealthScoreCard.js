@@ -9,11 +9,10 @@ import { colors, radius } from '../theme';
 
 export default function HealthScoreCard({ result, restartKey }) {
   const { t, i18n } = useTranslation();
-  const isUrdu = i18n.language === 'ur';
   const { score, band, tip } = result;
   return (
     <Card elevation={1} style={styles.card}>
-      <View style={[styles.row, isUrdu && styles.rowUrdu]}>
+      <View style={styles.row}>
         <HealthRing score={score} restartKey={restartKey} />
         <View style={styles.texts}>
           <AppText variant="caption" color={colors.textSecondary}>{t('health.title')}</AppText>
@@ -28,6 +27,5 @@ export default function HealthScoreCard({ result, restartKey }) {
 const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16 },
   row: { flexDirection: 'row', alignItems: 'center' },
-  rowUrdu: { flexDirection: 'row-reverse' },
   texts: { flex: 1, marginHorizontal: 16, gap: 2 },
 });

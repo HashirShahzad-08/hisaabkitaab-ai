@@ -129,7 +129,7 @@ export default function HomeScreen() {
               </FadeInCard>
               <FadeInCard key={`r${playKey}`} index={4}>
                 <Card elevation={1} style={styles.recentCard}>
-                  <View style={[styles.recentHeader, isUrdu && styles.rowUrdu]}>
+                  <View style={styles.recentHeader}>
                     <AppText variant="h2" style={styles.flex}>{t('home.recent')}</AppText>
                     <Pressable onPress={() => router.navigate('/(tabs)/history')} hitSlop={8} style={styles.seeAll} accessibilityRole="link">
                       <AppText variant="bodyMedium" color={colors.primary}>{t('home.seeAll')}</AppText>
@@ -157,7 +157,6 @@ const styles = StyleSheet.create({
   cards: { paddingHorizontal: screenPadding, gap: 12 },
   overlap: { marginTop: -24 },
   loader: { marginTop: 48 },
-  rowUrdu: { flexDirection: 'row-reverse' },
   emptyCard: { marginTop: 24, backgroundColor: colors.surface, borderRadius: radius.card, padding: 24, alignItems: 'center' },
   emptyCircle: {
     width: 88,

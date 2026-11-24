@@ -7,6 +7,7 @@ import * as Speech from 'expo-speech';
 import { useTranslation } from 'react-i18next';
 
 import AppText from './AppText';
+import { useSettings } from '../context/SettingsContext';
 import { colors, radius, sizes } from '../theme';
 
 function SoundBars() {
@@ -28,9 +29,11 @@ function SoundBars() {
 export default function InsightCard({ text }) {
   const { t, i18n } = useTranslation();
   const isUrdu = i18n.language === 'ur';
+  const { readAloud } = useSettings();
   const [speaking, setSpeaking] = useState(false);
 
   useEffect(() => () => Speech.stop(), []);
+  useEffect(() => { if (!readAloud) setSpeaking(false); }, [readAloud]);
 
   function toggle() {
     if (speaking) {
@@ -48,12 +51,14 @@ export default function InsightCard({ text }) {
   }
 
   return (
-    <View style={[styles.card, isUrdu && styles.rowUrdu]}>
+    <View style={styles.card}>
       <Ionicons name="bulb-outline" size={24} color={colors.info} />
       <AppText variant="body" style={styles.text}>{text}</AppText>
-      <Pressable onPress={toggle} style={styles.speaker} accessibilityRole="button" accessibilityLabel={t('home.listen')}>
-        {speaking ? <SoundBars /> : <Ionicons name="volume-high-outline" size={22} color={colors.info} />}
-      </Pressable>
+      {readAloud ? (
+        <Pressable onPress={toggle} style={styles.speaker} accessibilityRole="button" accessibilityLabel={t('home.listen')}>
+          {speaking ? <SoundBars /> : <Ionicons name="volume-high-outline" size={22} color={colors.info} />}
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -67,7 +72,6 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 12,
   },
-  rowUrdu: { flexDirection: 'row-reverse' },
   text: { flex: 1 },
   speaker: { width: sizes.touch, height: sizes.touch, alignItems: 'center', justifyContent: 'center' },
   bars: { flexDirection: 'row', alignItems: 'center', gap: 3, height: 20 },

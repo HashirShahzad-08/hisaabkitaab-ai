@@ -40,7 +40,6 @@ function ShimmerBar({ width, height = 14 }) {
 // messageKeys: list of i18n keys, shown one after another
 export default function AIThinking({ messageKeys }) {
   const { t, i18n } = useTranslation();
-  const isUrdu = i18n.language === 'ur';
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -50,7 +49,7 @@ export default function AIThinking({ messageKeys }) {
 
   return (
     <View style={styles.card} accessibilityLiveRegion="polite">
-      <View style={[styles.statusRow, isUrdu && styles.rowUrdu]}>
+      <View style={styles.statusRow}>
         <Ionicons name="sparkles-outline" size={20} color={colors.primary} />
         <AppText variant="bodyMedium" color={colors.primary} style={styles.status}>{t(messageKeys[index])}</AppText>
       </View>
@@ -66,7 +65,6 @@ export default function AIThinking({ messageKeys }) {
 const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, gap: 16, elevation: 1 },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  rowUrdu: { flexDirection: 'row-reverse' },
   status: { flex: 1 },
   bars: { gap: 10 },
 });

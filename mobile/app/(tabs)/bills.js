@@ -24,7 +24,6 @@ export default function BillsScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
-  const isUrdu = i18n.language === 'ur';
 
   const [reloadKey, setReloadKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
@@ -81,7 +80,7 @@ export default function BillsScreen() {
         {bills.map((b, i) => (
           <FadeInCard key={b.id} index={i + 1}>
             <PressableScale onPress={() => open(b)} accessibilityLabel={monthLabel(b.billMonth, t)}>
-              <View style={[styles.card, isUrdu && styles.rowUrdu]}>
+              <View style={styles.card}>
                 <View style={styles.cardLeft}>
                   <AppText variant="bodyMedium">{monthLabel(b.billMonth, t)}</AppText>
                   <AppText variant="caption" color={colors.textSecondary}>{t('bills.unitsCount', { count: Math.round(b.units) })}</AppText>
@@ -136,7 +135,6 @@ const styles = StyleSheet.create({
     elevation: 1,
     gap: 12,
   },
-  rowUrdu: { flexDirection: 'row-reverse' },
   cardLeft: { flex: 1, gap: 2 },
   cardRight: { alignItems: 'flex-end', gap: 6 },
   center: { alignItems: 'center', justifyContent: 'center', padding: 24, gap: 8 },

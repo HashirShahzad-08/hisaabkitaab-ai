@@ -11,7 +11,6 @@ import { colors, fonts, radius } from '../theme';
 
 export default function SpendingCard({ stats }) {
   const { t, i18n } = useTranslation();
-  const isUrdu = i18n.language === 'ur';
   const { categories, expense } = stats;
   const pieData = categories.map((c) => ({ value: c.amount, color: categoryColor(c.category) }));
 
@@ -43,7 +42,7 @@ export default function SpendingCard({ stats }) {
           </View>
 
           {categories.slice(0, 5).map((c) => (
-            <View key={c.category} style={[styles.legendRow, isUrdu && styles.rowUrdu]}>
+            <View key={c.category} style={styles.legendRow}>
               <View style={[styles.dot, { backgroundColor: categoryColor(c.category) }]} />
               <AppText variant="body" style={styles.legendName}>{t(categoryKey(c.category))}</AppText>
               <AmountText amount={c.amount} variant="caption" color={colors.textSecondary} />
@@ -63,7 +62,6 @@ const styles = StyleSheet.create({
   centerLabel: { alignItems: 'center', justifyContent: 'center' },
   centerCaption: { marginTop: -2 },
   legendRow: { flexDirection: 'row', alignItems: 'center', minHeight: 36, gap: 8 },
-  rowUrdu: { flexDirection: 'row-reverse' },
   dot: { width: 12, height: 12, borderRadius: 6 },
   legendName: { flex: 1 },
   percent: { width: 48, textAlign: 'right', fontFamily: fonts.en.medium, fontSize: 15, color: colors.text },

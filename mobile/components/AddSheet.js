@@ -73,7 +73,7 @@ export default function AddSheet() {
           >
             <Pressable
               onPress={() => go(row.route)}
-              style={({ pressed }) => [styles.row, isUrdu && styles.rowUrdu, pressed && styles.pressed]}
+              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
               accessibilityRole="button"
             >
               <View style={styles.iconCircle}>
@@ -114,7 +114,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
   },
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, minHeight: 64 },
-  rowUrdu: { flexDirection: 'row-reverse' },
   pressed: { backgroundColor: colors.primaryLight, borderRadius: radius.card },
   iconCircle: {
     width: 44,

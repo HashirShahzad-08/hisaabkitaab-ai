@@ -193,12 +193,12 @@ export default function AffordScreen() {
         {/* 4. Suggestion, and the saving plan if not now */}
         <FadeInCard index={3}>
           <View style={styles.card}>
-            <View style={[styles.suggestionRow, isUrdu && styles.rowUrdu]}>
+            <View style={styles.suggestionRow}>
               <Ionicons name="bulb-outline" size={22} color={colors.accent} />
               <AppText variant="body" style={styles.flex}>{result.suggestion}</AppText>
             </View>
             {result.verdict === 'not_now' && result.weeks_to_save > 0 ? (
-              <View style={[styles.plan, isUrdu && styles.rowUrdu]}>
+              <View style={styles.plan}>
                 <Ionicons name="calendar-outline" size={22} color={colors.primary} />
                 <AppText variant="bodyMedium" color={colors.primaryDark} style={styles.flex}>
                   {t('afford.saveWeekly', { amount: rupees(result.weekly_saving, isUrdu, t('common.rupees')), weeks: result.weeks_to_save })}
@@ -231,7 +231,7 @@ export default function AffordScreen() {
             disabled={loading}
           />
           {errors.item ? <AppText variant="caption" color={colors.danger}>{t(errors.item)}</AppText> : null}
-          <View style={[styles.hint, isUrdu && styles.rowUrdu]}>
+          <View style={styles.hint}>
             <Ionicons name="mic-outline" size={18} color={colors.textSecondary} />
             <AppText variant="caption" color={colors.textSecondary} style={styles.flex}>{t('afford.itemHint')}</AppText>
           </View>
@@ -298,7 +298,6 @@ const styles = StyleSheet.create({
   field: { gap: 4 },
   input: { backgroundColor: colors.surface },
   hint: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 4 },
-  rowUrdu: { flexDirection: 'row-reverse' },
   card: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, gap: 12, elevation: 1 },
   center: { alignItems: 'center', justifyContent: 'center', gap: 8 },
   centerText: { textAlign: 'center' },

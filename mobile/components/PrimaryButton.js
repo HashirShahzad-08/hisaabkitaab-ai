@@ -28,14 +28,13 @@ export default function PrimaryButton({ label, onPress, loading = false, disable
         style={[
           styles.button,
           filled ? styles.filled : styles.outlined,
-          i18n.language === 'ur' && styles.rtl,
           inactive && styles.inactive,
         ]}
       >
         {loading ? (
           <ActivityIndicator color={textColor} />
         ) : (
-          <View style={[styles.row, i18n.language === 'ur' && styles.rtl]}>
+          <View style={styles.row}>
             {icon ? <Ionicons name={icon} size={20} color={textColor} /> : null}
             <AppText variant="bodyMedium" color={textColor} style={styles.label}>{label}</AppText>
           </View>
@@ -57,6 +56,5 @@ const styles = StyleSheet.create({
   outlined: { borderWidth: 1.5, borderColor: colors.primary, backgroundColor: colors.surface },
   inactive: { opacity: 0.6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  rtl: { flexDirection: 'row-reverse' },
   label: { textAlign: 'center' },
 });

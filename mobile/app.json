@@ -25,8 +25,26 @@
       "expo-router",
       "expo-font",
       "expo-splash-screen",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "android": [
+              "en",
+              "ur"
+            ],
+            "ios": [
+              "en",
+              "ur"
+            ]
+          }
+        }
+      ]
     ],
-    "scheme": "hisaabkitaab"
+    "scheme": "hisaabkitaab",
+    "extra": {
+      "supportsRTL": true
+    }
   }
 }

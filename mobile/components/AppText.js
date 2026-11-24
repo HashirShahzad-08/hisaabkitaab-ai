@@ -11,7 +11,7 @@ export default function AppText({ variant = 'body', color = colors.text, style, 
   return (
     <Text
       {...rest}
-      style={[typo, { color, textAlign: lang === 'ur' ? 'right' : 'left' }, style]}
+      style={[typo, { color }, style]}
     >
       {children}
     </Text>

@@ -11,11 +11,12 @@ import CategoryIcon from './CategoryIcon';
 import { categoryKey, paymentKey } from '../constants/categories';
 import { colors, radius, sizes } from '../theme';
 import { formatTime } from '../utils/format';
+import { useIsRTL } from '../utils/rtl';
 
 export default function TransactionRow({ item, onDelete }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const rtl = useIsRTL();
   const ref = useRef(null);
-  const isUrdu = i18n.language === 'ur';
 
   const title = item.note || t(categoryKey(item.category));
   const caption = `${t(paymentKey(item.paymentType))} · ${formatTime(item.dateTime)}`;
@@ -33,7 +34,7 @@ export default function TransactionRow({ item, onDelete }) {
   );
 
   const content = (
-    <View style={[styles.row, isUrdu && styles.rowUrdu]}>
+    <View style={styles.row}>
       <CategoryIcon category={item.category} />
       <View style={styles.texts}>
         <AppText variant="bodyMedium" numberOfLines={1}>{title}</AppText>
@@ -47,7 +48,13 @@ export default function TransactionRow({ item, onDelete }) {
   if (!onDelete) return content;
 
   return (
-    <ReanimatedSwipeable ref={ref} renderRightActions={renderRight} overshootRight={false} friction={2}>
+    <ReanimatedSwipeable
+      ref={ref}
+      {...(rtl
+        ? { renderLeftActions: renderRight, overshootLeft: false }
+        : { renderRightActions: renderRight, overshootRight: false })}
+      friction={2}
+    >
       {content}
     </ReanimatedSwipeable>
   );
@@ -64,7 +71,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  rowUrdu: { flexDirection: 'row-reverse' },
   texts: { flex: 1, marginHorizontal: 12 },
   deleteAction: {
     width: 88,

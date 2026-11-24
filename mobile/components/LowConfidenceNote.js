@@ -10,7 +10,7 @@ export default function LowConfidenceNote({ confidence }) {
   const { t, i18n } = useTranslation();
   if (confidence !== 'low') return null;
   return (
-    <View style={[styles.row, i18n.language === 'ur' && styles.rowUrdu]} accessibilityRole="alert">
+    <View style={styles.row} accessibilityRole="alert">
       <Ionicons name="alert-circle-outline" size={18} color={colors.warning} />
       <AppText variant="caption" color={colors.text} style={styles.text}>{t('common.checkDetails')}</AppText>
     </View>
@@ -27,6 +27,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  rowUrdu: { flexDirection: 'row-reverse' },
   text: { flex: 1 },
 });

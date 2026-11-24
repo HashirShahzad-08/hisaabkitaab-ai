@@ -21,8 +21,9 @@ import {
 } from '@expo-google-fonts/noto-nastaliq-urdu';
 import { useTranslation } from 'react-i18next';
 
-import { loadSavedLanguage } from '../i18n';
+import { loadSavedLanguage, reloadApp } from '../i18n';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { SettingsProvider } from '../context/SettingsContext';
 import { getPaperTheme } from '../theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -41,8 +42,15 @@ function Routes() {
   });
   const [langReady, setLangReady] = useState(false);
 
+  // Load the saved language BEFORE the first screen. If the layout direction has to change, restart once
+  // and keep the splash screen up meanwhile.
   useEffect(() => {
-    loadSavedLanguage().finally(() => setLangReady(true));
+    loadSavedLanguage()
+      .then(async (needsRestart) => {
+        if (needsRestart && (await reloadApp())) return;
+        setLangReady(true);
+      })
+      .catch(() => setLangReady(true));
   }, []);
 
   const ready = fontsLoaded && langReady && !loading;
@@ -80,15 +88,19 @@ export default function RootLayout() {
   const theme = useMemo(() => getPaperTheme(lang), [lang]);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-    <SafeAreaProvider>
-      <PaperProvider theme={theme}>
-        <AuthProvider>
-          <StatusBar style="dark" />
-          <Routes />
-        </AuthProvider>
-      </PaperProvider>
-    </SafeAreaProvider>
+    // direction: rows, margins and text alignment flip by themselves for Urdu (RTL). Setting it here also makes
+    // Urdu mirror in Expo Go, where the phone-level RTL switch (I18nManager) is reset.
+    <GestureHandlerRootView style={{ flex: 1, direction: lang === 'ur' ? 'rtl' : 'ltr' }}>
+      <SafeAreaProvider>
+        <PaperProvider theme={theme}>
+          <SettingsProvider>
+            <AuthProvider>
+              <StatusBar style="dark" />
+              <Routes />
+            </AuthProvider>
+          </SettingsProvider>
+        </PaperProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

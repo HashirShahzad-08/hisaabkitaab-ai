@@ -105,7 +105,7 @@ export default function HistoryScreen() {
     <Pressable
       key={id}
       onPress={() => setOpenFilter(id)}
-      style={[styles.chip, active && styles.chipActive, isUrdu && styles.chipUrdu]}
+      style={[styles.chip, active && styles.chipActive]}
       accessibilityRole="button"
     >
       <AppText variant="body" color={active ? colors.primaryDark : colors.textSecondary} numberOfLines={1}>
@@ -239,7 +239,6 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  chipUrdu: { flexDirection: 'row-reverse' },
   chipActive: { backgroundColor: colors.primaryLight, borderColor: colors.primary },
   dayHeader: { backgroundColor: colors.background, paddingHorizontal: screenPadding, paddingVertical: 8 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },

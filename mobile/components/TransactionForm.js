@@ -33,7 +33,6 @@ export function toFormValue(tx) {
 // fields: which extra text box to show: 'merchant' or 'note'
 export default function TransactionForm({ value, onChange, fields = 'merchant', amountError }) {
   const { t, i18n } = useTranslation();
-  const isUrdu = i18n.language === 'ur';
   const [showPicker, setShowPicker] = useState(false);
 
   const base = value.type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
@@ -42,7 +41,7 @@ export default function TransactionForm({ value, onChange, fields = 'merchant', 
   return (
     <View style={styles.wrap}>
       {/* Expense / Income */}
-      <View style={[styles.row, isUrdu && styles.rowUrdu]}>
+      <View style={styles.row}>
         {['expense', 'income'].map((tp) => {
           const selected = value.type === tp;
           return (
@@ -135,7 +134,7 @@ export default function TransactionForm({ value, onChange, fields = 'merchant', 
       />
 
       {/* Date */}
-      <Pressable onPress={() => setShowPicker(true)} style={[styles.dateRow, isUrdu && styles.rowUrdu]} accessibilityRole="button">
+      <Pressable onPress={() => setShowPicker(true)} style={styles.dateRow} accessibilityRole="button">
         <Ionicons name="calendar-outline" size={20} color={colors.primary} />
         <AppText variant="body" style={styles.dateText}>{formatDayLabel(toDateKey(value.date), t)}</AppText>
         <Ionicons name="chevron-down" size={18} color={colors.textSecondary} />
@@ -158,7 +157,6 @@ export default function TransactionForm({ value, onChange, fields = 'merchant', 
 const styles = StyleSheet.create({
   wrap: { gap: 8 },
   row: { flexDirection: 'row', gap: 8 },
-  rowUrdu: { flexDirection: 'row-reverse' },
   typeChip: {
     flex: 1,
     minHeight: sizes.touch,
@@ -173,7 +171,7 @@ const styles = StyleSheet.create({
   rs: { fontFamily: fonts.en.semibold, fontSize: 18, color: colors.textSecondary, marginRight: 6 },
   amountInput: { fontFamily: fonts.en.bold, fontSize: 28, color: colors.text, minWidth: 80, textAlign: 'center', padding: 0 },
   centerText: { textAlign: 'center' },
-  chipRow: { gap: 8, paddingRight: 8 },
+  chipRow: { gap: 8, paddingEnd: 8 },
   wrapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     flexDirection: 'row',
