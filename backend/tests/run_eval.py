@@ -1,13 +1,18 @@
-"""Measures how accurate /parse-sms and /quick-entry are.
+"""Measures how accurate SMS parsing and Urdu quick entry are.
+
+It calls the pipeline functions directly (pipeline.parse_sms and pipeline.quick_entry, the same
+functions the /parse-sms and /quick-entry routes use). It does NOT go through HTTP, so no Firebase
+login is needed.
 
 Run from the backend folder (the .venv must be active):
     python tests/run_eval.py                      all cases in eval_cases.json
     python tests/run_eval.py --file holdout_cases.json
     python tests/run_eval.py --only quick         only quick-entry cases
     python tests/run_eval.py --ids n01,s03,q02    only these cases
-    python tests/run_eval.py --url http://127.0.0.1:8000    test a running server instead
+    python tests/run_eval.py --compare            AI alone vs AI + rules (same AI answers)
+    python tests/run_eval.py --provider zai       use only Z.ai (saves the Groq daily quota)
 
-It sleeps between calls so Groq's free limit (30 requests a minute) is respected,
+It sleeps between calls (--sleep, default 4 seconds) so the free limits are respected,
 and waits and retries if the AI says "too many requests".
 """
 import argparse
@@ -26,27 +31,33 @@ SMS_FIELDS = FIELDS
 QUICK_FIELDS = FIELDS
 
 
-def make_caller(url):
-    """Returns post(path, body) -> (status_code, json)."""
-    if url:
-        import httpx
-
-        def post(path, body):
-            r = httpx.post(url.rstrip("/") + path, json=body, timeout=120)
-            return r.status_code, r.json()
-
-        return post
-
-    from fastapi.testclient import TestClient
-    import main
-
-    client = TestClient(main.app)
+def make_caller():
+    """Returns post(path, body) -> (status_code, json), calling the pipeline directly."""
+    import pipeline
+    from ai_client import AIError
 
     def post(path, body):
-        r = client.post(path, json=body)
-        return r.status_code, r.json()
+        try:
+            if path == "/parse-sms":
+                result = pipeline.parse_sms(body["text"], body["lang"], body["today"])
+            else:
+                result = pipeline.quick_entry(body["text"], body["lang"], body["today"])
+            return 200, result.model_dump()
+        except AIError as e:
+            return e.status_code, {"code": e.code, "error": e.message}
 
     return post
+
+
+def force_provider(name):
+    """Use only this AI provider (for example "zai"), so the other one's quota is not spent."""
+    import ai_client
+
+    chosen = [p for p in ai_client.get_providers() if p.name == name]
+    if not chosen:
+        sys.exit(f"Provider '{name}' is not configured. Check its API key in backend/.env")
+    ai_client._providers = chosen
+    print(f"Using only the {name} provider ({chosen[0].model})")
 
 
 def call_with_patience(post, path, body, quota_waits):
@@ -187,12 +198,13 @@ def report(label, stats, failures, cases, quota_waits):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--file", default="eval_cases.json")
-    ap.add_argument("--url", default=None)
-    ap.add_argument("--sleep", type=float, default=2.5)
+    ap.add_argument("--sleep", type=float, default=4.0, help="seconds to wait between AI calls (default 4)")
+    ap.add_argument("--provider", choices=["groq", "zai"], default=None,
+                    help="use only this AI provider (for example zai, to save the Groq daily quota)")
     ap.add_argument("--only", choices=["sms", "quick"], default=None)
     ap.add_argument("--ids", default=None)
     ap.add_argument("--compare", action="store_true",
-                    help="score the AI on its own AND with the rules, from the same AI answers (in-process only)")
+                    help="score the AI on its own AND with the rules, from the same AI answers")
     args = ap.parse_args()
 
     cases = json.load(open(os.path.join(HERE, args.file), encoding="utf-8"))
@@ -202,11 +214,11 @@ def main():
         wanted = set(args.ids.split(","))
         cases = [c for c in cases if c["id"] in wanted]
 
-    post = make_caller(args.url)
+    post = make_caller()
+    if args.provider:
+        force_provider(args.provider)
     modes = ["ai_only", "hybrid"] if args.compare else ["hybrid"]
     if args.compare:
-        if args.url:
-            sys.exit("--compare works in-process only (leave out --url)")
         import pipeline
 
         original_ask = pipeline.ask_ai
