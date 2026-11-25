@@ -408,7 +408,7 @@
     "restartTitle": "Change language?",
     "restartText": "The app will restart to change language.",
     "restart": "Restart",
-    "restartManually": "Please close the app and open it again to finish changing the language.",
+    "restartManually": "Please close and reopen the app to finish changing the language.",
     "demoLoad": "Load demo data",
     "demoTitle": "Load demo data?",
     "demoText": "This will replace your data with a sample month for demo.",
