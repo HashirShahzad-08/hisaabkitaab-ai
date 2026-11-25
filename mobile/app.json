@@ -53,12 +53,16 @@
     ],
     "scheme": "hisaabkitaab",
     "extra": {
-      "supportsRTL": true
+      "supportsRTL": true,
+      "eas": {
+        "projectId": "ff288c4e-6bbe-4b73-a960-d79823215c31"
+      }
     },
     "updates": {
       "enabled": false,
       "checkAutomatically": "NEVER",
       "fallbackToCacheTimeout": 0
-    }
+    },
+    "owner": "hashir-08"
   }
 }
