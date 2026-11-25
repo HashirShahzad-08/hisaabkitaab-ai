@@ -249,8 +249,36 @@
       "title": "This SMS looks like fraud",
       "never": "Never share your PIN or OTP with anyone.",
       "delete": "Delete message",
-      "report": "Report to PTA (0800-55055)"
-    }
+      "report": "Report to PTA (0800-55055)",
+      "warnFamily": "Warn my family",
+      "shareMessage": "Warning: I received a fake SMS pretending to be {{sender}}. It asks you to {{asks}}. Do not reply, do not send money, do not share any code. Report scams to PTA: 0800-55055. - sent from HisaabKitaab AI",
+      "senderBisp": "BISP",
+      "senderGeneric": "a bank or a government office",
+      "asksDefault": "send money or share private details",
+      "asks": {
+        "fee": "pay a fee first",
+        "secret": "share your OTP, PIN or CNIC",
+        "prize": "pay money to claim a prize",
+        "wrong_transfer": "send money back",
+        "threat": "act now or your account will be blocked",
+        "link": "click a suspicious link",
+        "courier": "pay a delivery fee",
+        "job": "pay money for a job or visa"
+      },
+      "reasons": {
+        "fee": "It asks you to pay a fee or send money first. Real money never needs a fee first.",
+        "secret": "It asks for your OTP, PIN, CNIC or password. A real bank or office never asks for these by SMS.",
+        "bisp": "It uses the BISP name. Real BISP messages come only from 8171.",
+        "prize": "It says you won a prize. A real prize never asks you to pay or click.",
+        "wrong_transfer": "It says money was sent by mistake and asks you to send it back. This is a common trick.",
+        "threat": "It threatens to block your account unless you act now.",
+        "link": "It has a suspicious link. Do not open it.",
+        "courier": "It pretends to be a parcel or courier message and wants a fee or a link.",
+        "job": "It offers a job or visa and asks for money."
+      }
+    },
+    "offlineNote": "Checked on your phone (offline)",
+    "offlineFail": "Could not reach the server. Please try again."
   },
   "quickEntry": {
     "title": "Quick entry",

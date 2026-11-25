@@ -17,7 +17,7 @@ export class ApiError extends Error {
 }
 
 // fields: what this route needs (for example { text }). lang and today are added to every request.
-async function post(path, fields) {
+async function post(path, fields, timeoutMs = TIMEOUT_MS) {
   if (!BASE_URL) throw new ApiError('api.errors.notConfigured');
 
   // Every call needs the logged-in user's Firebase token. No user: do not call the backend at all.
@@ -31,7 +31,7 @@ async function post(path, fields) {
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   let response;
   try {
     response = await fetch(`${BASE_URL}${path}`, {
@@ -79,7 +79,8 @@ async function post(path, fields) {
 }
 
 // Returns { amount, type, category, paymentType, merchant, date, isScam, scamReason }
-export const parseSms = (text) => post('/parse-sms', { text });
+// 15 seconds: if the server is slow or unreachable, the screen falls back to the offline scam check
+export const parseSms = (text) => post('/parse-sms', { text }, 15000);
 
 // Returns { transactions: [{ amount, type, category, paymentType, merchant, date, note }] }
 export const quickEntry = (text) => post('/quick-entry', { text });

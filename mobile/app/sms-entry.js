@@ -1,6 +1,6 @@
 // SMS auto-entry - DESIGN.md section 8.5
 import { useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Linking, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Linking, Platform, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, TextInput } from 'react-native-paper';
 import { MotiView } from 'moti';
@@ -19,9 +19,12 @@ import { useAuth } from '../context/AuthContext';
 import { ApiError, parseSms } from '../services/api';
 import { addTransaction } from '../services/transactionService';
 import { colors, fonts, radius, screenPadding, sizes } from '../theme';
+import { offlineScamCheck, scamFlags } from '../utils/offlineScam';
 
 const PTA_NUMBER = '080055055'; // 0800-55055
 const THINKING = ['thinking.sms.0', 'thinking.sms.1', 'thinking.sms.2'];
+// When the server cannot be reached or fails, we run the check on the phone instead.
+const OFFLINE_ERRORS = ['api.errors.network', 'api.errors.timeout', 'api.errors.ai', 'api.errors.aiSetup', 'api.errors.aiBusy'];
 
 export default function SmsEntryScreen() {
   const { t, i18n } = useTranslation();
@@ -32,6 +35,8 @@ export default function SmsEntryScreen() {
   const [text, setText] = useState('');
   const [status, setStatus] = useState('idle'); // idle | loading | normal | scam
   const [scamReason, setScamReason] = useState('');
+  const [scamFlagList, setScamFlagList] = useState([]); // red flags found in the text, for the family warning
+  const [checkedOffline, setCheckedOffline] = useState(false);
   const [form, setForm] = useState(null);
   const [error, setError] = useState(null); // an i18n key
   const [amountError, setAmountError] = useState(null);
@@ -56,6 +61,8 @@ export default function SmsEntryScreen() {
     try {
       const result = await parseSms(text.trim());
       if (result.isScam) {
+        setCheckedOffline(false);
+        setScamFlagList(scamFlags(text));
         setScamReason(result.scamReason || '');
         setStatus('scam');
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -65,15 +72,39 @@ export default function SmsEntryScreen() {
         setStatus('normal');
       }
     } catch (e) {
+      const key = e instanceof ApiError ? e.messageKey : 'api.errors.generic';
+      const offline = OFFLINE_ERRORS.includes(key) ? offlineScamCheck(text) : null;
+      if (offline?.isScam) {
+        // Server unreachable, but the phone itself sees 2 or more red flags: show the same scam alert
+        setCheckedOffline(true);
+        setScamFlagList(offline.flags);
+        setScamReason(offline.flags.map((f) => t(`smsEntry.scam.reasons.${f}`)).join(' '));
+        setStatus('scam');
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        return;
+      }
       setStatus('idle');
-      setError(e instanceof ApiError ? e.messageKey : 'api.errors.generic');
+      // Not a scam on the phone: do not guess the transaction, just ask the user to try again
+      setError(OFFLINE_ERRORS.includes(key) ? 'smsEntry.offlineFail' : key);
     }
+  }
+
+  // "Warn my family": the share sheet with a short warning in the current language
+  function warnFamily() {
+    const known = scamFlagList.filter((f) => ['fee', 'secret', 'prize', 'wrong_transfer', 'threat', 'link', 'courier', 'job'].includes(f));
+    const asks = known.length
+      ? known.map((f) => t(`smsEntry.scam.asks.${f}`)).join(isUrdu ? '، ' : ', ')
+      : t('smsEntry.scam.asksDefault');
+    const sender = scamFlagList.includes('bisp') ? t('smsEntry.scam.senderBisp') : t('smsEntry.scam.senderGeneric');
+    Share.share({ message: t('smsEntry.scam.shareMessage', { sender, asks }) }).catch(() => {});
   }
 
   function clearAll() {
     setText('');
     setForm(null);
     setScamReason('');
+    setScamFlagList([]);
+    setCheckedOffline(false);
     setError(null);
     setStatus('idle');
   }
@@ -164,6 +195,9 @@ export default function SmsEntryScreen() {
             <AlertCard variant="danger" title={t('smsEntry.scam.title')}>
               {scamReason ? <AppText variant="body" color={colors.text}>{scamReason}</AppText> : null}
               <AppText variant="bodyMedium" color={colors.danger}>{t('smsEntry.scam.never')}</AppText>
+              {checkedOffline ? (
+                <AppText variant="caption" color={colors.textSecondary}>{t('smsEntry.offlineNote')}</AppText>
+              ) : null}
               <View style={styles.scamButtons}>
                 <Button
                   mode="contained"
@@ -175,15 +209,27 @@ export default function SmsEntryScreen() {
                 >
                   {t('smsEntry.scam.delete')}
                 </Button>
-                <Button
-                  mode="outlined"
-                  onPress={() => Linking.openURL(`tel:${PTA_NUMBER}`)}
-                  textColor={colors.danger}
-                  style={[styles.scamButton, { borderColor: colors.danger }]}
-                  contentStyle={{ height: sizes.button }}
-                >
-                  {t('smsEntry.scam.report')}
-                </Button>
+                <View style={styles.scamRow}>
+                  <Button
+                    mode="outlined"
+                    onPress={() => Linking.openURL(`tel:${PTA_NUMBER}`)}
+                    textColor={colors.danger}
+                    style={[styles.scamButton, styles.scamHalf, { borderColor: colors.danger }]}
+                    contentStyle={{ minHeight: sizes.button }}
+                  >
+                    {t('smsEntry.scam.report')}
+                  </Button>
+                  <Button
+                    mode="outlined"
+                    icon="share-variant-outline"
+                    onPress={warnFamily}
+                    textColor={colors.danger}
+                    style={[styles.scamButton, styles.scamHalf, { borderColor: colors.danger }]}
+                    contentStyle={{ minHeight: sizes.button }}
+                  >
+                    {t('smsEntry.scam.warnFamily')}
+                  </Button>
+                </View>
               </View>
             </AlertCard>
           ) : null}
@@ -233,5 +279,7 @@ const styles = StyleSheet.create({
   primaryButton: { borderRadius: radius.button },
   scamButtons: { gap: 8, marginTop: 8 },
   scamButton: { borderRadius: radius.button },
+  scamRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  scamHalf: { flexGrow: 1, flexBasis: 150 },
   resultCard: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, gap: 12, elevation: 1 },
 });
