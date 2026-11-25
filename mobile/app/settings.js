@@ -13,6 +13,7 @@ import AppText from '../components/AppText';
 import ScreenHeader from '../components/ScreenHeader';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
+import { useWelcome } from '../context/WelcomeContext';
 import { db } from '../firebase';
 import { changeLanguageAndRestart } from '../i18n';
 import { logout } from '../services/authService';
@@ -37,6 +38,7 @@ export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { readAloud, setReadAloud } = useSettings();
+  const { replayWelcome } = useWelcome();
   const current = i18n.language === 'ur' ? 'ur' : 'en';
 
   const [pending, setPending] = useState(null); // the language the user tapped, waiting for "Restart"
@@ -160,6 +162,10 @@ export default function SettingsScreen() {
         >
           <Ionicons name="flask-outline" size={16} color={colors.textSecondary} />
           <AppText variant="caption" color={colors.textSecondary}>{t('settings.demoLoad')}</AppText>
+        </Pressable>
+        <Pressable onPress={replayWelcome} style={styles.demoLink} accessibilityRole="button">
+          <Ionicons name="refresh-outline" size={16} color={colors.textSecondary} />
+          <AppText variant="caption" color={colors.textSecondary}>{t('settings.showWelcome')}</AppText>
         </Pressable>
         {demoMessage ? (
           <View style={styles.notice}>

@@ -443,7 +443,8 @@
     "demoConfirm": "Load",
     "demoLoading": "Loading...",
     "demoDone": "Demo data is ready. Open Home to see it.",
-    "demoError": "Could not load the demo data. Please check your internet and try again."
+    "demoError": "Could not load the demo data. Please check your internet and try again.",
+    "showWelcome": "Show welcome again"
   },
   "api": {
     "errors": {
@@ -482,5 +483,30 @@
   "errors": {
     "session_expired": "Your session has expired. Please log in again.",
     "too_many": "Too many requests. Please wait a minute and try again."
+  },
+  "welcome": {
+    "next": "Next",
+    "skip": "Skip",
+    "language": {
+      "title": "Choose your language",
+      "subtitle": "You can change it later in Settings."
+    },
+    "intro": {
+      "title": "Your money, tracked and protected",
+      "sms": "Paste an SMS and we record it and catch scams",
+      "voice": "Speak in Urdu to add your spending",
+      "bill": "Check your electricity bill for overbilling"
+    },
+    "income": {
+      "title": "Your monthly income",
+      "hint": "We will add it as this month's salary."
+    },
+    "final": {
+      "title": "You are all set",
+      "subtitle": "How would you like to start?",
+      "start": "Start fresh",
+      "sample": "Try with sample data",
+      "sampleNote": "Good for a quick look. You can delete the sample entries yourself later."
+    }
   }
 }

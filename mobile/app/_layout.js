@@ -24,12 +24,14 @@ import { useTranslation } from 'react-i18next';
 import { loadSavedLanguage, reloadApp } from '../i18n';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { SettingsProvider } from '../context/SettingsContext';
+import { WelcomeProvider, useWelcome } from '../context/WelcomeContext';
 import { getPaperTheme } from '../theme';
 
 SplashScreen.preventAutoHideAsync();
 
 function Routes() {
   const { user, loading } = useAuth();
+  const { gate } = useWelcome(); // first-run welcome: "show" sends a new user to the welcome screen
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_500Medium,
@@ -53,7 +55,7 @@ function Routes() {
       .catch(() => setLangReady(true));
   }, []);
 
-  const ready = fontsLoaded && langReady && !loading;
+  const ready = fontsLoaded && langReady && !loading && !(user && gate === 'checking');
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
@@ -63,7 +65,7 @@ function Routes() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       {/* Logged in: the tabs */}
-      <Stack.Protected guard={!!user}>
+      <Stack.Protected guard={!!user && gate === 'skip'}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="add-transaction" />
         <Stack.Screen name="sms-entry" />
@@ -74,6 +76,10 @@ function Routes() {
         <Stack.Screen name="bill-result" />
         <Stack.Screen name="budget-form" />
         <Stack.Screen name="goal-form" />
+      </Stack.Protected>
+      {/* Logged in, first time only (or "Show welcome again" in Settings): the welcome flow */}
+      <Stack.Protected guard={!!user && gate === 'show'}>
+        <Stack.Screen name="welcome" />
       </Stack.Protected>
       {/* Logged out: login and sign up */}
       <Stack.Protected guard={!user}>
@@ -97,8 +103,10 @@ export default function RootLayout() {
         <PaperProvider theme={theme}>
           <SettingsProvider>
             <AuthProvider>
-              <StatusBar style="dark" />
-              <Routes />
+              <WelcomeProvider>
+                <StatusBar style="dark" />
+                <Routes />
+              </WelcomeProvider>
             </AuthProvider>
           </SettingsProvider>
         </PaperProvider>
