@@ -77,7 +77,7 @@ def analyze(
     issues: List[Dict[str, str]] = []
     facts: Dict[str, Any] = {}  # numbers for each issue, handed to the AI later
 
-    reading_units = current_reading - previous_reading
+    reading_units = round(current_reading - previous_reading, 2)
     reading_error = current_reading < previous_reading
     extra_units = 0.0
 
@@ -85,7 +85,7 @@ def analyze(
         issues.append({"code": "reading_error", "message": msgs["reading_error"].format(
             current=_num(current_reading), previous=_num(previous_reading))})
     else:
-        extra_units = units_billed - reading_units
+        extra_units = round(units_billed - reading_units, 2)
         if abs(extra_units) > MISMATCH_TOLERANCE_UNITS:
             key = "units_mismatch_over" if extra_units > 0 else "units_mismatch_under"
             issues.append({"code": "units_mismatch", "message": msgs[key].format(

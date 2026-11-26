@@ -6,6 +6,7 @@ import config
 config.check_startup()  # stops here with a clear message if GROQ_API_KEY or FIREBASE_PROJECT_ID is missing
 
 from fastapi import Depends, FastAPI, Request  # noqa: E402
+from fastapi.exceptions import RequestValidationError  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from fastapi.responses import JSONResponse  # noqa: E402
 
@@ -29,6 +30,14 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Authorization", "Content-Type"],
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def bad_input_handler(request: Request, exc: RequestValidationError):
+    # Only where the problem is and what it is. The input itself is never sent back (it may be private,
+    # and values like NaN cannot even be written as JSON).
+    problems = [{"field": ".".join(str(p) for p in e["loc"]), "problem": e["msg"]} for e in exc.errors()]
+    return JSONResponse(status_code=422, content={"error": "invalid_input", "details": problems})
 
 
 @app.exception_handler(Unauthorized)

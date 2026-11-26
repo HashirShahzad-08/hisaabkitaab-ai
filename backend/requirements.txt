@@ -1,7 +1,8 @@
-fastapi
-uvicorn[standard]
-openai
-pydantic
-python-dotenv
-google-auth
-requests
+# Versions tested with Python 3.12 (from pip freeze in .venv)
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+openai==3.57.0
+pydantic==2.14.4
+python-dotenv==1.2.4
+google-auth==2.63.1
+requests==2.34.2

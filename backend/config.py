@@ -1,6 +1,6 @@
 """Settings read from the environment (backend/.env). Nothing secret is printed here.
 
-  ENV               "development" (default) or "production"
+  ENV               "production" (default). Only ENV=development switches on development mode
   FIREBASE_PROJECT_ID   your Firebase project id, used to check login tokens
   ALLOWED_ORIGINS   comma-separated list of websites allowed to call the API from a browser.
                     Empty is fine: the Android app does not need CORS.
@@ -13,7 +13,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ENV = (os.getenv("ENV") or "development").strip().lower()
+# Safe by default: anything other than "development" (including nothing) is production
+ENV = "development" if (os.getenv("ENV") or "").strip().lower() == "development" else "production"
 PRODUCTION = ENV == "production"
 
 FIREBASE_PROJECT_ID = (os.getenv("FIREBASE_PROJECT_ID") or "").strip()

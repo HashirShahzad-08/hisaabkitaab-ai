@@ -22,6 +22,7 @@ import openai
 from dotenv import load_dotenv
 
 import config
+import rate_limit
 from openai import OpenAI
 from pydantic import BaseModel, ValidationError
 
@@ -40,7 +41,9 @@ def _safe(error: Exception) -> str:
 
 T = TypeVar("T", bound=BaseModel)
 
-REQUEST_TIMEOUT_SECONDS = 25
+TOTAL_BUDGET_SECONDS = 20  # for one answer, across all retries and providers
+REQUEST_TIMEOUT_SECONDS = 12  # one attempt, so a stuck provider leaves time for the backup
+MIN_ATTEMPT_SECONDS = 1.0
 TEMPERATURE = 0  # 0 = the same answer every time for the same message
 RETRY_PAUSE_SECONDS = 1.0
 
@@ -156,8 +159,13 @@ def extract_json(raw: str) -> dict:
     return data
 
 
-def _chat(provider: Provider, prompt: str) -> str:
+def _chat(provider: Provider, prompt: str, deadline: float) -> str:
     """One request to one provider. Returns the text of the reply."""
+
+    def client():
+        left = max(MIN_ATTEMPT_SECONDS, deadline - time.time())
+        return provider.client.with_options(timeout=min(REQUEST_TIMEOUT_SECONDS, left))
+
     kwargs = dict(
         model=provider.model,
         messages=[
@@ -172,7 +180,7 @@ def _chat(provider: Provider, prompt: str) -> str:
 
     if provider.json_mode:
         try:
-            response = provider.client.chat.completions.create(
+            response = client().chat.completions.create(
                 response_format={"type": "json_object"}, **kwargs
             )
             return response.choices[0].message.content or ""
@@ -184,7 +192,7 @@ def _chat(provider: Provider, prompt: str) -> str:
             )
             provider.json_mode = False
 
-    response = provider.client.chat.completions.create(**kwargs)
+    response = client().chat.completions.create(**kwargs)
     return response.choices[0].message.content or ""
 
 
@@ -227,6 +235,9 @@ def ask_ai(prompt: str, schema: Type[T]) -> T:
         log.error("No AI provider is configured. Set GROQ_API_KEY in backend/.env")
         raise AIError("No AI key is set. Add GROQ_API_KEY to backend/.env", 500, "ai_key")
 
+    rate_limit.use_global_call()  # raises RateLimited (HTTP 429) when today's total is used up
+    deadline = time.time() + TOTAL_BUDGET_SECONDS
+
     last_code = "ai_failed"
     last_message = "The AI request failed."
     first_failure = None  # (code, message) of the first provider that failed: the one the user cares about
@@ -234,8 +245,11 @@ def ask_ai(prompt: str, schema: Type[T]) -> T:
     for provider in providers:
         for attempt in (1, 2):  # try, then one retry
             started = time.time()
+            if deadline - started < MIN_ATTEMPT_SECONDS:
+                log.error("AI time budget of %ss used up", TOTAL_BUDGET_SECONDS)
+                break
             try:
-                raw = _chat(provider, prompt)
+                raw = _chat(provider, prompt, deadline)
                 data = extract_json(raw)
                 result = schema.model_validate(data)
                 log.info(
@@ -254,6 +268,8 @@ def ask_ai(prompt: str, schema: Type[T]) -> T:
                 )
                 if attempt == 1 and can_retry:
                     pause = _retry_after_seconds(e) if code == "ai_quota" else RETRY_PAUSE_SECONDS
+                    if time.time() + pause + MIN_ATTEMPT_SECONDS >= deadline:
+                        break  # no time to wait: try the next provider with what is left
                     log.info("retrying %s in %.1fs", provider.name, pause)
                     time.sleep(pause)
                     continue

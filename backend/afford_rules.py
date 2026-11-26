@@ -82,6 +82,13 @@ def fallback_explanation(result: Dict[str, Any], item: str, lang: str) -> str:
     item = item.strip()[:60]
     price, remaining, safe = (_rs_text(result[k], lang) for k in ("price", "remaining", "safe_to_spend"))
     verdict = result["verdict"]
+    if result["remaining"] < 0:
+        over = _rs_text(abs(result["remaining"]), lang)
+        if lang == "ur":
+            return (f"ابھی {item} خریدنا مشکل ہے۔ اس کی قیمت {price} ہے۔ اس مہینے آپ اپنی آمدنی سے {over} "
+                    f"زیادہ خرچ کر چکے ہیں۔")
+        return (f"{item} is hard to afford right now. It costs {price}. You are {over} over your income "
+                f"this month.")
     if lang == "ur":
         if verdict == "yes":
             return (f"آپ {item} خرید سکتے ہیں۔ اس کی قیمت {price} ہے۔ مہینے کے آخر تک کے معمول کے خرچ اور بلوں کے بعد بھی "

@@ -30,8 +30,13 @@ log = logging.getLogger("uvicorn.error")
 # Set HYBRID_RULES=off only to measure the AI on its own (tests/run_eval.py). Normal use: leave it unset.
 RULES_ON = os.getenv("HYBRID_RULES", "on").lower() != "off"
 
-# How many different strong red flags are needed to skip the AI and answer "scam" straight away.
+# How many independent red flags are needed to skip the AI and answer "scam" straight away.
 FAST_SCAM_MIN_FLAGS = 2
+AI_TEXT_LIMIT = 200  # longest merchant, note or reason we accept from the AI
+
+
+def _cap(text: Optional[str]) -> str:
+    return (text or "")[:AI_TEXT_LIMIT]
 
 _CLAUSE_SPLIT = re.compile(r"\b(?:aur|and|phir|then|plus)\b|[,;،.\n]|اور", re.I)
 
@@ -45,11 +50,12 @@ def _confidence(disagreements: int, amount_ok: bool = True) -> str:
 # ======================================================================= /parse-sms
 def parse_sms(text: str, lang: str, today: str) -> SmsResult:
     today_date = rules.parse_today(today)
-    flags = rules.scam_flags(text)
+    check = rules.check_scam(text)
+    flags = check.flags
 
-    # Fast path: two or more strong red flags (for example "pay a fee" + "send your OTP") is a scam for sure.
+    # Fast path: two or more independent red flags (for example "pay a fee" + "send your OTP") is a scam for sure.
     # Answer from the rules right away: no AI call, so it is instant and uses no AI quota.
-    if RULES_ON and len(flags) >= FAST_SCAM_MIN_FLAGS:
+    if RULES_ON and len(check.independent) >= FAST_SCAM_MIN_FLAGS:
         log.info("fast path: scam answered by rules only, no AI call. flags=%s", flags)
         return SmsResult(
             amount=0, type="expense", category="Other", paymentType="Cash", merchant="",
@@ -58,6 +64,7 @@ def parse_sms(text: str, lang: str, today: str) -> SmsResult:
 
     try:
         ai: Optional[SmsResult] = ask_ai(sms_prompt(text, lang, today), SmsResult)
+        ai = ai.model_copy(update={"merchant": _cap(ai.merchant), "scamReason": _cap(ai.scamReason)})
         ai_error = None
     except AIError as e:
         ai, ai_error = None, e
@@ -78,8 +85,9 @@ def parse_sms(text: str, lang: str, today: str) -> SmsResult:
     disagreements = 0
     notes: List[str] = []
 
-    # ---- scam: rules can raise it; a plain receipt can cancel an AI false alarm
-    is_scam = bool(flags) or ai.isScam
+    # ---- scam: a strong red flag raises it (one weak flag does not overrule the AI);
+    #      a plain receipt with no flags can cancel an AI false alarm
+    is_scam = bool(check.strong) or ai.isScam
     if ai.isScam and not flags and rules.looks_like_plain_confirmation(text):
         is_scam = False
         notes.append("AI scam alarm cancelled: plain receipt with no red flags")
@@ -90,14 +98,15 @@ def parse_sms(text: str, lang: str, today: str) -> SmsResult:
     if is_scam:
         reason = (ai.scamReason or "").strip() if ai.isScam else ""
         if not reason:
-            reason = rules.scam_reason(flags, lang)
+            reason = rules.scam_reason(check.strong or flags, lang)
 
     # ---- amount: regex first, cross-check with the AI
     candidates = [v for _, v in rules.extract_amounts(text)]
     amount, amount_ok = ai.amount, True
     if candidates:
         if not any(abs(ai.amount - c) < 0.5 for c in candidates):
-            amount = candidates[0]
+            if candidates[0] not in rules.unsure_amounts(text):
+                amount = candidates[0]
             disagreements += 1
             notes.append(f"amount: AI={ai.amount} regex={candidates}")
     elif ai.amount <= 0 and not is_scam:
@@ -190,11 +199,14 @@ def _date_for_item(position: Optional[int], ai_date: str, markers, today_date: d
 def quick_entry(text: str, lang: str, today: str) -> QuickEntryResult:
     today_date = rules.parse_today(today)
     ai = ask_ai(quick_entry_prompt(text, lang, today), QuickEntryResult)
+    ai = QuickEntryResult(transactions=[
+        t.model_copy(update={"merchant": _cap(t.merchant), "note": _cap(t.note)}) for t in ai.transactions])
     if not RULES_ON:
         return ai
 
     found = rules.extract_amounts(text, allow_bare=True, skip_balances=False)  # [(position, amount)]
     cand_values = [v for _, v in found]
+    unsure = rules.unsure_amounts(text, allow_bare=True, skip_balances=False)
     markers = rules.relative_markers(text, today_date)
     written = rules.explicit_date(text)
     parts = _clauses(text)
@@ -217,7 +229,7 @@ def quick_entry(text: str, lang: str, today: str) -> QuickEntryResult:
         amount, amount_ok = item.amount, True
         if cand_values:
             if not any(abs(item.amount - c) < 0.5 for c in cand_values):
-                if len(items) == len(cand_values):
+                if len(items) == len(cand_values) and cand_values[i] not in unsure:
                     amount = cand_values[i]
                     disagreements += 1
                     notes.append(f"amount: AI={item.amount} regex={cand_values[i]}")
@@ -302,6 +314,10 @@ def _allowed_numbers(req: BillRequest, rules_result: dict) -> List[float]:
     return [float(v) for v in values if v is not None]
 
 
+# Numbers that appear in ordinary electricity-saving tips (AC temperature, evening peak hours)
+_TIP_NUMBERS = [6.0, 10.0, 24.0, 26.0]
+
+
 def _only_allowed_numbers(text: str, allowed: List[float]) -> bool:
     return all(any(abs(n - a) < 0.06 for a in allowed) for n in _numbers_in(text))
 
@@ -354,7 +370,8 @@ def analyze_bill(req: BillRequest) -> BillResult:
         if (result["verdict"] == "likely_overbilled" and ai.complaint.strip()
                 and _only_allowed_numbers(ai.complaint, allowed)):
             complaint = ai.complaint.strip()
-        tips = [t.strip() for t in ai.tips if t and t.strip()][:3]
+        tips = [t.strip() for t in ai.tips
+                if t and t.strip() and _only_allowed_numbers(t, allowed + _TIP_NUMBERS)][:3]
         used_ai = True
     except AIError:
         log.warning("analyze-bill: AI unavailable, using the template texts")
@@ -399,8 +416,11 @@ def afford(req: AffordRequest) -> AffordResult:
     try:
         ai = ask_ai(afford_prompt(facts, req.lang), AffordAiText)
         # The AI may only write words around OUR numbers (and any digits that are part of the item name).
+        buffer = req.monthly_income * afford_rules.BUFFER_PERCENT / 100
+        left_after_needs = result["remaining"] - result["needed_until_month_end"]
         allowed = [float(v) for v in (
             result["price"], result["remaining"], abs(result["safe_to_spend"]), result["needed_until_month_end"],
+            abs(result["remaining"]), buffer, round(buffer), abs(left_after_needs),
             result["weeks_to_save"], result["weekly_saving"], req.monthly_income, req.spent_this_month,
             req.days_left_in_month, req.avg_daily_spend, req.upcoming_bills_estimate, 10, 30,
         ) if v is not None] + _numbers_in(item)

@@ -1,4 +1,6 @@
-"""Simple per-user limit on AI requests, kept in memory: 10 per rolling minute and 100 per rolling day.
+"""Simple limits on AI use, kept in memory:
+  per user: 8 requests per rolling minute and 20 per rolling day
+  everyone together: 150 AI calls per rolling day
 (In memory means it resets when the server restarts, and each server process counts on its own.)
 """
 import threading
@@ -10,8 +12,9 @@ from fastapi import Depends
 
 from auth import get_current_uid
 
-PER_MINUTE = 10
-PER_DAY = 100
+PER_MINUTE = 8
+PER_DAY = 20
+GLOBAL_PER_DAY = 150  # real AI calls, all users together
 MINUTE = 60.0
 DAY = 24 * 60 * 60.0
 
@@ -50,10 +53,26 @@ def check(uid: str, now: float = None) -> None:
                 del _calls[key]
 
 
+_global_calls: Deque[float] = deque()  # times of recent AI calls, all users
+
+
+def use_global_call(now: float = None) -> None:
+    """Counts one real AI call against the daily total, or raises RateLimited. Called by ai_client,
+    so answers made by the rules alone (like the scam fast path) cost nothing."""
+    now = time.time() if now is None else now
+    with _lock:
+        while _global_calls and now - _global_calls[0] >= DAY:
+            _global_calls.popleft()
+        if len(_global_calls) >= GLOBAL_PER_DAY:
+            raise RateLimited(DAY - (now - _global_calls[0]))
+        _global_calls.append(now)
+
+
 def reset() -> None:
     """For tests."""
     with _lock:
         _calls.clear()
+        _global_calls.clear()
 
 
 def limit_ai_requests(uid: str = Depends(get_current_uid)) -> str:

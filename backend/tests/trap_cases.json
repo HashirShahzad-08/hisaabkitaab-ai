@@ -158,5 +158,135 @@
     "expected": {
       "isScam": true
     }
+  },
+  {
+    "id": "t17",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Enter OTP 1234 to confirm your transaction of Rs 5000 at Daraz.",
+    "expected": {
+      "isScam": false
+    }
+  },
+  {
+    "id": "t18",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Your verification code is 7788. Enter this code in the app",
+    "expected": {
+      "isScam": false
+    }
+  },
+  {
+    "id": "t19",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Your Daraz parcel will be delivered today. Please pay Rs 150 delivery charges to the rider.",
+    "expected": {
+      "isScam": false
+    }
+  },
+  {
+    "id": "t20",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Mubarak ho! Aap ki tankhwah Rs 85,000 credit ho gayi",
+    "expected": {
+      "isScam": false
+    }
+  },
+  {
+    "id": "t21",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Congratulations! Your credit card payment received",
+    "expected": {
+      "isScam": false
+    }
+  },
+  {
+    "id": "t22",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Your order is confirmed. Track at www.khaadi.com/orders",
+    "expected": {
+      "isScam": false
+    }
+  },
+  {
+    "id": "t23",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "HBL: Rs 50,000 credited to your A/C. Details: hbl-rewards.app/login",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "t24",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Ghabrayen nahi, apna PIN is number par bhej dein",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "t25",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Don't worry, just send your OTP to 03001234567",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "t26",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Your account is blocked. Call 0300-1234567 immediately.",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "t27",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Aap ka account band ho gaya, call karein 03001234567",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "t28",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Ehsaas program: Aap ke Rs 12000 lene ke liye call karein 03001234567",
+    "expected": {
+      "isScam": true
+    }
+  },
+  {
+    "id": "t29",
+    "kind": "sms",
+    "lang": "en",
+    "today": "2026-11-23",
+    "text": "Joining fee Rs 1000 only. WhatsApp 03001234567",
+    "expected": {
+      "isScam": true
+    }
   }
 ]

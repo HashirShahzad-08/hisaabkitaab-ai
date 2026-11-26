@@ -88,9 +88,9 @@ The app saves each user's transactions, bills, budgets and goals directly in the
 
 Money and safety should not depend on an AI guess, so the AI and plain code check each other.
 
-- **SMS and quick entry:** the AI reads the text first. Then code (`backend/rules.py`) re-checks the parts code does better: amounts, dates (aaj, kal, parson and written dates), payment method, income or expense, category keywords, and scam red flags. Where they disagree, the rules win, and the answer's confidence drops from high to medium or low. The app shows a note when confidence is low.
+- **SMS and quick entry:** the AI reads the text first. Then code (`backend/rules.py`) re-checks the parts code does better: amounts, dates (aaj, kal, parson and written dates), payment method, income or expense, category keywords, and scam red flags. Where they disagree, the rules win (unless they may have read an amount only partly, or a scam sign is weak on its own), and the answer's confidence drops from high to medium or low. The app shows a note when confidence is low.
 - **Bill Analyzer and Can I afford it:** rules compute every number and the verdict (`bill_rules.py`, `afford_rules.py`). The AI only writes the explanation, tips and complaint. If its text contains any number the rules did not produce, that text is thrown away and a safe template is used. So the AI cannot change a number.
-- **Scam fast path:** if the rules find 2 or more strong red flags (for example "pay a fee" and "send your OTP"), the backend answers "scam" immediately with no AI call. It is instant and uses no AI quota.
+- **Scam fast path:** if the rules find 2 or more independent red flags (for example "pay a fee" and "send your OTP"), the backend answers "scam" immediately with no AI call. It is instant and uses no AI quota.
 - **Safety net:** if the AI is down but the rules see a scam, the user is still warned. If the whole server is down, the app's offline check does the same on the phone.
 - **Two AI providers:** Groq is tried first (with one retry). If it fails, Z.ai is used (if a key is set).
 
@@ -99,11 +99,12 @@ Scam red flags checked: asks for a fee before receiving money, asks for OTP, PIN
 ## Security
 
 - **Login required.** Every AI route checks a Firebase ID token (`Authorization: Bearer ...`). The token is verified with Google's public keys. A missing or invalid token gets HTTP 401.
-- **Per-user rate limits.** 10 AI requests per minute and 100 per day for each user. Too many requests get HTTP 429.
+- **Rate limits.** 8 AI requests per minute and 20 per day for each user, and 150 AI calls per day for all users together. Too many requests get HTTP 429. The counts are kept in memory by each server process.
+- **Input checks.** Dates must be real, text cannot be blank, and numbers must be finite and in range. The user's message is sent to the AI as marked data, not as instructions.
 - **Keys stay on the server.** The Groq and Z.ai keys are only server environment variables. The app never contains an AI key. The Firebase values in the app are public identifiers, not secrets.
 - **Per-user data rules.** Data lives under `users/{uid}/...` in Firestore, and Firestore security rules (set in the Firebase console) let a user read and write only their own data.
 - **No keys in the repo.** `.env` files are git-ignored (only `.env.example` files are committed). GitHub secret scanning and push protection are on.
-- **Production hardening.** In production the API documentation pages are off, CORS is limited to listed websites (the Android app does not need CORS), and logs never contain SMS text, bill details or tokens.
+- **Production hardening.** Production is the default (only `ENV=development` turns it off). In production the API documentation pages are off, CORS is limited to listed websites (the Android app does not need CORS), and logs never contain SMS text, bill details or tokens.
 - **Startup checks.** The server refuses to start if a required key is missing or is placeholder text.
 
 ## Accuracy
@@ -114,7 +115,7 @@ We measure the AI + rules pipeline with `backend/tests/run_eval.py`. Results wil
 | --- | --- | --- | --- | --- |
 | Main set (30 SMS + 10 quick entry) | 40 | TBD | TBD | |
 | Hold-out set (20 SMS + 10 quick entry) | 30 | TBD | TBD | Not used while tuning the rules |
-| Scam trap set (16 tricky SMS) | 16 | TBD | n/a | Normal messages that look like scams, and the reverse |
+| Scam trap set (29 tricky SMS) | 29 | TBD | n/a | Normal messages that look like scams, and the reverse |
 | Real SMS set | TBD | TBD | TBD | Anonymized real messages |
 | Bill rules (plain code) | 8 | n/a | TBD | `check_bill_rules.py` |
 | Can I afford it rules (plain code) | 8 | n/a | TBD | `check_afford_rules.py` |
@@ -222,7 +223,7 @@ No SMS permission is used. The user pastes a message, so the app never reads the
 
 ### Backend (`backend/requirements.txt`)
 
-Versions below are the ones tested. `requirements.txt` does not pin them.
+These versions are pinned in `requirements.txt` and were tested with Python 3.12.
 
 | Library | Version | Purpose |
 | --- | --- | --- |
