@@ -46,7 +46,8 @@
               "en",
               "ur"
             ]
-          }
+          },
+          "supportsRTL": true
         }
       ]
     ],

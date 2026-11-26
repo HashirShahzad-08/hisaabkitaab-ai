@@ -20,11 +20,11 @@ export function fromDateKey(key) {
   return new Date(y, m - 1, d);
 }
 
-// Date -> "3:45 PM" (the same in both languages, digits stay Western)
-export function formatTime(date) {
+// Date -> "3:45 PM", with AM / PM in the app language (digits stay Western)
+export function formatTime(date, t) {
   let h = date.getHours();
   const min = String(date.getMinutes()).padStart(2, '0');
-  const suffix = h >= 12 ? 'PM' : 'AM';
+  const suffix = t(h >= 12 ? 'dates.pm' : 'dates.am');
   h = h % 12 || 12;
   return `${h}:${min} ${suffix}`;
 }

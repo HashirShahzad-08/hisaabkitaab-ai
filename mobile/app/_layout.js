@@ -69,7 +69,7 @@ function Routes() {
       .catch(() => setLangReady(true));
   }, []);
 
-  const ready = fontsLoaded && langReady && !loading && !(user && gate === 'checking');
+  const ready = fontsLoaded && langReady && !loading;
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
@@ -94,6 +94,10 @@ function Routes() {
       {/* Logged in, first time only (or "Show welcome again" in Settings): the welcome flow */}
       <Stack.Protected guard={!!user && gate === 'show'}>
         <Stack.Screen name="welcome" />
+      </Stack.Protected>
+      {/* Just logged in: a dark loader while we decide which of the two groups above to show */}
+      <Stack.Protected guard={!!user && gate === 'checking'}>
+        <Stack.Screen name="loading" />
       </Stack.Protected>
       {/* Logged out: login and sign up */}
       <Stack.Protected guard={!user}>

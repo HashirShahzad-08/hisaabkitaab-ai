@@ -30,26 +30,38 @@ async function post(path, fields, timeoutMs = TIMEOUT_MS) {
     throw new ApiError('errors.session_expired', String(e));
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  let response;
-  try {
-    response = await fetch(`${BASE_URL}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({
-        lang: i18n.language === 'ur' ? 'ur' : 'en',
-        today: toDateKey(new Date()),
-        ...fields,
-      }),
-      signal: controller.signal,
-    });
-  } catch (e) {
-    // fetch fails like this when the phone cannot reach the server, or when we gave up waiting
-    console.log(`[api] ${path} could not reach ${BASE_URL}:`, String(e));
-    throw new ApiError(e?.name === 'AbortError' ? 'api.errors.timeout' : 'api.errors.network', String(e));
-  } finally {
-    clearTimeout(timer);
+  const send = async (idToken) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(`${BASE_URL}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({
+          lang: i18n.language === 'ur' ? 'ur' : 'en',
+          today: toDateKey(new Date()),
+          ...fields,
+        }),
+        signal: controller.signal,
+      });
+    } catch (e) {
+      // fetch fails like this when the phone cannot reach the server, or when we gave up waiting
+      if (__DEV__) console.log(`[api] ${path} could not reach ${BASE_URL}:`, String(e));
+      throw new ApiError(e?.name === 'AbortError' ? 'api.errors.timeout' : 'api.errors.network', String(e));
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  let response = await send(token);
+  if (response.status === 401) {
+    // The token may just be stale: get a fresh one and try once more before asking the user to log in again
+    try {
+      token = await user.getIdToken(true);
+    } catch (e) {
+      throw new ApiError('errors.session_expired', String(e));
+    }
+    response = await send(token);
   }
 
   let data = null;
@@ -62,7 +74,7 @@ async function post(path, fields, timeoutMs = TIMEOUT_MS) {
   if (!response.ok) {
     // The backend sends { error: "...", code: "..." } when the AI fails. 422 means we sent bad input.
     // Log the real reason in the Expo terminal so it is easy to debug.
-    console.log(`[api] ${path} failed: HTTP ${response.status}`, JSON.stringify(data));
+    if (__DEV__) console.log(`[api] ${path} failed: HTTP ${response.status}`, JSON.stringify(data));
     let key = 'api.errors.ai';
     if (response.status === 401) key = 'errors.session_expired';
     else if (response.status === 429) key = 'errors.too_many';
@@ -72,7 +84,7 @@ async function post(path, fields, timeoutMs = TIMEOUT_MS) {
     throw new ApiError(key, data?.error);
   }
   if (!data) {
-    console.log(`[api] ${path} returned an empty or non-JSON reply (HTTP ${response.status})`);
+    if (__DEV__) console.log(`[api] ${path} returned an empty or non-JSON reply (HTTP ${response.status})`);
     throw new ApiError('api.errors.ai');
   }
   return data;

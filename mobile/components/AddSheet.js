@@ -36,7 +36,8 @@ export default function AddSheet() {
         tileAnims.map((a) => Animated.timing(a, { toValue: 1, duration: 220, useNativeDriver: true }))
       ).start();
     } else if (mounted) {
-      Animated.timing(progress, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
+      Animated.timing(progress, { toValue: 0, duration: 180, useNativeDriver: true }).start(({ finished }) => {
+        if (!finished) return; // opened again before it finished closing: stay mounted
         tileAnims.forEach((a) => a.setValue(0));
         setMounted(false);
       });

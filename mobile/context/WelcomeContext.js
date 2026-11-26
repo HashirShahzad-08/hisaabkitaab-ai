@@ -48,19 +48,23 @@ async function shouldShow(uid) {
 export function WelcomeProvider({ children }) {
   const { user } = useAuth();
   const uid = user?.uid;
-  const [gate, setGate] = useState('checking');
+  const [storedGate, setGate] = useState('checking');
+  const [checkedUid, setCheckedUid] = useState(null); // the user the stored answer belongs to
+  // Right after login the stored answer is still the old one, so until this user is checked: "checking"
+  const gate = !uid ? 'skip' : checkedUid !== uid ? 'checking' : storedGate;
   const [replay, setReplay] = useState(false);
 
   useEffect(() => {
     if (!uid) {
-      setGate('skip');
+      setCheckedUid(null);
       setReplay(false);
       return undefined;
     }
     let cancelled = false;
-    setGate('checking');
     shouldShow(uid).then((show) => {
-      if (!cancelled) setGate(show ? 'show' : 'skip');
+      if (cancelled) return;
+      setGate(show ? 'show' : 'skip');
+      setCheckedUid(uid);
     });
     return () => { cancelled = true; };
   }, [uid]);

@@ -1,5 +1,5 @@
 // Goals tab: monthly Budgets and savings Goals, as two segments (DESIGN.md section 8.9).
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Dialog, Portal, Snackbar, TextInput } from 'react-native-paper';
@@ -47,6 +47,7 @@ export default function GoalsScreen() {
   const [moneyError, setMoneyError] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [busy, setBusy] = useState(false);
+  const addingMoney = useRef(false); // blocks a second tap before the screen has redrawn
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -64,11 +65,13 @@ export default function GoalsScreen() {
   }
 
   async function confirmAddMoney() {
+    if (addingMoney.current || !moneyGoal) return;
     const amount = Number(moneyText);
     if (!/^\d+(\.\d+)?$/.test(moneyText.trim()) || amount <= 0) {
       setMoneyError(true);
       return;
     }
+    addingMoney.current = true;
     setBusy(true);
     try {
       await addMoneyToGoal(user.uid, moneyGoal.id, amount);
@@ -77,6 +80,7 @@ export default function GoalsScreen() {
     } catch (e) {
       setSnack(t('goals.saveError'));
     }
+    addingMoney.current = false;
     setBusy(false);
     setMoneyGoal(null);
     setMoneyText('');

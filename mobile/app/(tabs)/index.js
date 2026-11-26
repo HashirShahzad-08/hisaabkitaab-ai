@@ -23,8 +23,8 @@ import { useBudgets } from '../../hooks/useBudgetsAndGoals';
 import useProfile from '../../hooks/useProfile';
 import useTransactions from '../../hooks/useTransactions';
 import { colors, radius, screenPadding, spacing } from '../../theme';
-import { budgetProgress, budgetsForScore, worstBudget } from '../../utils/budgets';
-import { calculateHealthScore } from '../../utils/healthScore';
+import { budgetProgress, worstBudget } from '../../utils/budgets';
+import { monthHealth } from '../../utils/monthHealth';
 import { getMonthStats } from '../../utils/stats';
 
 const TILES = [
@@ -69,11 +69,8 @@ export default function HomeScreen() {
   const stats = useMemo(() => getMonthStats(items), [items]);
   const progress = useMemo(() => budgetProgress(budgetData.items, stats), [budgetData.items, stats]);
 
-  // Health Score. Income = this month's income transactions; if none yet, the monthly income from the profile.
-  const health = useMemo(() => {
-    const income = stats.income > 0 ? stats.income : Number(profile?.monthlyIncome) || 0;
-    return calculateHealthScore({ income, expense: stats.expense, budgets: budgetsForScore(progress) });
-  }, [stats, profile, progress]);
+  // Health Score (the same helper as "Can I afford it?")
+  const health = useMemo(() => monthHealth(stats, budgetData.items, profile), [stats, budgetData.items, profile]);
 
   // Rule-based insight for now: the biggest spending category this month.
   const insightText = useMemo(() => {

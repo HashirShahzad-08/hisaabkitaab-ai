@@ -1,6 +1,6 @@
 // SMS auto-entry - DESIGN.md section 8.5
-import { useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Linking, Platform, ScrollView, Share, StyleSheet, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Keyboard, Linking, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
@@ -13,6 +13,7 @@ import FadeInCard from '../components/FadeInCard';
 import LowConfidenceNote from '../components/LowConfidenceNote';
 import ScamAlert from '../components/ScamAlert';
 import ScreenHeader from '../components/ScreenHeader';
+import KeyboardAvoider from '../components/ui/KeyboardAvoider';
 import TransactionForm, { toFormValue } from '../components/TransactionForm';
 import Card from '../components/ui/Card';
 import FormInput from '../components/ui/FormInput';
@@ -44,21 +45,29 @@ export default function SmsEntryScreen() {
   const [error, setError] = useState(null); // an i18n key
   const [amountError, setAmountError] = useState(null);
   const [saving, setSaving] = useState(false);
+  const analyzing = useRef(false); // these two block a second tap before the screen has redrawn
+  const savingNow = useRef(false);
 
   async function paste() {
-    const clip = await Clipboard.getStringAsync();
-    if (clip) {
-      setText(clip);
-      setError(null);
+    try {
+      const clip = await Clipboard.getStringAsync();
+      if (clip) {
+        setText(clip);
+        setError(null);
+      }
+    } catch (e) {
+      // the phone did not allow reading the clipboard: the user can still paste by hand
     }
   }
 
   async function analyze() {
+    if (analyzing.current) return;
     Keyboard.dismiss();
     if (!text.trim()) {
       setError('smsEntry.errors.empty');
       return;
     }
+    analyzing.current = true;
     setError(null);
     setStatus('loading');
     try {
@@ -89,6 +98,8 @@ export default function SmsEntryScreen() {
       setStatus('idle');
       // Not a scam on the phone: do not guess the transaction, just ask the user to try again
       setError(OFFLINE_ERRORS.includes(key) ? 'smsEntry.offlineFail' : key);
+    } finally {
+      analyzing.current = false;
     }
   }
 
@@ -113,12 +124,13 @@ export default function SmsEntryScreen() {
   }
 
   async function save() {
-    if (saving) return;
+    if (savingNow.current) return;
     const amount = Number(form.digits);
     if (!amount) {
       setAmountError('addTx.errors.amount');
       return;
     }
+    savingNow.current = true;
     setSaving(true);
     try {
       await addTransaction(user.uid, {
@@ -134,6 +146,7 @@ export default function SmsEntryScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.back();
     } catch (e) {
+      savingNow.current = false;
       setError(e?.code === 'permission-denied' ? 'addTx.errors.permission' : 'addTx.errors.generic');
       setSaving(false);
     }
@@ -150,7 +163,7 @@ export default function SmsEntryScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <ScreenHeader title={t('smsEntry.title')} />
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoider>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <FadeInCard index={0}>
             <View style={styles.group}>
@@ -196,7 +209,7 @@ export default function SmsEntryScreen() {
                 label={t('smsEntry.scam.report')}
                 icon="call-outline"
                 variant="danger"
-                onPress={() => Linking.openURL(`tel:${PTA_NUMBER}`)}
+                onPress={() => Linking.openURL(`tel:${PTA_NUMBER}`).catch(() => {})}
               />
               <PrimaryButton label={t('smsEntry.scam.warnFamily')} icon="share-social-outline" variant="outlined" onPress={warnFamily} />
               <PrimaryButton label={t('smsEntry.scam.delete')} variant="text" tone="danger" onPress={clearAll} />
@@ -219,14 +232,13 @@ export default function SmsEntryScreen() {
             </FadeInCard>
           ) : null}
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  flex: { flex: 1 },
   scroll: { padding: screenPadding, gap: spacing.md, paddingBottom: spacing.xxl },
   group: { gap: spacing.md },
   inputContent: { minHeight: 144, paddingTop: 12 },

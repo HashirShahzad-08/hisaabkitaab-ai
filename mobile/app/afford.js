@@ -1,6 +1,6 @@
 // Can I afford it? The app works out the numbers from the user's own data, the backend decides and explains.
 import { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +15,7 @@ import FadeInCard from '../components/FadeInCard';
 import InsightCard from '../components/InsightCard';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import ScreenHeader from '../components/ScreenHeader';
+import KeyboardAvoider from '../components/ui/KeyboardAvoider';
 import Card from '../components/ui/Card';
 import EmptyState from '../components/ui/EmptyState';
 import FormInput from '../components/ui/FormInput';
@@ -25,16 +26,20 @@ import StatGrid, { StatTile } from '../components/ui/StatGrid';
 import VerdictCard from '../components/ui/VerdictCard';
 import { useAuth } from '../context/AuthContext';
 import useBills from '../hooks/useBills';
+import { useBudgets } from '../hooks/useBudgetsAndGoals';
+import useProfile from '../hooks/useProfile';
 import useTransactions from '../hooks/useTransactions';
 import { ApiError, askAfford } from '../services/api';
 import { colors, fonts, radius, screenPadding, spacing } from '../theme';
 import { buildAffordInputs } from '../utils/affordInputs';
 import { formatNumber } from '../utils/format';
-import { calculateHealthScore } from '../utils/healthScore';
+import { monthHealth } from '../utils/monthHealth';
 import { forwardIcon, useIsRTL } from '../utils/rtl';
+import { getMonthStats } from '../utils/stats';
 import useAnimatedNumber from '../utils/useAnimatedNumber';
 
 const THINKING = ['thinking.afford.0', 'thinking.afford.1', 'thinking.afford.2'];
+const MAX_PRICE = 100000000; // the server's limit
 
 const VERDICT = {
   yes: { tone: 'ok', icon: 'checkmark-circle' },
@@ -88,7 +93,9 @@ export default function AffordScreen() {
   const [reloadKey, setReloadKey] = useState(0);
   const tx = useTransactions(user?.uid, reloadKey);
   const bills = useBills(user?.uid, reloadKey);
-  const inputs = useMemo(() => buildAffordInputs(tx.items, bills.bills), [tx.items, bills.bills]);
+  const budgets = useBudgets(user?.uid, reloadKey);
+  const profile = useProfile(user?.uid, reloadKey);
+  const inputs = useMemo(() => buildAffordInputs(tx.items, bills.bills, profile), [tx.items, bills.bills, profile]);
 
   const [item, setItem] = useState('');
   const [price, setPrice] = useState('');
@@ -98,13 +105,14 @@ export default function AffordScreen() {
   const [answer, setAnswer] = useState(null); // { result, priceNumber }
   const [playKey, setPlayKey] = useState(0);
 
-  const dataLoading = tx.loading || bills.loading;
+  const dataLoading = tx.loading || bills.loading || budgets.loading || profile === undefined;
 
   async function check() {
     if (loading) return;
     const e = {};
     if (!item.trim()) e.item = 'afford.errors.item';
     if (!/^\d+(\.\d+)?$/.test(price.trim()) || Number(price) <= 0) e.price = 'afford.errors.price';
+    else if (Number(price) > MAX_PRICE) e.price = 'afford.errors.priceMax';
     setErrors(e);
     if (Object.keys(e).length) return;
 
@@ -173,8 +181,9 @@ export default function AffordScreen() {
   } else if (answer) {
     const { result, priceNumber } = answer;
     const meta = VERDICT[result.verdict];
-    const before = calculateHealthScore({ income: inputs.monthly_income, expense: inputs.spent_this_month, budgets: [] }).score;
-    const after = calculateHealthScore({ income: inputs.monthly_income, expense: inputs.spent_this_month + priceNumber, budgets: [] }).score;
+    const stats = getMonthStats(tx.items);
+    const before = monthHealth(stats, budgets.items, profile).score;
+    const after = monthHealth(stats, budgets.items, profile, priceNumber).score;
     body = (
       <View style={styles.stack}>
         {/* 1. Verdict */}
@@ -267,7 +276,7 @@ export default function AffordScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <ScreenHeader title={t('afford.title')} />
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoider>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {body}
         </ScrollView>
@@ -282,7 +291,7 @@ export default function AffordScreen() {
           ) : null}
           {answer ? <PrimaryButton label={t('afford.another')} variant="outlined" onPress={reset} /> : null}
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }

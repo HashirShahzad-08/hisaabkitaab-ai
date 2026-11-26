@@ -1,12 +1,15 @@
 // Works out the numbers the "Can I afford it?" backend needs, from the user's own saved data.
 // No React and no Firebase in here, so it is easy to test.
 import { monthKey, toDateKey } from './format';
+import { incomeFor } from './monthHealth';
 
 const WINDOW_DAYS = 30; // average spending is taken over the last 30 days
 const MIN_WINDOW_DAYS = 7; // a brand-new user must not look like a very big spender after one day
 
-// items: transactions ({ date: "YYYY-MM-DD", type, amount }), bills: saved bills (newest first, { amount })
-export function buildAffordInputs(items, bills, now = new Date()) {
+// items: transactions ({ date: "YYYY-MM-DD", type, amount })
+// bills: saved bills (newest first, { amount, billMonth, addedToExpenses })
+// profile: used for the monthly income when this month has no income transaction yet
+export function buildAffordInputs(items, bills, profile, now = new Date()) {
   const thisMonth = monthKey(now);
   const today = toDateKey(now);
   const windowStart = toDateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - (WINDOW_DAYS - 1)));
@@ -34,11 +37,15 @@ export function buildAffordInputs(items, bills, now = new Date()) {
   }
 
   const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const upcoming = bills && bills.length > 0 ? Number(bills[0].amount) || 0 : undefined;
+  // A bill still to be paid: not already counted as an expense, and from this month or last month
+  const recentMonths = [thisMonth, monthKey(new Date(now.getFullYear(), now.getMonth() - 1, 1))];
+  const unpaid = (bills || []).find((b) => !b.addedToExpenses && recentMonths.includes(b.billMonth));
+  const upcoming = unpaid ? Number(unpaid.amount) || 0 : undefined;
+  const monthlyIncome = incomeFor(income, profile);
 
   return {
-    hasIncome: income > 0,
-    monthly_income: income,
+    hasIncome: monthlyIncome > 0,
+    monthly_income: monthlyIncome,
     spent_this_month: spent,
     days_left_in_month: Math.max(0, lastDayOfMonth - now.getDate()),
     avg_daily_spend: Math.round((last30 / windowDays) * 100) / 100,

@@ -1,4 +1,5 @@
 // "Load demo data": replaces the signed-in user's data with a sample month (for showing the app).
+// The new data is written first and the old data deleted only after that. The profile is not touched.
 // Everything is dated relative to today, so it always looks current.
 import { collection, doc, getDocs, Timestamp, writeBatch } from 'firebase/firestore';
 
@@ -6,6 +7,7 @@ import { db } from '../firebase';
 import en from '../i18n/en.json';
 import ur from '../i18n/ur.json';
 import { toDateKey } from '../utils/format';
+import { withTimeout } from './transactionService';
 
 const COLLECTIONS = ['transactions', 'bills', 'budgets', 'goals'];
 const BATCH_SIZE = 400; // Firestore allows 500 writes per batch
@@ -180,16 +182,15 @@ export async function loadDemoData(uid, lang = 'en') {
   const now = new Date();
   const userDoc = (...path) => doc(db, 'users', uid, ...path);
 
-  // 1. find what to delete
-  const toDelete = [];
+  // 1. note the old documents BEFORE writing anything new
+  const oldRefs = [];
   for (const name of COLLECTIONS) {
     const snap = await getDocs(collection(db, 'users', uid, name));
-    snap.forEach((d) => toDelete.push(d.ref));
+    snap.forEach((d) => oldRefs.push(d.ref));
   }
 
   // 2. everything to write
   const writes = [];
-  writes.push([userDoc('profile', 'main'), { name: 'Shazia' }, { merge: true }]);
   buildTransactions(now).forEach((t) => writes.push([doc(collection(db, 'users', uid, 'transactions')), t]));
   buildBills(now, lang === 'ur' ? 'ur' : 'en').forEach((b) => writes.push([doc(collection(db, 'users', uid, 'bills')), b]));
   [['Food', 16500], ['Transport', 6000], ['Bills', 15000]].forEach(([category, limit]) =>
@@ -206,18 +207,19 @@ export async function loadDemoData(uid, lang = 'en') {
     createdAt: Timestamp.fromMillis(now.getTime() - 2000), updatedAt: Timestamp.fromDate(now),
   }]);
 
-  // 3. deletes first, then writes, in batches
+  // 3. write the new data, then delete the old. A budget keeps its document id (the category),
+  //    so old documents that were just rewritten must not be deleted.
+  const written = new Set(writes.map(([ref]) => ref.path));
   const ops = [
-    ...toDelete.map((ref) => ({ del: ref })),
-    ...writes.map(([ref, data, options]) => ({ ref, data, options })),
+    ...writes.map(([ref, data]) => ({ ref, data })),
+    ...oldRefs.filter((ref) => !written.has(ref.path)).map((ref) => ({ del: ref })),
   ];
   for (let i = 0; i < ops.length; i += BATCH_SIZE) {
     const batch = writeBatch(db);
     ops.slice(i, i + BATCH_SIZE).forEach((op) => {
       if (op.del) batch.delete(op.del);
-      else if (op.options) batch.set(op.ref, op.data, op.options);
       else batch.set(op.ref, op.data);
     });
-    await batch.commit();
+    await withTimeout(batch.commit()); // offline: queued in order and sent later
   }
 }

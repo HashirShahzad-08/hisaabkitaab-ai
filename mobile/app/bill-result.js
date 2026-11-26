@@ -1,5 +1,5 @@
 // Bill result: verdict, key numbers, issues, explanation (spoken), tips, complaint, and Save.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Snackbar, Switch } from 'react-native-paper';
@@ -20,7 +20,7 @@ import SectionHeader from '../components/ui/SectionHeader';
 import StatGrid, { StatTile } from '../components/ui/StatGrid';
 import VerdictCard from '../components/ui/VerdictCard';
 import { useAuth } from '../context/AuthContext';
-import { getCurrentBill, saveBill, setFlash } from '../services/billService';
+import { getCurrentBill, newBillRefs, saveBill, setFlash } from '../services/billService';
 import { colors, fonts, radius, screenPadding, spacing } from '../theme';
 import { helplineFor, monthLabel, verdictMeta } from '../utils/billUi';
 import { formatNumber } from '../utils/format';
@@ -65,6 +65,8 @@ export default function BillResultScreen() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [snack, setSnack] = useState('');
+  const busy = useRef(false); // blocks a second tap before the screen has redrawn
+  const refs = useRef(null); // the same documents are reused if saving is retried
 
   if (!bill) {
     return (
@@ -89,11 +91,14 @@ export default function BillResultScreen() {
   const helpline = helplineFor(request.company);
 
   async function save() {
-    if (saving) return;
+    if (busy.current) return;
+    busy.current = true;
     setSaving(true);
     setSaveError(false);
     try {
-      await saveBill(user.uid, {
+      if (!refs.current) refs.current = newBillRefs(user.uid);
+      await saveBill({
+        refs: refs.current,
         request,
         result,
         expense: addExpense ? { label: t('bills.expenseNote', { month: monthLabel(request.bill_month, t) }) } : null,
@@ -102,6 +107,7 @@ export default function BillResultScreen() {
       setFlash('bills.saved');
       router.navigate('/(tabs)/bills');
     } catch (e) {
+      busy.current = false;
       setSaveError(true);
       setSaving(false);
     }

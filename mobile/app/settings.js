@@ -154,7 +154,7 @@ export default function SettingsScreen() {
                 iconColor={colors.danger}
                 label={t('settings.scamHelp')}
                 accessibilityRole="link"
-                onPress={() => Linking.openURL(`tel:${PTA_NUMBER}`)}
+                onPress={() => Linking.openURL(`tel:${PTA_NUMBER}`).catch(() => {})}
               />
             </Card>
 

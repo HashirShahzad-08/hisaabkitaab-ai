@@ -1,6 +1,6 @@
 // Urdu quick entry (type or speak) - DESIGN.md section 8.6
-import { useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Checkbox } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +13,7 @@ import AppText from '../components/AppText';
 import FadeInCard from '../components/FadeInCard';
 import LowConfidenceNote from '../components/LowConfidenceNote';
 import ScreenHeader from '../components/ScreenHeader';
+import KeyboardAvoider from '../components/ui/KeyboardAvoider';
 import TransactionForm, { toFormValue } from '../components/TransactionForm';
 import Card from '../components/ui/Card';
 import Chip from '../components/ui/Chip';
@@ -21,7 +22,7 @@ import FormInput from '../components/ui/FormInput';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { useAuth } from '../context/AuthContext';
 import { ApiError, quickEntry } from '../services/api';
-import { addTransaction } from '../services/transactionService';
+import { addTransactions, newTransactionRef } from '../services/transactionService';
 import { colors, screenPadding, sizes, spacing } from '../theme';
 
 const THINKING = ['thinking.quick.0', 'thinking.quick.1', 'thinking.quick.2'];
@@ -37,6 +38,7 @@ export default function QuickEntryScreen() {
   const [entries, setEntries] = useState([]); // { checked, form, amountError }
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
+  const busyRef = useRef(false); // blocks a second tap before the screen has redrawn
 
   async function addWithAi() {
     Keyboard.dismiss();
@@ -48,7 +50,10 @@ export default function QuickEntryScreen() {
     setStatus('loading');
     try {
       const result = await quickEntry(text.trim());
-      setEntries(result.transactions.map((tx) => ({ checked: true, form: toFormValue(tx), amountError: null })));
+      // each entry gets its document now, so retrying a save can never create it twice
+      setEntries(result.transactions.map((tx) => (
+        { checked: true, form: toFormValue(tx), amountError: null, ref: newTransactionRef(user.uid) }
+      )));
       setStatus('done');
     } catch (e) {
       setStatus('idle');
@@ -64,7 +69,7 @@ export default function QuickEntryScreen() {
   const selected = entries.filter((e) => e.checked);
 
   async function saveAll() {
-    if (saving || selected.length === 0) return;
+    if (busyRef.current || selected.length === 0) return;
     // Every checked entry needs an amount
     let bad = false;
     const checked = entries.map((en) => {
@@ -78,10 +83,12 @@ export default function QuickEntryScreen() {
       setEntries(checked);
       return;
     }
+    busyRef.current = true;
     setSaving(true);
     try {
-      for (const en of selected) {
-        await addTransaction(user.uid, {
+      await addTransactions(selected.map((en) => ({
+        ref: en.ref,
+        fields: {
           amount: Number(en.form.digits),
           type: en.form.type,
           category: en.form.category,
@@ -90,11 +97,12 @@ export default function QuickEntryScreen() {
           merchant: en.form.merchant,
           note: en.form.note,
           source: 'quick',
-        });
-      }
+        },
+      })));
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.back();
     } catch (e) {
+      busyRef.current = false;
       setError(e?.code === 'permission-denied' ? 'addTx.errors.permission' : 'addTx.errors.generic');
       setSaving(false);
     }
@@ -106,7 +114,7 @@ export default function QuickEntryScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <ScreenHeader title={t('quickEntry.title')} />
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoider>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <FadeInCard index={0}>
             <View style={styles.group}>
@@ -186,14 +194,13 @@ export default function QuickEntryScreen() {
             />
           </View>
         ) : null}
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  flex: { flex: 1 },
   scroll: { padding: screenPadding, gap: spacing.md, paddingBottom: spacing.xxl },
   group: { gap: spacing.sm },
   inputContent: { minHeight: 112, paddingTop: 12 },

@@ -1,6 +1,6 @@
 // Bill form: the numbers from the electricity bill, then "Check bill".
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +14,7 @@ import FadeInCard from '../components/FadeInCard';
 import PressableScale from '../components/PressableScale';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import ScreenHeader from '../components/ScreenHeader';
+import KeyboardAvoider from '../components/ui/KeyboardAvoider';
 import Card from '../components/ui/Card';
 import FormInput from '../components/ui/FormInput';
 import { useAuth } from '../context/AuthContext';
@@ -73,6 +74,9 @@ export default function BillFormScreen() {
       if (value.trim() === '') e[key] = 'bills.form.errors.required';
       else if (!/^\d+(\.\d+)?$/.test(value.trim())) e[key] = 'bills.form.errors.number';
     }
+    if (!e.previous && !e.current && Number(current) < Number(previous)) e.current = 'bills.form.errors.currentLower';
+    if (!e.units && Number(units) === 0) e.units = 'bills.form.errors.zero';
+    if (!e.amount && Number(amount) === 0) e.amount = 'bills.form.errors.zero';
     for (const [key, value] of Object.entries({ lastMonth, lastYear })) {
       if (value.trim() !== '' && !/^\d+(\.\d+)?$/.test(value.trim())) {
         e[key] = 'bills.form.errors.number';
@@ -141,7 +145,7 @@ export default function BillFormScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <ScreenHeader title={t('bills.form.title')} />
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoider>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           {/* Month */}
           <FadeInCard index={0}>
@@ -223,7 +227,7 @@ export default function BillFormScreen() {
             icon={apiError ? 'refresh' : 'checkmark-circle-outline'}
           />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }

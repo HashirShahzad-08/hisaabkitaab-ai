@@ -1,6 +1,6 @@
 // Add or edit a savings goal: name, target amount, and an optional target date.
 import { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -14,6 +14,7 @@ import FadeInCard from '../components/FadeInCard';
 import PressableScale from '../components/PressableScale';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import ScreenHeader from '../components/ScreenHeader';
+import KeyboardAvoider from '../components/ui/KeyboardAvoider';
 import Card from '../components/ui/Card';
 import DateField from '../components/ui/DateField';
 import FormInput from '../components/ui/FormInput';
@@ -62,7 +63,7 @@ export default function GoalFormScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <ScreenHeader title={t(editing ? 'goals.editGoal' : 'goals.addGoal')} />
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoider>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <FadeInCard index={0}>
             <Card style={styles.group}>
@@ -123,7 +124,7 @@ export default function GoalFormScreen() {
         <View style={styles.footer}>
           <PrimaryButton label={t('goals.save')} icon="checkmark-circle-outline" onPress={save} loading={saving} />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }

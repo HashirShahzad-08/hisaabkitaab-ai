@@ -1,6 +1,6 @@
 // Add or edit a monthly budget. One budget per category, so "add" only offers categories without one.
 import { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Dialog, Portal, TextInput } from 'react-native-paper';
 import * as Haptics from 'expo-haptics';
@@ -11,6 +11,7 @@ import AppText from '../components/AppText';
 import FadeInCard from '../components/FadeInCard';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import ScreenHeader from '../components/ScreenHeader';
+import KeyboardAvoider from '../components/ui/KeyboardAvoider';
 import Card from '../components/ui/Card';
 import Chip from '../components/ui/Chip';
 import FormInput from '../components/ui/FormInput';
@@ -74,7 +75,7 @@ export default function BudgetFormScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <ScreenHeader title={t(editing ? 'goals.editBudget' : 'goals.addBudget')} />
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoider>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <FadeInCard index={0}>
             <Card style={styles.group}>
@@ -135,7 +136,7 @@ export default function BudgetFormScreen() {
         <View style={styles.footer}>
           <PrimaryButton label={t('goals.save')} icon="checkmark-circle-outline" onPress={save} loading={saving} disabled={choices.length === 0} />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
 
       <Portal>
         <Dialog visible={confirmDelete} onDismiss={() => !saving && setConfirmDelete(false)} style={styles.dialog}>
@@ -153,7 +154,6 @@ export default function BudgetFormScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  flex: { flex: 1 },
   scroll: { padding: screenPadding, paddingBottom: spacing.xl, gap: spacing.md },
   group: { gap: spacing.md },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },

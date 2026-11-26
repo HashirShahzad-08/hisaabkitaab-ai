@@ -25,7 +25,7 @@ export default function TransactionRow({ item, onDelete, meta, last = false }) {
   const title = item.note || t(categoryKey(item.category));
   const caption = meta === 'source'
     ? `${formatDayLabel(item.date, t)} · ${t(`home.source.${SOURCE_LABEL[item.source] || 'manual'}`)}`
-    : `${t(paymentKey(item.paymentType))} · ${formatTime(item.dateTime)}`;
+    : `${t(paymentKey(item.paymentType))} · ${formatTime(item.dateTime, t)}`;
 
   const renderRight = () => (
     <Pressable

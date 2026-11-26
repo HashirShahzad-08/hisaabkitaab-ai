@@ -1,11 +1,12 @@
 // The user's profile document: users/{uid}/profile/main
+// undefined while loading, null when there is none (or it cannot be read).
 import { useEffect, useState } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 
 import { db } from '../firebase';
 
 export default function useProfile(uid, reloadKey = 0) {
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState(undefined);
   useEffect(() => {
     if (!uid) return undefined;
     return onSnapshot(

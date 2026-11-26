@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import AppText from '../components/AppText';
 import PressableScale from '../components/PressableScale';
 import RadioCard from '../components/ui/RadioCard';
+import KeyboardAvoider from '../components/ui/KeyboardAvoider';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { useAuth } from '../context/AuthContext';
 import { WELCOME_STEP_KEY, useWelcome } from '../context/WelcomeContext';
@@ -110,6 +111,7 @@ export default function WelcomeScreen() {
   const [incomeError, setIncomeError] = useState(null);
   const [savingIncome, setSavingIncome] = useState(false);
   const savedIncome = useRef({ digits: '', id: null });
+  const incomeBusy = useRef(false); // true while saving: no second save, no swiping away
   const prefilled = useRef(false);
   useEffect(() => {
     if (!prefilled.current && profile?.monthlyIncome) {
@@ -118,14 +120,17 @@ export default function WelcomeScreen() {
     }
   }, [profile]);
 
-  // Saves this month's income (category Income, note Salary) and monthlyIncome in the profile.
+  // Saves this month's income (category Income, note "Salary" in the app language) and monthlyIncome in the profile.
   async function saveIncome() {
+    if (incomeBusy.current) return false;
     const amount = Number(digits);
     if (!amount || digits === savedIncome.current.digits) return true; // nothing new to save
+    incomeBusy.current = true;
     setSavingIncome(true);
     setIncomeError(null);
     try {
       if (savedIncome.current.id) await deleteTransaction(user.uid, savedIncome.current.id);
+      savedIncome.current = { digits: '', id: null };
       const now = new Date();
       const id = await addTransaction(user.uid, {
         amount,
@@ -133,9 +138,10 @@ export default function WelcomeScreen() {
         category: 'Income',
         paymentType: 'Bank card',
         date: new Date(now.getFullYear(), now.getMonth(), 1), // salary on the 1st of this month
-        note: 'Salary',
+        note: t('categories.salary'),
         source: 'manual',
       });
+      savedIncome.current = { digits: '', id }; // if the next step fails, a retry replaces this one
       await saveMonthlyIncome(user.uid, amount);
       savedIncome.current = { digits, id };
       return true;
@@ -143,6 +149,7 @@ export default function WelcomeScreen() {
       setIncomeError(e?.code === 'permission-denied' ? 'addTx.errors.permission' : 'addTx.errors.generic');
       return false;
     } finally {
+      incomeBusy.current = false;
       setSavingIncome(false);
     }
   }
@@ -157,6 +164,7 @@ export default function WelcomeScreen() {
   }
 
   async function onNext() {
+    if (incomeBusy.current) return;
     if (step === 'income' && !(await saveIncome())) return;
     go(1);
   }
@@ -164,7 +172,7 @@ export default function WelcomeScreen() {
   // Swipe: toward the start of the line goes forward (left in English, right in Urdu)
   const swipe = useRef(() => {});
   swipe.current = (dx) => {
-    if (Math.abs(dx) < SWIPE_DISTANCE || restarting) return;
+    if (Math.abs(dx) < SWIPE_DISTANCE || restarting || incomeBusy.current) return;
     const forward = isUrdu ? dx > 0 : dx < 0;
     if (forward) {
       if (step === 'final') return;
@@ -219,120 +227,122 @@ export default function WelcomeScreen() {
         ) : null}
       </View>
 
-      <View style={styles.flex} {...pan.panHandlers}>
-        <ScrollView
-          contentContainerStyle={styles.page}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <MotiView
-            key={step}
-            from={from}
-            animate={{ opacity: 1, translateX: 0 }}
-            transition={{ type: 'spring', damping: 15 }}
-            style={styles.pageInner}
+      <KeyboardAvoider>
+        <View style={styles.flex} {...pan.panHandlers}>
+          <ScrollView
+            contentContainerStyle={styles.page}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            {step === 'language' ? (
-              <>
-                <Hero icon="language" />
-                <AppText variant="h1" style={styles.center}>{t('welcome.language.title')}</AppText>
-                <AppText variant="body" color={colors.textSecondary} style={styles.center}>{t('welcome.language.subtitle')}</AppText>
-                <View style={styles.langCol}>
-                  {LANGUAGES.map((lang) => {
-                    const selected = current === lang.code;
-                    return (
-                      <RadioCard
-                        key={lang.code}
-                        label={lang.label}
-                        fontFamily={lang.font}
-                        selected={selected}
-                        onPress={() => { if (!selected) setPendingLang(lang.code); }}
-                      />
-                    );
-                  })}
-                </View>
-                {manualRestart ? (
-                  <View style={styles.notice}>
-                    <AppText variant="body">{t('settings.restartManually')}</AppText>
+            <MotiView
+              key={step}
+              from={from}
+              animate={{ opacity: 1, translateX: 0 }}
+              transition={{ type: 'spring', damping: 15 }}
+              style={styles.pageInner}
+            >
+              {step === 'language' ? (
+                <>
+                  <Hero icon="language" />
+                  <AppText variant="h1" style={styles.center}>{t('welcome.language.title')}</AppText>
+                  <AppText variant="body" color={colors.textSecondary} style={styles.center}>{t('welcome.language.subtitle')}</AppText>
+                  <View style={styles.langCol}>
+                    {LANGUAGES.map((lang) => {
+                      const selected = current === lang.code;
+                      return (
+                        <RadioCard
+                          key={lang.code}
+                          label={lang.label}
+                          fontFamily={lang.font}
+                          selected={selected}
+                          onPress={() => { if (!selected) setPendingLang(lang.code); }}
+                        />
+                      );
+                    })}
                   </View>
-                ) : null}
-              </>
-            ) : null}
+                  {manualRestart ? (
+                    <View style={styles.notice}>
+                      <AppText variant="body">{t('settings.restartManually')}</AppText>
+                    </View>
+                  ) : null}
+                </>
+              ) : null}
 
-            {step === 'intro' ? (
-              <>
-                <Hero icon="shield-checkmark" />
-                <AppText variant="h1" style={styles.center}>{t('welcome.intro.title')}</AppText>
-                <AppText variant="bodyMedium" color={colors.textSecondary} style={styles.center}>{t('app.tagline')}</AppText>
-                <View style={styles.lines}>
-                  {[
-                    ['chatbubble-ellipses-outline', 'welcome.intro.sms'],
-                    ['mic-outline', 'welcome.intro.voice'],
-                    ['flash-outline', 'welcome.intro.bill'],
-                  ].map(([icon, key], i) => (
-                    <MotiView
-                      key={key}
-                      from={{ opacity: 0, translateY: 12 }}
-                      animate={{ opacity: 1, translateY: 0 }}
-                      transition={{ type: 'spring', damping: 15, delay: 150 + i * 80 }}
-                      style={styles.line}
-                    >
-                      <View style={styles.lineIcon}>
-                        <Ionicons name={icon} size={24} color={colors.accentLight} />
-                      </View>
-                      <AppText variant="body" style={styles.flex}>{t(key)}</AppText>
-                    </MotiView>
-                  ))}
-                </View>
-              </>
-            ) : null}
+              {step === 'intro' ? (
+                <>
+                  <Hero icon="shield-checkmark" />
+                  <AppText variant="h1" style={styles.center}>{t('welcome.intro.title')}</AppText>
+                  <AppText variant="bodyMedium" color={colors.textSecondary} style={styles.center}>{t('app.tagline')}</AppText>
+                  <View style={styles.lines}>
+                    {[
+                      ['chatbubble-ellipses-outline', 'welcome.intro.sms'],
+                      ['mic-outline', 'welcome.intro.voice'],
+                      ['flash-outline', 'welcome.intro.bill'],
+                    ].map(([icon, key], i) => (
+                      <MotiView
+                        key={key}
+                        from={{ opacity: 0, translateY: 12 }}
+                        animate={{ opacity: 1, translateY: 0 }}
+                        transition={{ type: 'spring', damping: 15, delay: 150 + i * 80 }}
+                        style={styles.line}
+                      >
+                        <View style={styles.lineIcon}>
+                          <Ionicons name={icon} size={24} color={colors.accentLight} />
+                        </View>
+                        <AppText variant="body" style={styles.flex}>{t(key)}</AppText>
+                      </MotiView>
+                    ))}
+                  </View>
+                </>
+              ) : null}
 
-            {step === 'income' ? (
-              <>
-                <Hero icon="wallet" />
-                <AppText variant="h1" style={styles.center}>{t('welcome.income.title')}</AppText>
-                <AppText variant="body" color={colors.textSecondary} style={styles.center}>{t('welcome.income.hint')}</AppText>
-                <View style={styles.amountBox}>
-                  <AppText variant="h2" color={colors.textSecondary}>{t('common.rupees')}</AppText>
-                  <TextInput
-                    value={digits ? formatNumber(digits) : ''}
-                    onChangeText={(v) => { setDigits(v.replace(/\D/g, '').slice(0, 9)); setIncomeError(null); }}
-                    placeholder="0"
-                    placeholderTextColor={colors.textSecondary}
-                    keyboardType="number-pad"
-                    style={styles.amountInput}
-                    accessibilityLabel={t('welcome.income.title')}
-                    maxLength={13}
-                  />
-                </View>
-                {incomeError ? <AppText variant="body" color={colors.danger} style={styles.center}>{t(incomeError)}</AppText> : null}
-              </>
-            ) : null}
+              {step === 'income' ? (
+                <>
+                  <Hero icon="wallet" />
+                  <AppText variant="h1" style={styles.center}>{t('welcome.income.title')}</AppText>
+                  <AppText variant="body" color={colors.textSecondary} style={styles.center}>{t('welcome.income.hint')}</AppText>
+                  <View style={styles.amountBox}>
+                    <AppText variant="h2" color={colors.textSecondary}>{t('common.rupees')}</AppText>
+                    <TextInput
+                      value={digits ? formatNumber(digits) : ''}
+                      onChangeText={(v) => { setDigits(v.replace(/\D/g, '').slice(0, 9)); setIncomeError(null); }}
+                      placeholder="0"
+                      placeholderTextColor={colors.textSecondary}
+                      keyboardType="number-pad"
+                      style={styles.amountInput}
+                      accessibilityLabel={t('welcome.income.title')}
+                      maxLength={13}
+                    />
+                  </View>
+                  {incomeError ? <AppText variant="body" color={colors.danger} style={styles.center}>{t(incomeError)}</AppText> : null}
+                </>
+              ) : null}
 
-            {step === 'final' ? (
-              <>
-                <Hero icon="rocket" />
-                <AppText variant="h1" style={styles.center}>{t('welcome.final.title')}</AppText>
-                <AppText variant="body" color={colors.textSecondary} style={styles.center}>{t('welcome.final.subtitle')}</AppText>
-              </>
-            ) : null}
-          </MotiView>
-        </ScrollView>
-      </View>
+              {step === 'final' ? (
+                <>
+                  <Hero icon="rocket" />
+                  <AppText variant="h1" style={styles.center}>{t('welcome.final.title')}</AppText>
+                  <AppText variant="body" color={colors.textSecondary} style={styles.center}>{t('welcome.final.subtitle')}</AppText>
+                </>
+              ) : null}
+            </MotiView>
+          </ScrollView>
+        </View>
 
-      <View style={styles.bottom}>
-        <Dots count={steps.length} index={index} />
-        {step === 'final' ? (
-          <>
-            {finalError ? <AppText variant="body" color={colors.danger} style={styles.center}>{t('settings.demoError')}</AppText> : null}
-            <PrimaryButton label={t('welcome.final.start')} onPress={startFresh} disabled={busy} />
-            <PrimaryButton label={t('welcome.final.sample')} variant="outlined" onPress={() => setDemoAsk(true)} disabled={busy} />
-            <AppText variant="caption" color={colors.textSecondary} style={styles.center}>{t('welcome.final.sampleNote')}</AppText>
-          </>
-        ) : (
-          <PrimaryButton label={t('welcome.next')} onPress={onNext} loading={savingIncome} disabled={restarting} />
-        )}
-      </View>
+        <View style={styles.bottom}>
+          <Dots count={steps.length} index={index} />
+          {step === 'final' ? (
+            <>
+              {finalError ? <AppText variant="body" color={colors.danger} style={styles.center}>{t('settings.demoError')}</AppText> : null}
+              <PrimaryButton label={t('welcome.final.start')} onPress={startFresh} disabled={busy} />
+              <PrimaryButton label={t('welcome.final.sample')} variant="outlined" onPress={() => setDemoAsk(true)} disabled={busy} />
+              <AppText variant="caption" color={colors.textSecondary} style={styles.center}>{t('welcome.final.sampleNote')}</AppText>
+            </>
+          ) : (
+            <PrimaryButton label={t('welcome.next')} onPress={onNext} loading={savingIncome} disabled={restarting} />
+          )}
+        </View>
+      </KeyboardAvoider>
 
       <Portal>
         <Dialog visible={!!pendingLang} onDismiss={() => !restarting && setPendingLang(null)} style={styles.dialog}>

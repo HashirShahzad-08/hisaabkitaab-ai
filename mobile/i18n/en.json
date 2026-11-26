@@ -120,7 +120,9 @@
       "retry": "Try again",
       "errors": {
         "required": "Please fill this in",
-        "number": "Use numbers only, for example 150"
+        "number": "Use numbers only, for example 150",
+        "currentLower": "The current reading cannot be lower than the previous reading",
+        "zero": "Enter a number above 0"
       }
     },
     "result": {
@@ -209,7 +211,9 @@
     "back": "Back",
     "close": "Close",
     "cancel": "Cancel",
-    "checkDetails": "Please check these details"
+    "checkDetails": "Please check these details",
+    "loading": "Loading",
+    "noUrduVoice": "Urdu voice not installed on this phone"
   },
   "auth": {
     "login": "Login",
@@ -325,7 +329,8 @@
     "another": "Check another item",
     "errors": {
       "item": "Please type what you want to buy",
-      "price": "Please enter a price, numbers only"
+      "price": "Please enter a price, numbers only",
+      "priceMax": "Enter a price up to Rs 100,000,000"
     },
     "noIncomeTitle": "Add your income first",
     "noIncomeText": "To see if you can afford something, we need to know how much money came in this month. Add your income, then come back.",
@@ -377,7 +382,8 @@
     "Family": "Family",
     "Rent": "Rent",
     "Other": "Other",
-    "Income": "Income"
+    "Income": "Income",
+    "salary": "Salary"
   },
   "payments": {
     "Cash": "Cash",
@@ -387,7 +393,9 @@
   },
   "dates": {
     "today": "Today",
-    "yesterday": "Yesterday"
+    "yesterday": "Yesterday",
+    "am": "AM",
+    "pm": "PM"
   },
   "months": {
     "short": [

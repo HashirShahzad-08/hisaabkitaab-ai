@@ -128,7 +128,7 @@ Targets: scam detection at or above 95 percent, field accuracy at or above 90 pe
 
 1. Download and install the APK from the APK_LINK above (allow install from unknown sources if Android asks).
 2. Open the app, choose a language, and sign up with an email and password.
-3. Go to Settings, scroll to About, and tap "Load demo data". Confirm. Home now shows a sample month for Shazia.
+3. Go to Settings, scroll to About, and tap "Load demo data". Confirm. Home now shows a sample month for a household in Rawalpindi.
 4. Try Paste SMS with a scam message, for example: `BISP: Mubarak ho! Aap ka 25,000 inaam nikla hai. Claim karne ke liye processing fee Rs 500 jama karwayein: http://bit.ly/bisp-claim`. Then tap "Warn my family".
 5. Turn on airplane mode and paste the same SMS to see the offline check.
 6. Open Bills to see the saved overbilled electricity bill, or check a new one.

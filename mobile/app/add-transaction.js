@@ -1,6 +1,6 @@
 // Add Transaction (manual) - DESIGN.md section 8.4
-import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Haptics from 'expo-haptics';
@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import AppText from '../components/AppText';
 import FadeInCard from '../components/FadeInCard';
 import ScreenHeader from '../components/ScreenHeader';
+import KeyboardAvoider from '../components/ui/KeyboardAvoider';
 import AmountInput from '../components/ui/AmountInput';
 import Card from '../components/ui/Card';
 import Chip from '../components/ui/Chip';
@@ -41,6 +42,7 @@ export default function AddTransactionScreen() {
   const [note, setNote] = useState('');
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+  const busy = useRef(false); // blocks a second tap before the screen has redrawn
 
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
@@ -51,7 +53,7 @@ export default function AddTransactionScreen() {
   }
 
   async function save() {
-    if (saving) return;
+    if (busy.current) return;
     const amount = Number(digits);
     const e = {};
     if (!amount || amount <= 0) e.amount = 'addTx.errors.amount';
@@ -59,12 +61,14 @@ export default function AddTransactionScreen() {
     setErrors(e);
     if (Object.keys(e).length) return;
 
+    busy.current = true;
     setSaving(true);
     try {
       await addTransaction(user.uid, { amount, type, category, paymentType, date, note });
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       router.back();
     } catch (err) {
+      busy.current = false;
       setErrors({ form: err?.code === 'permission-denied' ? 'addTx.errors.permission' : 'addTx.errors.generic' });
       setSaving(false);
     }
@@ -80,7 +84,7 @@ export default function AddTransactionScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <ScreenHeader title={t('addTx.title')} />
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoider>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <FadeInCard index={0}>
             <View style={styles.group}>
@@ -171,14 +175,13 @@ export default function AddTransactionScreen() {
         <View style={styles.footer}>
           <PrimaryButton label={t('addTx.save')} onPress={save} loading={saving} />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  flex: { flex: 1 },
   scroll: { padding: screenPadding, paddingBottom: spacing.xl, gap: spacing.md },
   group: { gap: spacing.md },
   centerError: { alignItems: 'center', marginTop: -spacing.sm },
