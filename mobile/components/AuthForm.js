@@ -21,7 +21,6 @@ export default function AuthForm({ mode }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [income, setIncome] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
@@ -35,7 +34,6 @@ export default function AuthForm({ mode }) {
     else if (!EMAIL_PATTERN.test(email.trim())) e.email = 'auth.errors.invalidEmail';
     if (!password) e.password = 'auth.errors.passwordRequired';
     else if (isSignUp && password.length < 6) e.password = 'auth.errors.weakPassword';
-    if (isSignUp && income && !/^\d+$/.test(income.trim())) e.income = 'auth.errors.incomeInvalid';
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -45,7 +43,7 @@ export default function AuthForm({ mode }) {
     setBusy(true);
     try {
       if (isSignUp) {
-        await signUp({ name, email, password, monthlyIncome: income.trim(), language: i18n.language });
+        await signUp({ name, email, password, language: i18n.language });
       } else {
         await login(email, password);
       }
@@ -142,21 +140,6 @@ export default function AuthForm({ mode }) {
             />
             {fieldError('password')}
           </View>
-
-          {isSignUp && (
-            <View style={styles.field}>
-              <TextInput
-                {...inputProps}
-                label={t('auth.monthlyIncome')}
-                value={income}
-                onChangeText={(v) => { setIncome(v); clear('income'); }}
-                keyboardType="number-pad"
-                left={<TextInput.Affix text="Rs" />}
-                error={!!errors.income}
-              />
-              {fieldError('income')}
-            </View>
-          )}
 
           {errors.form ? (
             <AppText variant="body" color={colors.danger} style={styles.formError}>

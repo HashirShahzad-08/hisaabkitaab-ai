@@ -13,7 +13,7 @@ export function login(email, password) {
   return signInWithEmailAndPassword(auth, email.trim(), password);
 }
 
-export async function signUp({ name, email, password, monthlyIncome, language }) {
+export async function signUp({ name, email, password, language }) {
   const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
   try {
     await updateProfile(cred.user, { displayName: name.trim() });
@@ -21,7 +21,6 @@ export async function signUp({ name, email, password, monthlyIncome, language })
     await setDoc(doc(db, 'users', cred.user.uid, 'profile', 'main'), {
       name: name.trim(),
       email: email.trim(),
-      monthlyIncome: monthlyIncome ? Number(monthlyIncome) : null,
       language,
       createdAt: serverTimestamp(),
     });
