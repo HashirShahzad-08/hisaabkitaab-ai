@@ -1,7 +1,7 @@
 """Simple limits on AI use, kept in memory:
   per user: 8 requests per rolling minute and 20 per rolling day
   everyone together: 150 AI calls per rolling day
-(In memory means it resets when the server restarts, and each server process counts on its own.)
+(In memory means it resets when the server restarts, and each server instance counts on its own.)
 """
 import threading
 import time

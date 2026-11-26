@@ -17,3 +17,13 @@ backend/tests/last_results.json
 *adminsdk*.json
 serviceAccount*.json
 service-account*.json
+
+# Logs and eval output
+*.log
+eval_*.txt
+
+# Local tooling files (kept on the computer, not in the repo)
+mobile/AGENTS.md
+mobile/LICENSE
+mobile/.claude/
+.vscode/settings.json

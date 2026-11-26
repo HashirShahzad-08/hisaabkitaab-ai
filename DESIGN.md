@@ -12,7 +12,7 @@
 3. **Calm by default, loud only for danger.** Charcoal and blue everywhere; amber for budgets, red only for scams and overbilling.
 4. **Two complete languages.** The whole app exists in **English** and in **Urdu (Urdu script, right-to-left)**. The user picks one in Settings and every screen, label, alert and AI reply follows it. No mixing within one language mode (see section 10).
 5. **Every tap gives feedback.** Animation, haptic, or a snackbar — never silence.
-6. **No emojis anywhere in the UI.** Not in buttons, labels, alerts, AI replies or notifications. Meaning comes from real icons (Ionicons), color, custom illustrations and motion. Emojis make an app look cheap and auto-generated.
+6. **No emojis anywhere in the UI.** Not in buttons, labels, alerts or AI replies. Meaning comes from real icons (Ionicons), color and motion. Emojis make an app look cheap and auto-generated.
 7. **Feels alive, not busy.** Things respond to the finger with spring physics, numbers move, icons animate on state change — but every motion is short and purposeful.
 8. **Dark theme only** ("Charcoal + Blue").
 
@@ -112,16 +112,15 @@ Only blue tints, neutral greys and amber. Icons sit in a rounded square on `card
 
 ## 5. Component library
 
-- **React Native Paper (Material 3)** with the custom theme above. Use Paper's `Card`, `Button`, `TextInput` (mode `outlined`), `Chip`, `FAB`, `Snackbar`, `Dialog`, `ProgressBar`, `SegmentedButtons`, `Searchbar`.
+- **React Native Paper (Material 3)** with the custom dark theme: `TextInput`, `Dialog`, `Snackbar`, `Switch`, `Checkbox`, `RadioButton`.
 - **Icons:** `@expo/vector-icons` (Ionicons).
-- **Charts:** `react-native-gifted-charts` (donut pie, bar, line) — always animated, rounded bar tops.
-- **Animations:** `moti` (built on Reanimated).
-- **Lottie:** `lottie-react-native`.
+- **Charts:** `react-native-gifted-charts` for the spending donut; the units-per-month bar chart is drawn with Moti.
+- **Animations:** `moti` and React Native `Animated`.
 - **Haptics:** `expo-haptics`.
 - **Gradient:** `expo-linear-gradient`.
-- **Voice output (optional):** `expo-speech` with language `ur-PK`.
+- **Voice output:** `expo-speech`, `ur-PK` in Urdu and `en-US` in English.
 
-Build reusable components in `/app/components`: `AmountText`, `CategoryIcon`, `TransactionItem`, `StatCard`, `HealthScoreRing`, `GoalCard`, `AlertCard` (variants: danger / warning / success / info), `AIThinking` (skeleton shimmer), `EmptyState` (unDraw illustration + message + button), `PressableScale` (wrapper that adds the press-scale spring to anything).
+Shared building blocks live in `mobile/components/ui/` (`Card`, `HeroCard`, `SectionHeader`, `IconTile`, `AmountText`, `AmountInput`, `Chip`, `SegmentedControl`, `FormInput`, `DateField`, `PrimaryButton`, `SecondaryButton`, `ProgressBar`, `Skeleton`, `ListSkeleton`, `EmptyState`, `ListRow`, `RadioCard`, `StatGrid`, `VerdictCard`, `ScoreRing`, `SpeakerButton`, `KeyboardAvoider`). Feature components such as `BalanceHero`, `ScamAlert`, `BudgetCard`, `GoalCard`, `AIThinking` and `PressableScale` live in `mobile/components/`.
 
 ---
 
@@ -129,49 +128,31 @@ Build reusable components in `/app/components`: `AmountText`, `CategoryIcon`, `T
 
 | Moment | What happens |
 |---|---|
-| Screen opens | Cards fade in + slide up 12px, staggered 60ms each (Moti) |
+| Screen opens | Sections fade in and slide up 12px once, staggered about 80ms (Moti) |
 | Home opens | Balance counts up from 0; Health Score ring fills from 0 (800ms) |
-| Save transaction | Button morphs into an animated checkmark (Lottie), light haptic, then the screen slides back |
-| Goal reached | Progress bar fills to the end, the card glows gold for a moment, trophy icon draws itself (Lottie), success haptic |
+| Save | Button shows a spinner, light haptic, then the screen goes back |
+| Goal reached | The card gets a gold border, a gold progress bar and a "Goal reached" badge |
 | Scam detected | Red scam card slides in and shakes once, gently; error haptic |
-| Budget at 80% / 100% | Warning / danger `AlertCard` on Home |
-| AI working | `AIThinking` shimmer card + text "AI soch raha hai…" (never a plain spinner) |
-| Delete | Swipe left on a transaction → red delete action → confirm Dialog |
+| Budget at 80% or more | Amber warning card on Home |
+| AI working | `AIThinking` skeleton card with a status text that changes every 1.5s |
+| Delete a transaction | Swipe in History, red delete action, then a confirm dialog |
 | Lists | Pull to refresh |
 
-Durations: 200ms for taps, 300–400ms for screen elements, 800ms for the score ring. No animation longer than 1 second. Use **spring** animations (Moti `type: 'spring'`, damping ~15) for anything the finger touches, so it feels physical instead of robotic.
+Use **spring** animations for anything the finger touches. No transition is longer than 1 second. Only loading placeholders loop.
 
-### Micro-interactions that make the app feel alive
+### Micro-interactions
 
 | Element | Behavior |
 |---|---|
-| Every pressable card and button | Scales to 0.97 while pressed, springs back on release |
-| Bottom tab icons | Active tab switches from outline to filled icon, bounces slightly (scale 1 → 1.15 → 1), a small blue pill slides under it |
-| Center + button | Rotates 45° into an × while the Add sheet is open |
-| Amounts | Roll to the new value (count animation) whenever they change, not only on first load |
-| Charts | Donut segments sweep in clockwise; bars grow from the bottom one after another |
-| Health Score ring | Fills smoothly; its color shifts from red → amber → blue → gold as the number rises (white on the Home hero card) |
-| AI thinking | Shimmer sweeps across skeleton lines; the status text cycles every 1.5s: "SMS parh raha hai…" → "Hisaab laga raha hai…" → "Bas aik second…" |
-| AI result | Result cards appear one by one (80ms stagger) with a soft fade + rise |
-| Inputs | Border animates to `primary` on focus; errors slide in under the field with a single small shake |
-| Transaction saved | New row slides into the top of the list with a brief `cardRaised` highlight that fades out |
-| Pull to refresh | Blue spinner, light haptic when it triggers |
+| Pressable cards and buttons | Scale to 0.97 while pressed, spring back, light haptic |
+| Bottom tab icons | Active tab switches from outline to filled icon, bounces once, a small blue pill sits under it |
+| Center + button | Rotates 45 degrees into an x while the Add sheet is open |
+| Amounts on Home | Roll to the new value whenever they change |
+| Charts and bars | The donut sweeps in; bars grow |
+| AI result | Result cards appear one by one with a soft fade and rise |
+| Inputs | Blue border on focus; errors appear under the field |
 
-### Visual assets (no emojis)
-
-- **Icons:** Ionicons only, outline style by default, filled style for active/selected states. One icon style across the whole app.
-- **Illustrations** (onboarding, empty states): **unDraw** (undraw.co) — free, no attribution needed, and you can set the accent color to `#3B82F6` before downloading so every illustration matches the brand. Save as SVG/PNG in `/app/assets/illustrations/`.
-- **Lottie animations** from **lottiefiles.com** (free). Pick **flat or line-style** animations only (no cartoon characters), and recolor them to the theme colors in the LottieFiles editor before downloading. Save the JSON in `/app/assets/lottie/`:
-
-| File name | What it is | Search on LottieFiles |
-|---|---|---|
-| `check.json` | Checkmark that draws itself (save button, success) | "success check line" |
-| `trophy.json` | Trophy that draws/shines (goal reached) | "trophy line" |
-| `shield.json` | Shield with pulse (scam detected) | "security shield" |
-| `scan.json` | Scanning line over a document (bill analysis) | "document scan" |
-| `sound-wave.json` | Small equalizer bars (speaker playing) | "sound wave" |
-
-Check each file's license allows free use, and list unDraw and the Lottie authors in the README credits.
+Icons: Ionicons only. The app uses no illustration or animation files.
 
 ## 7. Navigation
 
@@ -195,23 +176,24 @@ Bottom tab bar (`#121316`, top border `#26282E`, height 64, active = `#60A5FA`, 
 
 > Example text below is sometimes written in Roman Urdu to show the tone. In the app, every string comes from the translation files: proper English in English mode, Urdu script in Urdu mode (section 10).
 
-### 8.1 Onboarding (3 slides, first launch only)
-- Before the slides: a language choice screen with two big cards, "English" and "اردو". The slides then appear in the chosen language.
-- Slide 1: unDraw illustration ("savings") — "Apna hisaab, asaan andaaz mein" / Track every rupee, easily.
-- Slide 2: unDraw illustration ("secure data") — "Scam SMS aur ghalat bills se hifazat" / Protection from scam SMS and overbilling.
-- Slide 3: unDraw illustration ("voice assistant") — "AI jo Urdu samjhe" / AI that understands Urdu.
-- Dots indicator, "Skip" top right, "Get started" blue button on the last slide.
+### 8.1 Welcome (once, after the first login or sign up)
+Swipeable screens with dots, "Next" and "Skip". Large Ionicons in soft blue circles.
+1. Choose your language: two large cards, "English" and "اردو". Changing it restarts the app and continues at screen 2.
+2. "Your money, tracked and protected" with three short lines: paste an SMS, speak in Urdu, check your electricity bill.
+3. Monthly income (can be skipped): saved as this month's salary.
+4. "Start fresh" or "Try with sample data".
+
+Shown only if the user has not finished it and has no transactions. Settings can show it again.
 
 ### 8.2 Login / Sign up
-- App name "HisaabKitaab AI" (h1, primary) + tagline "Hisaab bhi, hifazat bhi" (caption).
-- Email + password outlined inputs, show/hide password eye icon.
-- Primary button "Login" / "Create account", text link to switch.
-- Sign up also asks: name, monthly income (optional).
-- Errors shown under the input in `danger`, in plain words ("Password must be at least 6 characters").
+- App name (large) and the tagline "Hisaab bhi, hifazat bhi" (muted).
+- Email and password inputs, show/hide password icon. Sign up also asks for the name.
+- Blue button "Login" / "Create account", text button to switch.
+- Errors are shown under the input in plain words.
 
 ### 8.3 Home (Dashboard)
 Top to bottom, sections fade and slide up once (80ms apart). Skeletons while loading, pull to refresh. Nothing loops or pulses.
-- **Header:** greeting by time of day (small, muted) with the name (large); notifications icon; avatar circle with the initial (opens Settings).
+- **Header:** greeting by time of day (small, muted) with the name (large); notifications icon (there are no notifications yet; it says so); avatar circle with the initial (opens Settings).
 - **Hero card:** "Balance this month" with a count-up amount, the Health Score ring at the end (white, number and band inside), a divider, then Income | Spent.
 - **Four tiles:** Paste SMS, Speak, Check bill, Afford?
 - **Budget warning** (amber, with speaker): only when a budget is at 80% or more.
@@ -221,51 +203,40 @@ Top to bottom, sections fade and slide up once (80ms apart). Skeletons while loa
 **Health Score (0–100):** start 50; +20 saved more than 10% of income; +15 every budget within limit; +15 spending below income; -20 any budget over 100%; capped at 45 when spending exceeds income.
 
 ### 8.4 Add Transaction (manual)
-- Expense / Income toggle (`SegmentedButtons`) at the top; amount field in **display** size, centered, with "Rs" prefix.
-- Category: horizontal scroll of colored icon chips.
-- Payment type: 4 chips.
-- Date (default today, date picker), note (optional).
-- Bottom "Save" button.
+- Expense / Income segmented control, large amount field with "Rs".
+- Category chips and payment type chips (selected chip is blue).
+- Date (today by default) and an optional note.
+- "Save" button at the bottom.
 
 ### 8.5 SMS Auto-entry
-- Title "Paste SMS". Big multiline input with a "Paste" button (reads clipboard via `expo-clipboard`).
-- Small helper: "JazzCash, Easypaisa ya bank ka SMS paste karein".
-- Button "Analyze with AI" → `AIThinking` →
-  - **Normal SMS:** a pre-filled transaction card (amount, category, payment type, merchant) with an "Edit" link and a "Save" button.
-  - **Scam SMS:** red `AlertCard` that shakes once, with a pulsing `shield-half-outline` icon: **"Ye SMS fraud lagta hai"**, the reason in simple words, the BISP 8171 tip if relevant, and "Never share your PIN or OTP". Buttons: "Delete it" (dismiss) and "Report to PTA (0800-55055)".
+- "Paste SMS": helper line, multiline input, "Paste" button (clipboard), "Analyze with AI".
+- **Normal SMS:** an editable transaction card (amount, category, payment type, merchant, date) with "Save".
+- **Scam SMS:** the red scam card: shield icon, title, reasons as a list, "never share your PIN or OTP". Buttons: report to PTA 0800-55055, warn my family (share sheet), delete message.
+- **Server unreachable:** the phone checks the message itself. With two or more red flags it shows the scam card marked "Checked on your phone (offline)"; otherwise it asks the user to try again.
 
 ### 8.6 Urdu Quick Entry (type or speak)
-- Big input with placeholder: "aaj 800 ka petrol aur 300 ka doodh".
-- Hint under it, with a `mic-outline` icon: "Keyboard ka mic dabayein aur Urdu mein bolein" (Urdu font for the Urdu version).
-- 3 example chips the user can tap to fill the input.
-- "Add with AI" → list of parsed entries as editable cards, each with a checkbox → "Save all (2)".
+- Input, a hint to use the keyboard microphone, three example chips.
+- "Add with AI" shows the entries as editable cards with checkboxes, then saves the checked ones together.
 
 ### 8.7 History
-- Searchbar + filter chips row (This month / Category / Payment type).
-- Transactions **grouped by day** with sticky headers ("Aaj", "Kal", "21 Nov").
-- Each row: `CategoryIcon` · title + caption (payment type, time) · amount (light blue / primary text).
-- Swipe left to delete; pull to refresh; `EmptyState` when nothing found.
+- Filter bar with chips: month, category, payment type.
+- Transactions grouped by day, one card per day, with sticky day headers.
+- Each row: category icon, title, payment type and time, amount.
+- Swipe to delete, pull to refresh, empty states.
 
 ### 8.8 Bills (Bill Analyzer)
-- Top: list of saved bills as small cards (month, units, amount) + a small bar chart of units per month.
-- "Analyze new bill" button → form: bill type (Electricity / Gas segmented), company (dropdown: IESCO, LESCO, K-Electric, MEPCO, FESCO, GEPCO, PESCO, HESCO, QESCO, SEPCO, SNGPL, SSGC), month, previous reading, current reading, units charged, total amount.
-- Optional later: "Scan bill photo" button (`camera-outline` icon) above the form.
-- Result screen as stacked cards:
-  1. **Reading check:** `checkmark-circle` icon in blue "Units match your readings", or `alert-circle` icon in warning "Charged X units but readings show Y".
-  2. **Comparison:** "+40% vs last month" with up/down arrow and color.
-  3. **Bill explained:** short bullet explanation.
-  4. **Bachat tips:** 2–3 tips with lightbulb icons.
-  5. **Complaint draft:** collapsed card → expand to read → "Copy" button (only if a problem was found).
-- Saving the bill also adds a "Bills" expense automatically (show a Snackbar).
+- "Check my bill" button, a units-per-month bar chart (two or more months), saved bills with a verdict chip.
+- Form: month, previous and current reading, units billed, total amount; optional last month units, same month last year and company.
+- Result: large verdict card, numbers in a grid, issues with colored dots, explanation with speaker, tips, and (if likely overbilled) a complaint with copy and share. Saving can also add a "Bills" expense.
 
 ### 8.9 Goals + Budgets
-- Segmented control at top: **Goals | Budgets**.
-- **Goals:** `GoalCard`s (gold progress bar, "Rs 32,000 / Rs 80,000", days left), "+ Add money" button on each; FAB "+ New goal". New goal sheet offers presets, each with an icon: Ramadan (`moon-outline`), Eid (`gift-outline`), School fees (`school-outline`), Laptop (`laptop-outline`), Custom (`create-outline`).
-- **Budgets:** one row per category: icon, "Rs 6,400 / Rs 8,000", progress bar colored blue (<80%), warning (80–99%), danger (100%+).
+- Segmented control: **Budgets | Goals**.
+- **Budgets:** one card per category with a bar: blue under 80%, amber 80 to 100%, red over.
+- **Goals:** name, saved of target, progress bar, optional target date with a weekly saving suggestion, "Add money". A reached goal turns gold.
 
 ### 8.10 Can I Afford It?
-- Inputs: "Kya lena hai?" (item) + price.
-- "Ask AI" → result card with a big verdict badge with icon: `checkmark-circle` **Haan** (blue) / `alert-circle` **Soch samajh ke** (warning) / `close-circle` **Abhi nahi** (danger); the badge scales in with a spring, the reason (1–2 lines), and a suggestion ("Agar 3 mahine Rs 5,000 bachayein to aaram se le sakte hain"). Speaker icon button to hear it.
+- Item and price (up to Rs 100,000,000).
+- Verdict card (blue yes, amber careful, red not now), money numbers, explanation with speaker, suggestion and weekly saving plan, Health Score now and after buying.
 
 ---
 
@@ -274,7 +245,7 @@ Top to bottom, sections fade and slide up once (80ms apart). Skeletons while loa
 - **English mode:** short, plain labels: "Save", "Add money", "See all". Friendly tone: "Great job! Goal reached", "Your food budget is almost used up".
 - **Urdu mode:** proper Urdu script, simple everyday words (not formal/official Urdu): "محفوظ کریں"، "رقم شامل کریں"، "سب دیکھیں". Friendly tone: "شاباش! ہدف پورا ہو گیا".
 - AI replies come back in the user's chosen language: English, or Urdu script.
-- No emojis in any text, including AI replies. Every Gemini prompt in the backend must say: "Do not use emojis."
+- No emojis in any text, including AI replies. Every AI prompt in the backend (Groq, with Z.ai GLM as backup) says: "Do not use emojis."
 - Never blame the user. "A bit more went on food this month" / "اس مہینے کھانے پر تھوڑا زیادہ خرچ ہوا" — not "You overspent".
 
 ## 10. Languages: English and Urdu
@@ -283,31 +254,29 @@ The app has two complete languages, switched in **Settings → Language**. The c
 
 ### How to build it
 
-- **Library:** `i18next` + `react-i18next`. Every piece of UI text comes from a translation file — never type text directly into a screen. Files: `/app/i18n/en.json` and `/app/i18n/ur.json`, with the same keys (for example `home.balanceThisMonth`).
-- **Start on Day 1.** Even before the Urdu file is filled in, write every screen with `t('key')` from the beginning. Adding translations later to hard-coded text takes much longer.
-- **Saving the choice:** store `language` (`en` / `ur`) in AsyncStorage (so it loads instantly on app start) and in the user's Firestore `profile`.
-- **First launch:** onboarding slide 1 shows two big buttons, "English" and "اردو", so the user chooses right away. Default: English.
-- **Right-to-left in Urdu mode:** the whole layout mirrors. Rows run right to left, back arrows point right, text is right-aligned, list item icons move to the right side, progress bars fill from the right. Use one `isRTL` value from the language setting and apply `direction: 'rtl'` on the root view, plus `textAlign: 'right'` on text. Charts and the tab bar order also mirror. Ask Claude Code which approach works best in Expo for switching without restarting the app; if a restart is needed, use `expo-updates` `reloadAsync()` after the user confirms.
-- **Things that do NOT mirror:** numbers and amounts (`Rs 42,350` stays left-to-right inside the RTL layout), phone numbers, the bar chart's month order (still oldest to newest, but labels in Urdu month names).
-- **Money in Urdu mode:** `42,350 روپے` (Western digits, which is what Pakistani users read on bills and SMS).
-- **Translations:** ask Gemini or Claude to translate `en.json` into `ur.json`, then have a team member who reads Urdu well check every line. Keep the words simple and everyday.
-- **AI replies:** every backend route takes a `lang` field (`en` or `ur`) and the prompt says "Reply in English" or "Reply in simple Urdu script". The Urdu voice button uses `expo-speech` with `ur-PK`; in English mode it uses `en-US`.
-- **Input stays flexible:** in both modes, Quick Entry and SMS accept Urdu script, Roman Urdu or English. Only the app's own text changes language.
+- **Library:** `i18next` + `react-i18next`. Every piece of UI text comes from a translation file, never typed into a screen. Files: `mobile/i18n/en.json` and `mobile/i18n/ur.json`, with the same keys (for example `home.balanceThisMonth`).
+- **Saving the choice:** `language` (`en` / `ur`) is stored in AsyncStorage (loads at app start) and in the user's Firestore profile.
+- **First launch:** Urdu if the phone is set to Urdu, otherwise English. The welcome flow lets the user choose.
+- **Right-to-left in Urdu mode:** the layout mirrors; styles use start and end, not left and right; arrows and chevrons point the other way. Changing direction restarts the app with `expo-updates` `reloadAsync()`, or asks the user to reopen it.
+- **Things that do NOT mirror:** numbers and amounts, phone numbers, the bar chart's month order.
+- **Money in Urdu mode:** `42,350 روپے` (Western digits).
+- **Translations:** keep the words simple and everyday, and have a fluent Urdu reader check them.
+- **AI replies:** every AI request carries `lang` (`en` or `ur`). Read aloud uses `ur-PK` or `en-US`, and says so if the phone has no Urdu voice.
+- **Input stays flexible:** Quick Entry and SMS accept Urdu script, Roman Urdu or English.
 
 ### Settings screen
 
-Reached from the bell/profile area on Home (a gear icon). Sections:
-1. **Profile:** name, monthly income.
-2. **Language:** two large selectable cards, "English" and "اردو", the selected one with a blue border and check icon. A note under it: "The whole app, including AI replies, will switch."
-3. **Notifications:** bill due reminders, budget alerts (switches).
-4. **About:** app version, team Hawk AI, credits.
-5. **Log out** (danger-colored text button).
-
-In Urdu mode the Settings screen itself is fully in Urdu and mirrored.
+Opened from the avatar on Home. Grouped cards:
+1. **Language:** two large cards, "English" and "اردو", with a note that the whole app, including AI replies, will switch.
+2. **Voice:** "Read aloud" switch.
+3. **Account:** email.
+4. **About:** app name, version, scam help (PTA 0800-55055).
+5. Small actions: "Load demo data" and "Show welcome again".
+6. **Log out** (red text button).
 
 ## 11. Quality checklist for every screen
 
-- [ ] Uses theme colors and Poppins only (no default blue, no system fonts)
+- [ ] Uses theme colors, and Poppins or Noto Nastaliq Urdu only (no system fonts)
 - [ ] Has a loading state, an empty state, and an error state
 - [ ] Primary button is obvious and reachable with the thumb
 - [ ] Amounts formatted `Rs 12,500`, income light blue, expense primary text

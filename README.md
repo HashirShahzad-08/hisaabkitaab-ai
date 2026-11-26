@@ -10,6 +10,7 @@ Built by Team Hawk AI for Capital Youth Expo 2026, category FinTech and Financia
 
 | What | Link |
 | --- | --- |
+| Source code | https://github.com/HashirShahzad-08/hisaabkitaab-ai |
 | Android APK download | APK_LINK |
 | Backend health check | https://hisaabkitaab-ai-omega.vercel.app/health |
 | Demo video | VIDEO_LINK |
@@ -55,8 +56,6 @@ If spending is more than income, the score is capped at 45. The result is kept b
 
 ## Screenshots
 
-Add the images to `docs/screenshots/` with these names.
-
 | Home | Paste SMS | Scam alert |
 | --- | --- | --- |
 | ![Home](docs/screenshots/home.png) | ![Paste SMS](docs/screenshots/sms.png) | ![Scam alert](docs/screenshots/scam.png) |
@@ -99,10 +98,10 @@ Scam red flags checked: asks for a fee before receiving money, asks for OTP, PIN
 ## Security
 
 - **Login required.** Every AI route checks a Firebase ID token (`Authorization: Bearer ...`). The token is verified with Google's public keys. A missing or invalid token gets HTTP 401.
-- **Rate limits.** 8 AI requests per minute and 20 per day for each user, and 150 AI calls per day for all users together. Too many requests get HTTP 429. The counts are kept in memory by each server process.
+- **Rate limits.** 8 AI requests per minute and 20 per day for each user, and 150 AI calls per day for all users together. Too many requests get HTTP 429. The counts are kept in memory per server instance, so each instance counts on its own and starts again when it restarts.
 - **Input checks.** Dates must be real, text cannot be blank, and numbers must be finite and in range. The user's message is sent to the AI as marked data, not as instructions.
 - **Keys stay on the server.** The Groq and Z.ai keys are only server environment variables. The app never contains an AI key. The Firebase values in the app are public identifiers, not secrets.
-- **Per-user data rules.** Data lives under `users/{uid}/...` in Firestore, and Firestore security rules (set in the Firebase console) let a user read and write only their own data.
+- **Per-user data rules.** Data lives under `users/{uid}/...` in Firestore. The security rules in `firestore.rules` let a signed-in user read and write only their own data and deny everything else.
 - **No keys in the repo.** `.env` files are git-ignored (only `.env.example` files are committed). GitHub secret scanning and push protection are on.
 - **Production hardening.** Production is the default (only `ENV=development` turns it off). In production the API documentation pages are off, CORS is limited to listed websites (the Android app does not need CORS), and logs never contain SMS text, bill details or tokens.
 - **Startup checks.** The server refuses to start if a required key is missing or is placeholder text.
@@ -149,7 +148,7 @@ cp .env.example .env        # Windows: copy .env.example .env
 uvicorn main:app --reload
 ```
 
-The server runs at http://127.0.0.1:8000 and the health check is at `/health`. In development the API docs are at `/docs`. A `Dockerfile` is included for container hosting (it was written for Hugging Face Spaces, port 7860).
+The server runs at http://127.0.0.1:8000 and the health check is at `/health`. In development the API docs are at `/docs`.
 
 Plain-rule tests (no AI, no network): `python tests/check_rules.py`, `python tests/check_bill_rules.py`, `python tests/check_afford_rules.py`.
 AI accuracy test (uses real AI quota): `python tests/run_eval.py` (options: `--file`, `--only`, `--ids`, `--compare`, `--sleep`, `--provider zai`).
