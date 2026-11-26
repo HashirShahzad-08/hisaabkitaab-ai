@@ -1,21 +1,25 @@
 // Add or edit a monthly budget. One budget per category, so "add" only offers categories without one.
 import { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Dialog, Portal, TextInput } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import AppText from '../components/AppText';
+import FadeInCard from '../components/FadeInCard';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import ScreenHeader from '../components/ScreenHeader';
+import Card from '../components/ui/Card';
+import Chip from '../components/ui/Chip';
+import FormInput from '../components/ui/FormInput';
+import SectionHeader from '../components/ui/SectionHeader';
 import { categoryColor, categoryIcon, categoryKey } from '../constants/categories';
 import { useAuth } from '../context/AuthContext';
 import { useBudgets } from '../hooks/useBudgetsAndGoals';
 import { deleteBudget, getEditing, saveBudget } from '../services/goalsService';
-import { colors, fonts, radius, screenPadding, sizes } from '../theme';
+import { colors, fonts, radius, screenPadding, spacing } from '../theme';
 import { freeCategories } from '../utils/budgets';
 
 export default function BudgetFormScreen() {
@@ -72,57 +76,59 @@ export default function BudgetFormScreen() {
       <ScreenHeader title={t(editing ? 'goals.editBudget' : 'goals.addBudget')} />
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <AppText variant="h2">{t('goals.category')}</AppText>
-          {choices.length === 0 && !budgets.loading ? (
-            <AppText variant="body" color={colors.textSecondary}>{t('goals.allCategoriesUsed')}</AppText>
-          ) : (
-            <View style={styles.chips}>
-              {choices.map((c) => {
-                const selected = category === c;
-                const color = categoryColor(c);
-                return (
-                  <Pressable
-                    key={c}
-                    onPress={() => { if (!editing) { setCategory(c); setErrors((x) => ({ ...x, category: undefined })); } }}
-                    style={[styles.chip, { borderColor: selected ? color : colors.border, backgroundColor: selected ? `${color}22` : colors.surface }]}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected }}
-                  >
-                    <Ionicons name={categoryIcon(c)} size={20} color={color} />
-                    <AppText variant="bodyMedium" color={selected ? colors.text : colors.textSecondary}>{t(categoryKey(c))}</AppText>
-                  </Pressable>
-                );
-              })}
-            </View>
-          )}
-          {errors.category ? <AppText variant="caption" color={colors.danger}>{t(errors.category)}</AppText> : null}
+          <FadeInCard index={0}>
+            <Card style={styles.group}>
+              <SectionHeader title={t('goals.category')} />
+              {choices.length === 0 && !budgets.loading ? (
+                <AppText variant="body" color={colors.textSecondary}>{t('goals.allCategoriesUsed')}</AppText>
+              ) : (
+                <View style={styles.chips}>
+                  {choices.map((c) => (
+                    <Chip
+                      key={c}
+                      size="lg"
+                      icon={categoryIcon(c)}
+                      iconColor={categoryColor(c)}
+                      label={t(categoryKey(c))}
+                      selected={category === c}
+                      onPress={() => { if (!editing) { setCategory(c); setErrors((x) => ({ ...x, category: undefined })); } }}
+                    />
+                  ))}
+                </View>
+              )}
+              {errors.category ? <AppText variant="caption" color={colors.danger}>{t(errors.category)}</AppText> : null}
+            </Card>
+          </FadeInCard>
 
-          <AppText variant="h2" style={styles.section}>{t('goals.monthlyLimit')}</AppText>
-          <TextInput
-            mode="outlined"
-            label={t('goals.limitLabel')}
-            value={limit}
-            onChangeText={(v) => { setLimit(v.replace(/[^0-9.]/g, '')); setErrors((x) => ({ ...x, limit: undefined })); }}
-            keyboardType="decimal-pad"
-            left={<TextInput.Affix text="Rs" />}
-            outlineColor={colors.border}
-            activeOutlineColor={colors.primary}
-            outlineStyle={{ borderRadius: radius.input }}
-            style={styles.input}
-            contentStyle={{ fontFamily: fonts.en.medium, fontSize: 20 }}
-            error={!!errors.limit}
-          />
-          {errors.limit ? <AppText variant="caption" color={colors.danger}>{t(errors.limit)}</AppText> : null}
+          <FadeInCard index={1}>
+            <Card style={styles.group}>
+              <SectionHeader title={t('goals.monthlyLimit')} />
+              <FormInput
+                label={t('goals.limitLabel')}
+                value={limit}
+                onChangeText={(v) => { setLimit(v.replace(/[^0-9.]/g, '')); setErrors((x) => ({ ...x, limit: undefined })); }}
+                keyboardType="decimal-pad"
+                left={<TextInput.Affix text="Rs" />}
+                font={fonts.en.medium}
+                contentStyle={{ fontSize: 20 }}
+                error={!!errors.limit}
+              />
+              {errors.limit ? <AppText variant="caption" color={colors.danger}>{t(errors.limit)}</AppText> : null}
+            </Card>
+          </FadeInCard>
 
           {saveError ? (
             <View style={styles.errorBox}><AppText variant="body" color={colors.danger}>{t('goals.saveError')}</AppText></View>
           ) : null}
 
           {editing ? (
-            <Pressable onPress={() => setConfirmDelete(true)} style={styles.deleteRow} accessibilityRole="button">
-              <Ionicons name="trash-outline" size={20} color={colors.danger} />
-              <AppText variant="bodyMedium" color={colors.danger}>{t('goals.deleteBudget')}</AppText>
-            </Pressable>
+            <PrimaryButton
+              label={t('goals.deleteBudget')}
+              icon="trash-outline"
+              variant="text"
+              tone="danger"
+              onPress={() => setConfirmDelete(true)}
+            />
           ) : null}
         </ScrollView>
 
@@ -148,13 +154,10 @@ export default function BudgetFormScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  scroll: { padding: screenPadding, paddingBottom: 24, gap: 12 },
-  section: { marginTop: 12 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: sizes.touch, paddingHorizontal: 14, borderRadius: radius.pill, borderWidth: 1.5 },
-  input: { backgroundColor: colors.surface },
-  errorBox: { backgroundColor: colors.dangerLight, borderRadius: radius.input, padding: 12 },
-  deleteRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: sizes.touch, marginTop: 12 },
+  scroll: { padding: screenPadding, paddingBottom: spacing.xl, gap: spacing.md },
+  group: { gap: spacing.md },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  errorBox: { backgroundColor: colors.dangerLight, borderColor: colors.dangerBorder, borderWidth: 1, borderRadius: radius.input, padding: 12 },
   footer: { padding: screenPadding, backgroundColor: colors.background },
-  dialog: { backgroundColor: colors.surface, borderRadius: radius.card },
+  dialog: { backgroundColor: colors.surfaceRaised, borderRadius: radius.card },
 });

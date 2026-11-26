@@ -10,7 +10,7 @@ import AmountText from './ui/AmountText';
 import AppText from './AppText';
 import CategoryIcon from './CategoryIcon';
 import { categoryKey, paymentKey } from '../constants/categories';
-import { colors, radius, sizes } from '../theme';
+import { colors, sizes } from '../theme';
 import { formatDayLabel, formatTime } from '../utils/format';
 import { useIsRTL } from '../utils/rtl';
 
@@ -34,8 +34,8 @@ export default function TransactionRow({ item, onDelete, meta, last = false }) {
       accessibilityRole="button"
       accessibilityLabel={t('history.delete')}
     >
-      <Ionicons name="trash-outline" size={22} color={colors.onPrimary} />
-      <AppText variant="caption" color={colors.onPrimary}>{t('history.delete')}</AppText>
+      <Ionicons name="trash-outline" size={22} color={colors.danger} />
+      <AppText variant="caption" color={colors.dangerText}>{t('history.delete')}</AppText>
     </Pressable>
   );
 
@@ -82,7 +82,9 @@ const styles = StyleSheet.create({
   deleteAction: {
     width: 88,
     minHeight: sizes.touch,
-    backgroundColor: colors.danger,
+    backgroundColor: colors.dangerLight,
+    borderStartWidth: 1,
+    borderColor: colors.dangerBorder,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 2,

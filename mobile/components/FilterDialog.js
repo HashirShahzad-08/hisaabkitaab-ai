@@ -3,13 +3,13 @@ import { ScrollView } from 'react-native';
 import { Dialog, Portal, RadioButton } from 'react-native-paper';
 
 import AppText from './AppText';
-import { colors } from '../theme';
+import { colors, radius } from '../theme';
 
 // options: [{ value, label }]
 export default function FilterDialog({ visible, title, options, value, onSelect, onDismiss }) {
   return (
     <Portal>
-      <Dialog visible={visible} onDismiss={onDismiss} style={{ backgroundColor: colors.surface, borderRadius: 16 }}>
+      <Dialog visible={visible} onDismiss={onDismiss} style={{ backgroundColor: colors.surfaceRaised, borderRadius: radius.card }}>
         <Dialog.Title>
           <AppText variant="h2">{title}</AppText>
         </Dialog.Title>

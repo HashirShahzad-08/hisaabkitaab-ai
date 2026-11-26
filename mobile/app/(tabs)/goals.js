@@ -1,9 +1,8 @@
 // Goals tab: monthly Budgets and savings Goals, as two segments (DESIGN.md section 8.9).
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Dialog, Portal, SegmentedButtons, Snackbar, TextInput } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
+import { Button, Dialog, Portal, Snackbar, TextInput } from 'react-native-paper';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -13,19 +12,22 @@ import BudgetCard from '../../components/BudgetCard';
 import FadeInCard from '../../components/FadeInCard';
 import GoalCard from '../../components/GoalCard';
 import PrimaryButton from '../../components/ui/PrimaryButton';
+import EmptyState from '../../components/ui/EmptyState';
+import FormInput from '../../components/ui/FormInput';
+import ListSkeleton from '../../components/ui/ListSkeleton';
+import SegmentedControl from '../../components/ui/SegmentedControl';
 import { useAuth } from '../../context/AuthContext';
 import { useBudgets, useGoals } from '../../hooks/useBudgetsAndGoals';
 import useTransactions from '../../hooks/useTransactions';
 import { addMoneyToGoal, deleteGoal, setEditing } from '../../services/goalsService';
-import { colors, fonts, radius, screenPadding } from '../../theme';
+import { colors, fonts, radius, screenPadding, spacing } from '../../theme';
 import { budgetProgress, freeCategories } from '../../utils/budgets';
 import { getMonthStats } from '../../utils/stats';
 
 export default function GoalsScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
-  const labelFont = i18n.language === 'ur' ? fonts.ur.medium : fonts.en.medium;
 
   const [segment, setSegment] = useState('budgets');
   const [reloadKey, setReloadKey] = useState(0);
@@ -98,26 +100,31 @@ export default function GoalsScreen() {
 
   let body;
   if (loading) {
-    body = <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />;
+    body = <ListSkeleton count={3} height={144} />;
   } else if (error) {
     body = (
-      <View style={styles.center}>
-        <Ionicons name="cloud-offline-outline" size={40} color={colors.textSecondary} />
-        <AppText variant="body" color={colors.textSecondary} style={styles.centerText}>
-          {t(error === 'permission-denied' ? 'goals.errorPermission' : 'goals.errorLoad')}
-        </AppText>
-        <PrimaryButton label={t('goals.retry')} variant="outlined" onPress={onRefresh} style={styles.fullWidth} />
-      </View>
+      <FadeInCard>
+        <EmptyState
+          icon="cloud-offline-outline"
+          iconColor={colors.textSecondary}
+          text={t(error === 'permission-denied' ? 'goals.errorPermission' : 'goals.errorLoad')}
+          buttonLabel={t('goals.retry')}
+          buttonVariant="outlined"
+          onPress={onRefresh}
+        />
+      </FadeInCard>
     );
   } else if (isBudgets) {
     body = progress.length === 0 ? (
       <FadeInCard>
-        <View style={styles.center}>
-          <View style={styles.circle}><Ionicons name="pie-chart-outline" size={44} color={colors.primary} /></View>
-          <AppText variant="h2" style={styles.centerText}>{t('goals.budgetsEmptyTitle')}</AppText>
-          <AppText variant="body" color={colors.textSecondary} style={styles.centerText}>{t('goals.budgetsEmptyText')}</AppText>
-          <PrimaryButton label={t('goals.addFirstBudget')} icon="add-circle-outline" onPress={() => openBudget(null)} style={styles.fullWidth} />
-        </View>
+        <EmptyState
+          icon="pie-chart-outline"
+          title={t('goals.budgetsEmptyTitle')}
+          text={t('goals.budgetsEmptyText')}
+          buttonLabel={t('goals.addFirstBudget')}
+          buttonIcon="add-circle-outline"
+          onPress={() => openBudget(null)}
+        />
       </FadeInCard>
     ) : (
       <View style={styles.list}>
@@ -133,12 +140,15 @@ export default function GoalsScreen() {
   } else {
     body = goals.items.length === 0 ? (
       <FadeInCard>
-        <View style={styles.center}>
-          <View style={styles.circle}><Ionicons name="flag-outline" size={44} color={colors.accent} /></View>
-          <AppText variant="h2" style={styles.centerText}>{t('goals.goalsEmptyTitle')}</AppText>
-          <AppText variant="body" color={colors.textSecondary} style={styles.centerText}>{t('goals.goalsEmptyText')}</AppText>
-          <PrimaryButton label={t('goals.addFirstGoal')} icon="add-circle-outline" onPress={() => openGoal(null)} style={styles.fullWidth} />
-        </View>
+        <EmptyState
+          icon="flag-outline"
+          iconColor={colors.accent}
+          title={t('goals.goalsEmptyTitle')}
+          text={t('goals.goalsEmptyText')}
+          buttonLabel={t('goals.addFirstGoal')}
+          buttonIcon="add-circle-outline"
+          onPress={() => openGoal(null)}
+        />
       </FadeInCard>
     ) : (
       <View style={styles.list}>
@@ -161,20 +171,29 @@ export default function GoalsScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scroll}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />}
+        refreshControl={(
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.accentLight]}
+            tintColor={colors.accentLight}
+            progressBackgroundColor={colors.surfaceRaised}
+          />
+        )}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <AppText variant="h1">{t('goals.title')}</AppText>
-        <SegmentedButtons
-          value={segment}
-          onValueChange={setSegment}
-          theme={{ colors: { secondaryContainer: colors.primaryLight, onSecondaryContainer: colors.primaryDark } }}
-          buttons={[
-            { value: 'budgets', label: t('goals.segmentBudgets'), style: styles.segment, labelStyle: { fontFamily: labelFont } },
-            { value: 'goals', label: t('goals.segmentGoals'), style: styles.segment, labelStyle: { fontFamily: labelFont } },
-          ]}
-        />
+        <FadeInCard index={0}><AppText variant="h1">{t('goals.title')}</AppText></FadeInCard>
+        <FadeInCard index={1}>
+          <SegmentedControl
+            value={segment}
+            onChange={setSegment}
+            options={[
+              { value: 'budgets', label: t('goals.segmentBudgets') },
+              { value: 'goals', label: t('goals.segmentGoals') },
+            ]}
+          />
+        </FadeInCard>
         {body}
       </ScrollView>
 
@@ -183,18 +202,14 @@ export default function GoalsScreen() {
           <Dialog.Title><AppText variant="h2">{t('goals.addMoneyTitle')}</AppText></Dialog.Title>
           <Dialog.Content>
             <AppText variant="caption" color={colors.textSecondary} style={styles.dialogName}>{moneyGoal?.name}</AppText>
-            <TextInput
-              mode="outlined"
+            <FormInput
               label={t('goals.amount')}
               value={moneyText}
               onChangeText={(v) => { setMoneyText(v.replace(/[^0-9.]/g, '')); setMoneyError(false); }}
               keyboardType="decimal-pad"
               left={<TextInput.Affix text="Rs" />}
-              outlineColor={colors.border}
-              activeOutlineColor={colors.primary}
-              outlineStyle={{ borderRadius: radius.input }}
-              style={styles.input}
-              contentStyle={{ fontFamily: fonts.en.medium, fontSize: 18 }}
+              font={fonts.en.medium}
+              contentStyle={{ fontSize: 18 }}
               error={moneyError}
               autoFocus
             />
@@ -223,15 +238,8 @@ export default function GoalsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: screenPadding, paddingBottom: 64, gap: 12 },
-  segment: { borderColor: colors.border },
-  loader: { marginTop: 48 },
-  list: { gap: 12, marginTop: 4 },
-  center: { alignItems: 'center', justifyContent: 'center', padding: 24, gap: 8 },
-  centerText: { textAlign: 'center' },
-  fullWidth: { alignSelf: 'stretch', marginTop: 8 },
-  circle: { width: 96, height: 96, borderRadius: 48, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
-  dialog: { backgroundColor: colors.surface, borderRadius: radius.card },
-  dialogName: { marginBottom: 8 },
-  input: { backgroundColor: colors.surface },
+  scroll: { padding: screenPadding, paddingBottom: spacing.xl, gap: spacing.md },
+  list: { gap: spacing.md },
+  dialog: { backgroundColor: colors.surfaceRaised, borderRadius: radius.card },
+  dialogName: { marginBottom: spacing.sm },
 });

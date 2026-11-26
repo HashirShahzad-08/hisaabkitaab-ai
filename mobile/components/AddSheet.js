@@ -1,17 +1,16 @@
-// The Add options sheet (DESIGN.md section 7). It floats above the tab bar so the
-// + button stays visible and turns into an x.
+// The Add options sheet (DESIGN.md section 7): a dark bottom sheet with a handle and four large tiles.
+// It sits just above the tab bar so the + button stays visible and turns into an x.
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
-import AppText from './AppText';
+import IconTile from './ui/IconTile';
 import { useAddSheet } from '../context/AddSheetContext';
-import { colors, palette, radius, sizes } from '../theme';
+import { colors, palette, radius, sizes, spacing } from '../theme';
 
-const ROWS = [
+const OPTIONS = [
   { key: 'manual', icon: 'create-outline', route: '/add-transaction' },
   { key: 'sms', icon: 'chatbox-ellipses-outline', route: '/sms-entry' },
   { key: 'quick', icon: 'mic-outline', route: '/quick-entry' },
@@ -20,26 +19,25 @@ const ROWS = [
 
 export default function AddSheet() {
   const { open, close } = useAddSheet();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const isUrdu = i18n.language === 'ur';
 
   const [mounted, setMounted] = useState(false);
   const progress = useRef(new Animated.Value(0)).current;
-  const rowAnims = useRef(ROWS.map(() => new Animated.Value(0))).current;
+  const tileAnims = useRef(OPTIONS.map(() => new Animated.Value(0))).current;
 
   useEffect(() => {
     if (open) {
       setMounted(true);
       Animated.spring(progress, { toValue: 1, damping: 18, stiffness: 180, useNativeDriver: true }).start();
       Animated.stagger(
-        40,
-        rowAnims.map((a) => Animated.timing(a, { toValue: 1, duration: 220, useNativeDriver: true }))
+        60,
+        tileAnims.map((a) => Animated.timing(a, { toValue: 1, duration: 220, useNativeDriver: true }))
       ).start();
     } else if (mounted) {
       Animated.timing(progress, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
-        rowAnims.forEach((a) => a.setValue(0));
+        tileAnims.forEach((a) => a.setValue(0));
         setMounted(false);
       });
     }
@@ -49,7 +47,7 @@ export default function AddSheet() {
 
   // Stop just above the tab bar, so the + button stays visible.
   const bottom = sizes.tabBar + insets.bottom;
-  const translateY = progress.interpolate({ inputRange: [0, 1], outputRange: [60, 0] });
+  const translateY = progress.interpolate({ inputRange: [0, 1], outputRange: [80, 0] });
 
   const go = (route) => {
     close();
@@ -63,36 +61,29 @@ export default function AddSheet() {
       </Animated.View>
 
       <Animated.View style={[styles.sheet, { opacity: progress, transform: [{ translateY }] }]}>
-        {ROWS.map((row, i) => (
-          <Animated.View
-            key={row.key}
-            style={{
-              opacity: rowAnims[i],
-              transform: [{ translateY: rowAnims[i].interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
-            }}
-          >
-            <Pressable
-              onPress={() => go(row.route)}
-              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-              accessibilityRole="button"
+        <View style={styles.handle} />
+        <View style={styles.grid}>
+          {OPTIONS.map((option, i) => (
+            <Animated.View
+              key={option.key}
+              style={[
+                styles.cell,
+                {
+                  opacity: tileAnims[i],
+                  transform: [{ translateY: tileAnims[i].interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
+                },
+              ]}
             >
-              <View style={styles.iconCircle}>
-                <Ionicons name={row.icon} size={22} color={colors.accentLight} />
-              </View>
-              <View style={styles.texts}>
-                <AppText variant="bodyMedium">{t(`addSheet.${row.key}.title`)}</AppText>
-                <AppText variant="caption" color={colors.textSecondary}>
-                  {t(`addSheet.${row.key}.caption`)}
-                </AppText>
-              </View>
-              <Ionicons
-                name={isUrdu ? 'chevron-back' : 'chevron-forward'}
-                size={20}
-                color={colors.textSecondary}
+              <IconTile
+                icon={option.icon}
+                label={t(`addSheet.${option.key}.title`)}
+                description={t(`addSheet.${option.key}.caption`)}
+                onPress={() => go(option.route)}
+                style={styles.tile}
               />
-            </Pressable>
-          </Animated.View>
-        ))}
+            </Animated.View>
+          ))}
+        </View>
       </Animated.View>
     </View>
   );
@@ -102,28 +93,18 @@ const styles = StyleSheet.create({
   overlay: { position: 'absolute', start: 0, end: 0, top: 0, justifyContent: 'flex-end' },
   scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: palette.scrim },
   sheet: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
+    backgroundColor: colors.tabBar,
+    borderTopWidth: 1,
     borderColor: colors.border,
-    marginHorizontal: 16,
-    marginBottom: 8,
-    borderRadius: 24,
-    paddingVertical: 8,
-    elevation: 8,
-    shadowColor: colors.background,
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
+    borderTopStartRadius: radius.hero,
+    borderTopEndRadius: radius.hero,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
+    gap: spacing.md,
   },
-  row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, minHeight: 64 },
-  pressed: { backgroundColor: colors.surfaceRaised, borderRadius: radius.card },
-  iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.input,
-    backgroundColor: colors.surfaceRaised,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  texts: { flex: 1, marginHorizontal: 12 },
+  handle: { alignSelf: 'center', width: 40, height: 4, borderRadius: radius.pill, backgroundColor: colors.border },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  cell: { flexGrow: 1, flexBasis: '47%' },
+  tile: { flexGrow: 1 },
 });

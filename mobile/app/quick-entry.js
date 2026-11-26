@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Checkbox, TextInput } from 'react-native-paper';
+import { Checkbox } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -14,19 +14,23 @@ import FadeInCard from '../components/FadeInCard';
 import LowConfidenceNote from '../components/LowConfidenceNote';
 import ScreenHeader from '../components/ScreenHeader';
 import TransactionForm, { toFormValue } from '../components/TransactionForm';
+import Card from '../components/ui/Card';
+import Chip from '../components/ui/Chip';
+import EmptyState from '../components/ui/EmptyState';
+import FormInput from '../components/ui/FormInput';
+import PrimaryButton from '../components/ui/PrimaryButton';
 import { useAuth } from '../context/AuthContext';
 import { ApiError, quickEntry } from '../services/api';
 import { addTransaction } from '../services/transactionService';
-import { colors, fonts, radius, screenPadding, sizes } from '../theme';
+import { colors, screenPadding, sizes, spacing } from '../theme';
 
 const THINKING = ['thinking.quick.0', 'thinking.quick.1', 'thinking.quick.2'];
 const EXAMPLES = ['quickEntry.examples.0', 'quickEntry.examples.1', 'quickEntry.examples.2'];
 
 export default function QuickEntryScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
-  const isUrdu = i18n.language === 'ur';
 
   const [text, setText] = useState('');
   const [status, setStatus] = useState('idle'); // idle | loading | done
@@ -104,64 +108,52 @@ export default function QuickEntryScreen() {
       <ScreenHeader title={t('quickEntry.title')} />
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <TextInput
-            mode="outlined"
-            multiline
-            value={text}
-            onChangeText={(v) => { setText(v); setError(null); }}
-            placeholder={t('quickEntry.placeholder')}
-            outlineColor={colors.border}
-            activeOutlineColor={colors.primary}
-            outlineStyle={{ borderRadius: radius.input }}
-            style={styles.input}
-            contentStyle={{ minHeight: 110, paddingTop: 12, fontFamily: isUrdu ? fonts.ur.regular : fonts.en.regular }}
-            editable={!busy}
-          />
+          <FadeInCard index={0}>
+            <View style={styles.group}>
+              <FormInput
+                multiline
+                value={text}
+                onChangeText={(v) => { setText(v); setError(null); }}
+                placeholder={t('quickEntry.placeholder')}
+                contentStyle={styles.inputContent}
+                editable={!busy}
+              />
 
-          <View style={styles.hintRow}>
-            <Ionicons name="mic-outline" size={18} color={colors.textSecondary} />
-            <AppText variant="caption" color={colors.textSecondary} style={styles.hintText}>{t('quickEntry.hint')}</AppText>
-          </View>
+              <View style={styles.hintRow}>
+                <Ionicons name="mic-outline" size={18} color={colors.textSecondary} />
+                <AppText variant="caption" color={colors.textSecondary} style={styles.hintText}>{t('quickEntry.hint')}</AppText>
+              </View>
 
-          <View style={styles.exampleRow}>
-            {EXAMPLES.map((key) => (
-              <Pressable
-                key={key}
-                onPress={() => { setText(t(key)); setError(null); }}
-                style={styles.exampleChip}
-                accessibilityRole="button"
-              >
-                <AppText variant="caption" color={colors.primaryDark}>{t(key)}</AppText>
-              </Pressable>
-            ))}
-          </View>
+              <View style={styles.exampleRow}>
+                {EXAMPLES.map((key) => (
+                  <Chip
+                    key={key}
+                    size="lg"
+                    label={t(key)}
+                    accessibilityRole="button"
+                    onPress={() => { setText(t(key)); setError(null); }}
+                  />
+                ))}
+              </View>
+            </View>
+          </FadeInCard>
 
           {error ? <AppText variant="body" color={colors.danger}>{t(error)}</AppText> : null}
 
-          <Button
-            mode="contained"
-            onPress={addWithAi}
-            loading={busy}
-            disabled={busy || saving}
-            buttonColor={colors.primary}
-            textColor={colors.onPrimary}
-            style={styles.primaryButton}
-            contentStyle={{ height: sizes.button }}
-            labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}
-          >
-            {t('quickEntry.add')}
-          </Button>
+          <FadeInCard index={1}>
+            <PrimaryButton label={t('quickEntry.add')} onPress={addWithAi} loading={busy} disabled={saving} />
+          </FadeInCard>
 
           {busy ? <AIThinking messageKeys={THINKING} /> : null}
 
           {showResults && entries.length === 0 ? (
-            <AppText variant="body" color={colors.textSecondary} style={styles.centerText}>{t('quickEntry.none')}</AppText>
+            <EmptyState icon="search-outline" iconColor={colors.textSecondary} text={t('quickEntry.none')} />
           ) : null}
 
           {showResults
             ? entries.map((en, i) => (
                 <FadeInCard key={i} index={i}>
-                  <View style={[styles.entryCard, !en.checked && styles.entryOff]}>
+                  <Card style={[styles.entryCard, !en.checked && styles.entryOff]}>
                     <Pressable
                       onPress={() => update(i, { checked: !en.checked })}
                       style={styles.checkRow}
@@ -178,7 +170,7 @@ export default function QuickEntryScreen() {
                       fields="note"
                       amountError={en.amountError}
                     />
-                  </View>
+                  </Card>
                 </FadeInCard>
               ))
             : null}
@@ -186,19 +178,12 @@ export default function QuickEntryScreen() {
 
         {showResults && entries.length > 0 ? (
           <View style={styles.footer}>
-            <Button
-              mode="contained"
+            <PrimaryButton
+              label={t('quickEntry.saveAll', { count: selected.length })}
               onPress={saveAll}
               loading={saving}
-              disabled={saving || selected.length === 0}
-              buttonColor={colors.primary}
-              textColor={colors.onPrimary}
-              style={styles.primaryButton}
-              contentStyle={{ height: sizes.button }}
-              labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}
-            >
-              {t('quickEntry.saveAll', { count: selected.length })}
-            </Button>
+              disabled={selected.length === 0}
+            />
           </View>
         ) : null}
       </KeyboardAvoidingView>
@@ -209,21 +194,13 @@ export default function QuickEntryScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  scroll: { padding: screenPadding, gap: 12, paddingBottom: 32 },
-  input: { backgroundColor: colors.surface },
-  hintRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  scroll: { padding: screenPadding, gap: spacing.md, paddingBottom: spacing.xxl },
+  group: { gap: spacing.sm },
+  inputContent: { minHeight: 112, paddingTop: 12 },
+  hintRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   hintText: { flex: 1 },
-  exampleRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  exampleChip: {
-    minHeight: sizes.touch,
-    justifyContent: 'center',
-    paddingHorizontal: 14,
-    borderRadius: radius.pill,
-    backgroundColor: colors.primaryLight,
-  },
-  primaryButton: { borderRadius: radius.button },
-  centerText: { textAlign: 'center' },
-  entryCard: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, gap: 8, elevation: 1 },
+  exampleRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  entryCard: { gap: spacing.sm },
   entryOff: { opacity: 0.5 },
   checkRow: { flexDirection: 'row', alignItems: 'center', minHeight: sizes.touch },
   footer: { padding: screenPadding, backgroundColor: colors.background },

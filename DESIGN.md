@@ -133,7 +133,7 @@ Build reusable components in `/app/components`: `AmountText`, `CategoryIcon`, `T
 | Home opens | Balance counts up from 0; Health Score ring fills from 0 (800ms) |
 | Save transaction | Button morphs into an animated checkmark (Lottie), light haptic, then the screen slides back |
 | Goal reached | Progress bar fills to the end, the card glows gold for a moment, trophy icon draws itself (Lottie), success haptic |
-| Scam detected | Red `AlertCard` slides in and shakes once (Moti), shield-warning icon pulses, error haptic |
+| Scam detected | Red scam card slides in and shakes once, gently; error haptic |
 | Budget at 80% / 100% | Warning / danger `AlertCard` on Home |
 | AI working | `AIThinking` shimmer card + text "AI soch raha hai…" (never a plain spinner) |
 | Delete | Swipe left on a transaction → red delete action → confirm Dialog |
@@ -185,17 +185,13 @@ Bottom tab bar (`#121316`, top border `#26282E`, height 64, active = `#60A5FA`, 
 | Bills | `flash` | Bill Analyzer |
 | Goals | `trophy` | Goals + Budgets |
 
-**Add options sheet** (bottom sheet when the center + is tapped), four big rows with icons:
-1. Icon `create-outline` — **Manual entry** → Add Transaction form
-2. Icon `chatbox-ellipses-outline` — **Paste SMS** → SMS auto-entry
-3. Icon `mic-outline` — **Urdu quick entry (type or speak)** → Quick Entry
-4. Icon `help-circle-outline` — **Kya main afford kar sakta hoon?** → Afford check
-
-Each row: icon inside a 44px `cardRaised` circle, title (bodyMedium) + one-line caption, chevron on the right. Rows animate in one after another (40ms stagger) as the sheet springs up.
+**Add options sheet** (when the center + is tapped): a dark bottom sheet with a handle and four large tiles in a 2x2 grid: Manual entry, Paste SMS, Urdu quick entry, Can I afford it. Each tile has an icon, a title and a one-line description. Tiles rise in one after another (60ms apart).
 
 ---
 
 ## 8. Screens
+
+**Shared look (all screens):** cards with a 1px border and 18px radius, `SectionHeader` titles, entrance fade and slide once (80ms apart), spring press with haptics, skeletons while loading, `EmptyState` for empty lists. Inputs are `cardRaised` with a blue focus border. Results use a large verdict card: blue (good), amber (careful), red (overbilled or not now). The scam alert is a red card that shakes once, lists the reasons, and offers Report to PTA (red) and Warn my family (outline). Nothing pulses or loops on it.
 
 > Example text below is sometimes written in Roman Urdu to show the tone. In the app, every string comes from the translation files: proper English in English mode, Urdu script in Urdu mode (section 10).
 

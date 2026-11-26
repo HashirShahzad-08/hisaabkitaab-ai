@@ -1,6 +1,6 @@
 // Bill form: the numbers from the electricity bill, then "Check bill".
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,13 +10,17 @@ import { useTranslation } from 'react-i18next';
 
 import AIThinking from '../components/AIThinking';
 import AppText from '../components/AppText';
+import FadeInCard from '../components/FadeInCard';
+import PressableScale from '../components/PressableScale';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import ScreenHeader from '../components/ScreenHeader';
+import Card from '../components/ui/Card';
+import FormInput from '../components/ui/FormInput';
 import { useAuth } from '../context/AuthContext';
 import useBills from '../hooks/useBills';
 import { ApiError, analyzeBill } from '../services/api';
 import { setCurrentBill } from '../services/billService';
-import { colors, fonts, radius, screenPadding, sizes } from '../theme';
+import { colors, fonts, radius, screenPadding, sizes, spacing } from '../theme';
 import { currentMonthKey, monthLabel, shiftMonth } from '../utils/billUi';
 
 const THINKING = ['thinking.bill.0', 'thinking.bill.1', 'thinking.bill.2'];
@@ -106,19 +110,15 @@ export default function BillFormScreen() {
   }
 
   const inputProps = {
-    mode: 'outlined',
     keyboardType: 'decimal-pad',
-    outlineColor: colors.border,
-    activeOutlineColor: colors.primary,
-    outlineStyle: { borderRadius: radius.input },
-    style: styles.input,
-    contentStyle: { fontFamily: fonts.en.medium, fontSize: 18 },
+    font: fonts.en.medium,
+    contentStyle: { fontSize: 18 },
     disabled: loading,
   };
 
   const field = (key, label, value, setValue, extra = {}) => (
     <View style={styles.field}>
-      <TextInput
+      <FormInput
         {...inputProps}
         label={label}
         value={value}
@@ -131,9 +131,11 @@ export default function BillFormScreen() {
   );
 
   const stepper = (icon, onPress, disabled) => (
-    <Pressable onPress={onPress} disabled={disabled || loading} style={[styles.stepButton, disabled && styles.stepOff]} accessibilityRole="button" hitSlop={6}>
-      <Ionicons name={icon} size={22} color={colors.primary} />
-    </Pressable>
+    <PressableScale onPress={onPress} disabled={disabled || loading} hitSlop={6}>
+      <View style={[styles.stepButton, disabled && styles.stepOff]}>
+        <Ionicons name={icon} size={22} color={colors.accentLight} />
+      </View>
+    </PressableScale>
   );
 
   return (
@@ -142,49 +144,67 @@ export default function BillFormScreen() {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           {/* Month */}
-          <AppText variant="caption" color={colors.textSecondary}>{t('bills.form.month')}</AppText>
-          <View style={styles.monthRow}>
-            {stepper(isUrdu ? 'chevron-forward' : 'chevron-back', () => setMonth((m) => shiftMonth(m, -1)), false)}
-            <AppText variant="h2" style={styles.monthText}>{monthLabel(month, t)}</AppText>
-            {stepper(isUrdu ? 'chevron-back' : 'chevron-forward', () => setMonth((m) => shiftMonth(m, 1)), isCurrentMonth)}
-          </View>
+          <FadeInCard index={0}>
+            <Card style={styles.group}>
+              <AppText variant="caption" color={colors.textSecondary}>{t('bills.form.month')}</AppText>
+              <View style={styles.monthRow}>
+                {stepper(isUrdu ? 'chevron-forward' : 'chevron-back', () => setMonth((m) => shiftMonth(m, -1)), false)}
+                <AppText variant="h2" style={styles.monthText}>{monthLabel(month, t)}</AppText>
+                {stepper(isUrdu ? 'chevron-back' : 'chevron-forward', () => setMonth((m) => shiftMonth(m, 1)), isCurrentMonth)}
+              </View>
+            </Card>
+          </FadeInCard>
 
           {/* Readings */}
-          {field('previous', t('bills.form.previous'), previous, setPrevious)}
-          {field('current', t('bills.form.current'), current, setCurrent)}
-          <View style={styles.helper}>
-            <Ionicons name="information-circle-outline" size={18} color={colors.info} />
-            <AppText variant="caption" color={colors.textSecondary} style={styles.helperText}>{t('bills.form.readingsHelp')}</AppText>
-          </View>
+          <FadeInCard index={1}>
+            <Card style={styles.group}>
+              {field('previous', t('bills.form.previous'), previous, setPrevious)}
+              {field('current', t('bills.form.current'), current, setCurrent)}
+              <View style={styles.helper}>
+                <Ionicons name="information-circle-outline" size={18} color={colors.info} />
+                <AppText variant="caption" color={colors.textSecondary} style={styles.helperText}>{t('bills.form.readingsHelp')}</AppText>
+              </View>
+            </Card>
+          </FadeInCard>
 
-          {field('units', t('bills.form.units'), units, setUnits)}
-          {field('amount', t('bills.form.amount'), amount, setAmount, { left: <TextInput.Affix text="Rs" /> })}
+          <FadeInCard index={2}>
+            <Card style={styles.group}>
+              {field('units', t('bills.form.units'), units, setUnits)}
+              {field('amount', t('bills.form.amount'), amount, setAmount, { left: <TextInput.Affix text="Rs" /> })}
+            </Card>
+          </FadeInCard>
 
           {/* More details */}
-          <Pressable onPress={() => setMoreOpen((o) => !o)} style={styles.moreHeader} accessibilityRole="button" accessibilityState={{ expanded: moreOpen }}>
-            <AppText variant="bodyMedium" color={colors.primary} style={styles.flex}>{t('bills.form.more')}</AppText>
-            <Ionicons name={moreOpen ? 'chevron-up' : 'chevron-down'} size={20} color={colors.primary} />
-          </Pressable>
-          {moreOpen ? (
-            <View style={styles.moreBody}>
-              {field('lastMonth', t('bills.form.lastMonth'), lastMonth, setLastMonth)}
-              {autoFilled ? (
-                <AppText variant="caption" color={colors.textSecondary}>{t('bills.form.autoFilled')}</AppText>
+          <FadeInCard index={3}>
+            <Card style={styles.group}>
+              <PressableScale onPress={() => setMoreOpen((o) => !o)} accessibilityState={{ expanded: moreOpen }}>
+                <View style={styles.moreHeader}>
+                  <AppText variant="bodyMedium" color={colors.accentLight} style={styles.flex}>{t('bills.form.more')}</AppText>
+                  <Ionicons name={moreOpen ? 'chevron-up' : 'chevron-down'} size={20} color={colors.accentLight} />
+                </View>
+              </PressableScale>
+              {moreOpen ? (
+                <View style={styles.group}>
+                  {field('lastMonth', t('bills.form.lastMonth'), lastMonth, setLastMonth)}
+                  {autoFilled ? (
+                    <AppText variant="caption" color={colors.textSecondary}>{t('bills.form.autoFilled')}</AppText>
+                  ) : null}
+                  {field('lastYear', t('bills.form.lastYear'), lastYear, setLastYear)}
+                  <View style={styles.field}>
+                    <FormInput
+                      {...inputProps}
+                      keyboardType="default"
+                      label={t('bills.form.company')}
+                      value={company}
+                      onChangeText={setCompany}
+                      maxLength={60}
+                      autoCapitalize="characters"
+                    />
+                  </View>
+                </View>
               ) : null}
-              {field('lastYear', t('bills.form.lastYear'), lastYear, setLastYear)}
-              <View style={styles.field}>
-                <TextInput
-                  {...inputProps}
-                  keyboardType="default"
-                  label={t('bills.form.company')}
-                  value={company}
-                  onChangeText={setCompany}
-                  maxLength={60}
-                  autoCapitalize="characters"
-                />
-              </View>
-            </View>
-          ) : null}
+            </Card>
+          </FadeInCard>
 
           {apiError ? (
             <View style={styles.errorBox}>
@@ -211,28 +231,27 @@ export default function BillFormScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  scroll: { padding: screenPadding, paddingBottom: 24, gap: 12 },
+  scroll: { padding: screenPadding, paddingBottom: spacing.xl, gap: spacing.md },
+  group: { gap: spacing.md },
   monthRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: radius.input,
     borderWidth: 1,
     borderColor: colors.border,
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing.sm,
     minHeight: 56,
   },
   monthText: { flex: 1, textAlign: 'center' },
   stepButton: { width: sizes.touch, height: sizes.touch, alignItems: 'center', justifyContent: 'center' },
   stepOff: { opacity: 0.3 },
-  field: { gap: 4 },
-  input: { backgroundColor: colors.surface },
-  error: { marginHorizontal: 4 },
-  helper: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingHorizontal: 4 },
+  field: { gap: spacing.xs },
+  error: { marginHorizontal: spacing.xs },
+  helper: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
   helperText: { flex: 1 },
-  moreHeader: { flexDirection: 'row', alignItems: 'center', minHeight: sizes.touch, marginTop: 4 },
-  moreBody: { gap: 12 },
-  errorBox: { backgroundColor: colors.dangerLight, borderRadius: radius.input, padding: 12 },
+  moreHeader: { flexDirection: 'row', alignItems: 'center', minHeight: sizes.touch },
+  errorBox: { backgroundColor: colors.dangerLight, borderColor: colors.dangerBorder, borderWidth: 1, borderRadius: radius.input, padding: 12 },
   footer: { padding: screenPadding, backgroundColor: colors.background },
 });

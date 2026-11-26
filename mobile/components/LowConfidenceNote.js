@@ -4,15 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import AppText from './AppText';
-import { colors, radius } from '../theme';
+import { colors, radius, spacing } from '../theme';
 
 export default function LowConfidenceNote({ confidence }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   if (confidence !== 'low') return null;
   return (
     <View style={styles.row} accessibilityRole="alert">
       <Ionicons name="alert-circle-outline" size={18} color={colors.warning} />
-      <AppText variant="caption" color={colors.text} style={styles.text}>{t('common.checkDetails')}</AppText>
+      <AppText variant="caption" color={colors.warningTitle} style={styles.text}>{t('common.checkDetails')}</AppText>
     </View>
   );
 }
@@ -21,11 +21,13 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
     backgroundColor: colors.warningLight,
+    borderWidth: 1,
+    borderColor: colors.warningBorder,
     borderRadius: radius.input,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   text: { flex: 1 },
 });

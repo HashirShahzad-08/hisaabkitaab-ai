@@ -9,15 +9,19 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import AlertCard from '../components/AlertCard';
 import AppText from '../components/AppText';
 import FadeInCard from '../components/FadeInCard';
 import InsightCard from '../components/InsightCard';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import ScreenHeader from '../components/ScreenHeader';
+import Card from '../components/ui/Card';
+import EmptyState from '../components/ui/EmptyState';
+import SectionHeader from '../components/ui/SectionHeader';
+import StatGrid, { StatTile } from '../components/ui/StatGrid';
+import VerdictCard from '../components/ui/VerdictCard';
 import { useAuth } from '../context/AuthContext';
 import { getCurrentBill, saveBill, setFlash } from '../services/billService';
-import { colors, fonts, radius, screenPadding } from '../theme';
+import { colors, fonts, radius, screenPadding, spacing } from '../theme';
 import { helplineFor, monthLabel, verdictMeta } from '../utils/billUi';
 import { formatNumber } from '../utils/format';
 
@@ -28,20 +32,24 @@ const fmt = (n) => {
   return r < 0 ? `-${text}` : text;
 };
 
-const ISSUE_STYLE = {
-  reading_error: { icon: 'alert-circle', color: colors.danger },
-  units_mismatch: { icon: 'alert-circle', color: colors.danger },
-  sudden_jump: { icon: 'trending-up', color: colors.warning },
-  higher_than_last_year: { icon: 'trending-up', color: colors.warning },
-  near_200: { icon: 'warning', color: colors.warning },
-  above_200: { icon: 'information-circle', color: colors.info },
+// The color of the dot in front of each issue
+const ISSUE_COLOR = {
+  reading_error: colors.danger,
+  units_mismatch: colors.danger,
+  sudden_jump: colors.warning,
+  higher_than_last_year: colors.warning,
+  near_200: colors.warning,
+  above_200: colors.info,
 };
 
-function Stat({ label, children }) {
+// bill verdict -> look of the big verdict card
+const TONE = { looks_ok: 'ok', check: 'warning', likely_overbilled: 'danger' };
+
+function ListItem({ color, children }) {
   return (
-    <View style={styles.stat}>
-      <AppText variant="caption" color={colors.textSecondary}>{label}</AppText>
-      {children}
+    <View style={styles.issueRow}>
+      <View style={styles.dotBox}><View style={[styles.dot, { backgroundColor: color }]} /></View>
+      <AppText variant="body" color={colors.textBody} style={styles.flex}>{children}</AppText>
     </View>
   );
 }
@@ -63,8 +71,14 @@ export default function BillResultScreen() {
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScreenHeader title={t('bills.result.title')} />
         <View style={styles.missing}>
-          <AppText variant="body" color={colors.textSecondary} style={styles.centerText}>{t('bills.result.missing')}</AppText>
-          <PrimaryButton label={t('bills.result.back')} onPress={() => router.replace('/(tabs)/bills')} variant="outlined" />
+          <EmptyState
+            icon="receipt-outline"
+            iconColor={colors.textSecondary}
+            text={t('bills.result.missing')}
+            buttonLabel={t('bills.result.back')}
+            buttonVariant="outlined"
+            onPress={() => router.replace('/(tabs)/bills')}
+          />
         </View>
       </SafeAreaView>
     );
@@ -112,43 +126,37 @@ export default function BillResultScreen() {
       <ScreenHeader title={monthLabel(request.bill_month, t)} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* 1. Verdict */}
-        <AlertCard variant={meta.variant} icon={meta.icon} title={t(meta.key)}>
-          <AppText variant="body" color={colors.text}>{t(`bills.verdictLine.${result.verdict}`)}</AppText>
-        </AlertCard>
+        <VerdictCard
+          tone={TONE[result.verdict] || 'warning'}
+          icon={meta.icon}
+          title={t(meta.key)}
+          text={t(`bills.verdictLine.${result.verdict}`)}
+        />
 
         {/* 2. Key numbers */}
         <FadeInCard index={1}>
-          <View style={[styles.card, styles.statsGrid]}>
-            <Stat label={t('bills.result.meterUnits')}><Text style={styles.value}>{fmt(result.reading_units)}</Text></Stat>
-            <Stat label={t('bills.result.billedUnits')}><Text style={styles.value}>{fmt(result.units_billed)}</Text></Stat>
+          <StatGrid>
+            <StatTile label={t('bills.result.meterUnits')}><Text style={styles.value}>{fmt(result.reading_units)}</Text></StatTile>
+            <StatTile label={t('bills.result.billedUnits')}><Text style={styles.value}>{fmt(result.units_billed)}</Text></StatTile>
             {result.extra_units > 0 ? (
-              <Stat label={t('bills.result.extraUnits')}><Text style={[styles.value, { color: colors.danger }]}>{fmt(result.extra_units)}</Text></Stat>
+              <StatTile label={t('bills.result.extraUnits')}><Text style={[styles.value, { color: colors.danger }]}>{fmt(result.extra_units)}</Text></StatTile>
             ) : null}
-            <Stat label={t('bills.result.costPerUnit')}>{money(result.cost_per_unit)}</Stat>
-          </View>
+            <StatTile label={t('bills.result.costPerUnit')}>{money(result.cost_per_unit)}</StatTile>
+          </StatGrid>
         </FadeInCard>
 
         {/* 3. Issues */}
         <FadeInCard index={2}>
-          <View style={styles.card}>
-            <AppText variant="h2">{t('bills.result.found')}</AppText>
+          <Card style={styles.group}>
+            <SectionHeader title={t('bills.result.found')} />
             {result.issues.length === 0 ? (
-              <View style={styles.issueRow}>
-                <Ionicons name="checkmark-circle" size={22} color={colors.primary} />
-                <AppText variant="body" style={styles.flex}>{t('bills.result.noIssues')}</AppText>
-              </View>
+              <ListItem color={colors.info}>{t('bills.result.noIssues')}</ListItem>
             ) : (
-              result.issues.map((issue) => {
-                const style = ISSUE_STYLE[issue.code] || ISSUE_STYLE.above_200;
-                return (
-                  <View key={issue.code} style={styles.issueRow}>
-                    <Ionicons name={style.icon} size={22} color={style.color} />
-                    <AppText variant="body" style={styles.flex}>{issue.message}</AppText>
-                  </View>
-                );
-              })
+              result.issues.map((issue) => (
+                <ListItem key={issue.code} color={ISSUE_COLOR[issue.code] || colors.info}>{issue.message}</ListItem>
+              ))
             )}
-          </View>
+          </Card>
         </FadeInCard>
 
         {/* 4. Explanation (can be read aloud) */}
@@ -157,27 +165,24 @@ export default function BillResultScreen() {
         {/* 5. Tips */}
         {result.tips.length > 0 ? (
           <FadeInCard index={4}>
-            <View style={styles.card}>
-              <AppText variant="h2">{t('bills.result.tips')}</AppText>
+            <Card style={styles.group}>
+              <SectionHeader title={t('bills.result.tips')} />
               {result.tips.map((tip, i) => (
-                <View key={i} style={styles.issueRow}>
-                  <Ionicons name="bulb-outline" size={22} color={colors.accent} />
-                  <AppText variant="body" style={styles.flex}>{tip}</AppText>
-                </View>
+                <ListItem key={i} color={colors.accentLight}>{tip}</ListItem>
               ))}
-            </View>
+            </Card>
           </FadeInCard>
         ) : null}
 
         {/* 6. Complaint */}
         {result.complaint ? (
           <FadeInCard index={5}>
-            <View style={styles.card}>
-              <AppText variant="h2">{t('bills.result.complaint')}</AppText>
-              <AppText variant="body" selectable style={styles.complaintText}>{result.complaint}</AppText>
+            <Card style={styles.group}>
+              <SectionHeader title={t('bills.result.complaint')} />
+              <AppText variant="body" color={colors.textBody} selectable style={styles.complaintText}>{result.complaint}</AppText>
               {helpline ? (
                 <View style={styles.issueRow}>
-                  <Ionicons name="call-outline" size={20} color={colors.primary} />
+                  <Ionicons name="call-outline" size={20} color={colors.accentLight} />
                   <AppText variant="bodyMedium" style={styles.flex}>
                     {t('bills.result.helpline', { company: (request.company || '').toUpperCase(), number: helpline })}
                   </AppText>
@@ -188,22 +193,21 @@ export default function BillResultScreen() {
                 <PrimaryButton
                   label={t('bills.result.share')}
                   icon="share-social-outline"
-                  variant="outlined"
                   onPress={() => Share.share({ message: result.complaint })}
                   style={styles.flex}
                 />
               </View>
-            </View>
+            </Card>
           </FadeInCard>
         ) : null}
 
         {/* 7. Add to expenses */}
         {!saved ? (
           <FadeInCard index={6}>
-            <View style={[styles.card, styles.switchRow]}>
+            <Card style={styles.switchRow}>
               <AppText variant="bodyMedium" style={styles.flex}>{t('bills.result.addExpense')}</AppText>
               <Switch value={addExpense} onValueChange={setAddExpense} color={colors.primary} disabled={saving} />
-            </View>
+            </Card>
           </FadeInCard>
         ) : null}
 
@@ -229,18 +233,17 @@ export default function BillResultScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  scroll: { padding: screenPadding, paddingBottom: 24, gap: 12 },
-  card: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, gap: 12, elevation: 1 },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 16 },
-  stat: { width: '50%', gap: 2 },
-  value: { fontFamily: fonts.en.semibold, fontSize: 20, color: colors.text },
+  scroll: { padding: screenPadding, paddingBottom: spacing.xl, gap: spacing.md },
+  group: { gap: spacing.md },
+  value: { fontFamily: fonts.en.semibold, fontSize: 22, color: colors.text },
   valueRow: { flexDirection: 'row', alignItems: 'baseline', direction: 'ltr' },
-  issueRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  complaintText: { backgroundColor: colors.background, borderRadius: radius.input, padding: 12 },
-  buttonRow: { flexDirection: 'row', gap: 8 },
-  switchRow: { flexDirection: 'row', alignItems: 'center' },
-  errorBox: { backgroundColor: colors.dangerLight, borderRadius: radius.input, padding: 12 },
+  issueRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
+  dotBox: { height: 22, justifyContent: 'center' },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  complaintText: { backgroundColor: colors.surfaceRaised, borderRadius: radius.input, padding: spacing.md },
+  buttonRow: { flexDirection: 'row', gap: spacing.sm },
+  switchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  errorBox: { backgroundColor: colors.dangerLight, borderColor: colors.dangerBorder, borderWidth: 1, borderRadius: radius.input, padding: 12 },
   footer: { padding: screenPadding, backgroundColor: colors.background },
-  missing: { flex: 1, padding: screenPadding, justifyContent: 'center', gap: 16 },
-  centerText: { textAlign: 'center' },
+  missing: { flex: 1, padding: screenPadding, justifyContent: 'center' },
 });

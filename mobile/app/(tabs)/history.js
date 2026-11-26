@@ -1,6 +1,6 @@
 // History - DESIGN.md section 8.7
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, SectionList, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, SectionList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Dialog, Portal, Snackbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,13 +8,17 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import AppText from '../../components/AppText';
+import FadeInCard from '../../components/FadeInCard';
 import FilterDialog from '../../components/FilterDialog';
 import TransactionRow from '../../components/TransactionRow';
+import Chip from '../../components/ui/Chip';
+import EmptyState from '../../components/ui/EmptyState';
+import ListSkeleton from '../../components/ui/ListSkeleton';
 import { ALL_CATEGORIES, PAYMENT_TYPES, categoryKey, paymentKey } from '../../constants/categories';
 import { useAuth } from '../../context/AuthContext';
 import useTransactions from '../../hooks/useTransactions';
 import { deleteTransaction } from '../../services/transactionService';
-import { colors, fonts, radius, screenPadding, sizes } from '../../theme';
+import { colors, radius, screenPadding, spacing } from '../../theme';
 import { formatDayLabel, monthKey } from '../../utils/format';
 
 export default function HistoryScreen() {
@@ -102,94 +106,115 @@ export default function HistoryScreen() {
   };
 
   const chip = (id, label, active) => (
-    <Pressable
+    <Chip
       key={id}
+      size="lg"
+      label={label}
+      trailingIcon="chevron-down"
+      selected={active}
       onPress={() => setOpenFilter(id)}
-      style={[styles.chip, active && styles.chipActive]}
-      accessibilityRole="button"
-    >
-      <AppText variant="body" color={active ? colors.primaryDark : colors.textSecondary} numberOfLines={1}>
-        {label}
-      </AppText>
-      <Ionicons name="chevron-down" size={14} color={active ? colors.primaryDark : colors.textSecondary} />
-    </Pressable>
+    />
   );
 
   const labelFor = (list, value) => list.find((o) => o.value === value)?.label;
 
   let body;
   if (loading) {
-    body = <View style={styles.center}><ActivityIndicator size="large" color={colors.primary} /></View>;
+    body = <ListSkeleton count={6} style={styles.state} />;
   } else if (error) {
     body = (
-      <View style={styles.center}>
-        <Ionicons name="cloud-offline-outline" size={40} color={colors.textSecondary} />
-        <AppText variant="body" color={colors.textSecondary} style={styles.centerText}>
-          {t(error === 'permission-denied' ? 'history.errorPermission' : 'history.errorGeneric')}
-        </AppText>
-        <Button mode="outlined" onPress={onRefresh} textColor={colors.primary} style={styles.emptyButton}>
-          {t('history.retry')}
-        </Button>
-      </View>
+      <FadeInCard style={styles.state}>
+        <EmptyState
+          icon="cloud-offline-outline"
+          iconColor={colors.textSecondary}
+          text={t(error === 'permission-denied' ? 'history.errorPermission' : 'history.errorGeneric')}
+          buttonLabel={t('history.retry')}
+          buttonVariant="outlined"
+          onPress={onRefresh}
+        />
+      </FadeInCard>
     );
   } else if (items.length === 0) {
     body = (
-      <View style={styles.center}>
-        <View style={styles.emptyCircle}><Ionicons name="receipt-outline" size={40} color={colors.primary} /></View>
-        <AppText variant="h2" style={styles.centerText}>{t('history.emptyTitle')}</AppText>
-        <AppText variant="body" color={colors.textSecondary} style={styles.centerText}>{t('history.emptyText')}</AppText>
-        <Button
-          mode="contained"
+      <FadeInCard style={styles.state}>
+        <EmptyState
+          icon="receipt-outline"
+          title={t('history.emptyTitle')}
+          text={t('history.emptyText')}
+          buttonLabel={t('history.addFirst')}
           onPress={() => router.push('/add-transaction')}
-          buttonColor={colors.primary}
-          style={styles.emptyButton}
-          contentStyle={{ height: sizes.button }}
-          labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold }}
-        >
-          {t('history.addFirst')}
-        </Button>
-      </View>
+        />
+      </FadeInCard>
     );
   } else if (filtered.length === 0) {
     body = (
-      <View style={styles.center}>
-        <Ionicons name="search-outline" size={40} color={colors.textSecondary} />
-        <AppText variant="body" color={colors.textSecondary} style={styles.centerText}>{t('history.noMatch')}</AppText>
-        <Button mode="outlined" onPress={clearFilters} textColor={colors.primary} style={styles.emptyButton}>
-          {t('history.clearFilters')}
-        </Button>
-      </View>
+      <FadeInCard style={styles.state}>
+        <EmptyState
+          icon="search-outline"
+          iconColor={colors.textSecondary}
+          text={t('history.noMatch')}
+          buttonLabel={t('history.clearFilters')}
+          buttonVariant="outlined"
+          onPress={clearFilters}
+        />
+      </FadeInCard>
     );
   } else {
     body = (
-      <SectionList
-        sections={sections}
-        keyExtractor={(x) => x.id}
-        stickySectionHeadersEnabled
-        renderSectionHeader={({ section }) => (
-          <View style={styles.dayHeader}>
-            <AppText variant="caption" color={colors.textSecondary}>{section.title}</AppText>
-          </View>
-        )}
-        renderItem={({ item }) => <TransactionRow item={item} onDelete={setToDelete} />}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />}
-        contentContainerStyle={{ paddingBottom: 24 }}
-      />
+      <FadeInCard index={1} style={styles.flex}>
+        <SectionList
+          sections={sections}
+          keyExtractor={(x) => x.id}
+          stickySectionHeadersEnabled
+          renderSectionHeader={({ section }) => (
+            <View style={styles.dayHeader}>
+              <AppText variant="caption" color={colors.textSecondary} style={!isUrdu && styles.overline}>{section.title}</AppText>
+            </View>
+          )}
+          // Each day is one card: round the first and last rows
+          renderItem={({ item, index, section }) => (
+            <View
+              style={[
+                styles.rowWrap,
+                index === 0 && styles.rowFirst,
+                index === section.data.length - 1 && styles.rowLast,
+              ]}
+            >
+              <TransactionRow item={item} onDelete={setToDelete} last={index === section.data.length - 1} />
+            </View>
+          )}
+          refreshControl={(
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.accentLight]}
+              tintColor={colors.accentLight}
+              progressBackgroundColor={colors.surfaceRaised}
+            />
+          )}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
+      </FadeInCard>
     );
   }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <View style={styles.top}>
-        <AppText variant="h1">{t('history.title')}</AppText>
-      </View>
-      <View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-          {chip('month', month === 'all' ? t('history.month') : monthLabel(month), month !== 'all')}
-          {chip('category', category === 'all' ? t('history.category') : labelFor(options.category, category), category !== 'all')}
-          {chip('payment', payment === 'all' ? t('history.paymentType') : labelFor(options.payment, payment), payment !== 'all')}
-        </ScrollView>
-      </View>
+      <FadeInCard index={0}>
+        <View style={styles.top}>
+          <AppText variant="h1">{t('history.title')}</AppText>
+        </View>
+        {/* The filter bar: a dark input-like strip */}
+        <View style={styles.filterBar}>
+          <Ionicons name="options-outline" size={20} color={colors.textSecondary} />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.flex} contentContainerStyle={styles.chipRow}>
+            {chip('month', month === 'all' ? t('history.month') : monthLabel(month), month !== 'all')}
+            {chip('category', category === 'all' ? t('history.category') : labelFor(options.category, category), category !== 'all')}
+            {chip('payment', payment === 'all' ? t('history.paymentType') : labelFor(options.payment, payment), payment !== 'all')}
+          </ScrollView>
+        </View>
+      </FadeInCard>
 
       <View style={styles.flex}>{body}</View>
 
@@ -208,7 +233,7 @@ export default function HistoryScreen() {
       />
 
       <Portal>
-        <Dialog visible={!!toDelete} onDismiss={() => setToDelete(null)} style={{ backgroundColor: colors.surface, borderRadius: 16 }}>
+        <Dialog visible={!!toDelete} onDismiss={() => setToDelete(null)} style={styles.dialog}>
           <Dialog.Title><AppText variant="h2">{t('history.deleteTitle')}</AppText></Dialog.Title>
           <Dialog.Content><AppText variant="body">{t('history.deleteText')}</AppText></Dialog.Content>
           <Dialog.Actions>
@@ -226,30 +251,35 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  top: { paddingHorizontal: screenPadding, paddingTop: 8, paddingBottom: 8 },
-  chipRow: { paddingHorizontal: screenPadding, paddingVertical: 8, gap: 8 },
-  chip: {
+  top: { paddingHorizontal: screenPadding, paddingVertical: spacing.sm },
+  filterBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    minHeight: sizes.touch,
-    paddingHorizontal: 16,
-    borderRadius: radius.pill,
+    gap: spacing.sm,
+    marginHorizontal: screenPadding,
+    marginBottom: spacing.sm,
+    paddingStart: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.surface,
+    borderRadius: radius.input,
     borderWidth: 1,
     borderColor: colors.border,
+    overflow: 'hidden',
+  },
+  chipRow: { gap: spacing.sm, paddingEnd: spacing.sm },
+  state: { paddingHorizontal: screenPadding, paddingTop: spacing.sm },
+  listContent: { paddingBottom: spacing.xl },
+  dayHeader: { backgroundColor: colors.background, paddingHorizontal: screenPadding + spacing.xs, paddingVertical: spacing.sm },
+  overline: { textTransform: 'uppercase', letterSpacing: 1 }, // not for Urdu: spacing would break the joined letters
+  rowWrap: {
+    marginHorizontal: screenPadding,
+    borderStartWidth: 1,
+    borderEndWidth: 1,
+    borderColor: colors.border,
     backgroundColor: colors.surface,
+    overflow: 'hidden',
   },
-  chipActive: { backgroundColor: colors.primaryLight, borderColor: colors.primary },
-  dayHeader: { backgroundColor: colors.background, paddingHorizontal: screenPadding, paddingVertical: 8 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
-  centerText: { textAlign: 'center', marginTop: 12 },
-  emptyCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: colors.primaryLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyButton: { marginTop: 24, borderRadius: radius.button },
+  rowFirst: { borderTopWidth: 1, borderTopStartRadius: radius.card, borderTopEndRadius: radius.card },
+  rowLast: { borderBottomWidth: 1, borderBottomStartRadius: radius.card, borderBottomEndRadius: radius.card },
+  dialog: { backgroundColor: colors.surfaceRaised, borderRadius: radius.card },
 });

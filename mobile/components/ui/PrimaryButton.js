@@ -1,18 +1,21 @@
-// The big blue button (height 52, radius 12, full width). variant="outlined" is the dark outline button.
-// Springs to 0.97 while pressed and gives a light haptic.
+// The app's button (min height 52, radius 12). Springs to 0.97 while pressed and gives a light haptic.
+// variant: "filled" (blue) | "outlined" (dark outline) | "danger" (red filled) | "text" (no box)
+// tone="danger" makes the words of an outlined or text button red.
 import { useRef } from 'react';
 import { ActivityIndicator, Animated, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 
 import AppText from '../AppText';
-import { colors, radius, sizes } from '../../theme';
+import { colors, radius, sizes, spacing } from '../../theme';
 
-export default function PrimaryButton({ label, onPress, loading = false, disabled = false, icon, variant = 'filled', style }) {
+export default function PrimaryButton({
+  label, onPress, loading = false, disabled = false, icon, variant = 'filled', tone, style,
+}) {
   const scale = useRef(new Animated.Value(1)).current;
   const to = (v) => Animated.spring(scale, { toValue: v, damping: 15, stiffness: 300, useNativeDriver: true }).start();
-  const filled = variant === 'filled';
-  const textColor = filled ? colors.onPrimary : colors.text;
+  const solid = variant === 'filled' || variant === 'danger';
+  const textColor = solid ? colors.onPrimary : tone === 'danger' ? colors.danger : colors.text;
   const inactive = disabled || loading;
 
   return (
@@ -28,11 +31,7 @@ export default function PrimaryButton({ label, onPress, loading = false, disable
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityState={{ disabled: inactive, busy: loading }}
-        style={[
-          styles.button,
-          filled ? styles.filled : styles.outlined,
-          inactive && styles.inactive,
-        ]}
+        style={[styles.button, styles[variant], inactive && styles.inactive]}
       >
         {loading ? (
           <ActivityIndicator color={textColor} />
@@ -49,15 +48,18 @@ export default function PrimaryButton({ label, onPress, loading = false, disable
 
 const styles = StyleSheet.create({
   button: {
-    height: sizes.button,
+    minHeight: sizes.button,
     borderRadius: radius.button,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
   },
   filled: { backgroundColor: colors.primary },
+  danger: { backgroundColor: colors.danger },
   outlined: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  text: { backgroundColor: 'transparent' },
   inactive: { opacity: 0.6 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  label: { textAlign: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  label: { textAlign: 'center', flexShrink: 1 },
 });

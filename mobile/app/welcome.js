@@ -1,7 +1,7 @@
 // First-run welcome flow: language, what the app does, monthly income, then start fresh or with sample data.
 // Shown once after the first login or sign up (see context/WelcomeContext.js).
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PanResponder, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { PanResponder, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Dialog, Portal } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,8 @@ import { MotiView } from 'moti';
 import { useTranslation } from 'react-i18next';
 
 import AppText from '../components/AppText';
+import PressableScale from '../components/PressableScale';
+import RadioCard from '../components/ui/RadioCard';
 import PrimaryButton from '../components/ui/PrimaryButton';
 import { useAuth } from '../context/AuthContext';
 import { WELCOME_STEP_KEY, useWelcome } from '../context/WelcomeContext';
@@ -19,7 +21,7 @@ import { changeLanguageAndRestart } from '../i18n';
 import { loadDemoData } from '../services/demoService';
 import { saveLanguageToProfile, saveMonthlyIncome } from '../services/profileService';
 import { addTransaction, deleteTransaction } from '../services/transactionService';
-import { colors, fonts, radius, screenPadding, sizes } from '../theme';
+import { colors, fonts, radius, screenPadding, sizes, spacing } from '../theme';
 import { formatNumber } from '../utils/format';
 
 const LANGUAGES = [
@@ -37,7 +39,7 @@ function Hero({ icon }) {
       style={styles.hero}
     >
       <View style={styles.heroInner}>
-        <Ionicons name={icon} size={64} color={colors.primary} />
+        <Ionicons name={icon} size={64} color={colors.accentLight} />
       </View>
     </MotiView>
   );
@@ -211,9 +213,9 @@ export default function WelcomeScreen() {
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.topBar}>
         {step !== 'final' ? (
-          <Pressable onPress={() => { setBusy(true); finish(); }} hitSlop={12} style={styles.skip} accessibilityRole="button">
+          <PressableScale onPress={() => { setBusy(true); finish(); }} hitSlop={12} pressableStyle={styles.skip}>
             <AppText variant="bodyMedium" color={colors.textSecondary}>{t('welcome.skip')}</AppText>
-          </Pressable>
+          </PressableScale>
         ) : null}
       </View>
 
@@ -239,21 +241,13 @@ export default function WelcomeScreen() {
                   {LANGUAGES.map((lang) => {
                     const selected = current === lang.code;
                     return (
-                      <Pressable
+                      <RadioCard
                         key={lang.code}
+                        label={lang.label}
+                        fontFamily={lang.font}
+                        selected={selected}
                         onPress={() => { if (!selected) setPendingLang(lang.code); }}
-                        style={[styles.langCard, selected && styles.langCardOn]}
-                        accessibilityRole="radio"
-                        accessibilityState={{ selected }}
-                        accessibilityLabel={lang.label}
-                      >
-                        <Ionicons
-                          name={selected ? 'checkmark-circle' : 'radio-button-off'}
-                          size={28}
-                          color={selected ? colors.primary : colors.textSecondary}
-                        />
-                        <AppText variant="h2" style={[styles.flex, { fontFamily: lang.font }]}>{lang.label}</AppText>
-                      </Pressable>
+                      />
                     );
                   })}
                 </View>
@@ -269,7 +263,7 @@ export default function WelcomeScreen() {
               <>
                 <Hero icon="shield-checkmark" />
                 <AppText variant="h1" style={styles.center}>{t('welcome.intro.title')}</AppText>
-                <AppText variant="bodyMedium" color={colors.primary} style={styles.center}>{t('app.tagline')}</AppText>
+                <AppText variant="bodyMedium" color={colors.textSecondary} style={styles.center}>{t('app.tagline')}</AppText>
                 <View style={styles.lines}>
                   {[
                     ['chatbubble-ellipses-outline', 'welcome.intro.sms'],
@@ -284,7 +278,7 @@ export default function WelcomeScreen() {
                       style={styles.line}
                     >
                       <View style={styles.lineIcon}>
-                        <Ionicons name={icon} size={24} color={colors.primary} />
+                        <Ionicons name={icon} size={24} color={colors.accentLight} />
                       </View>
                       <AppText variant="body" style={styles.flex}>{t(key)}</AppText>
                     </MotiView>
@@ -379,20 +373,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  langCol: { gap: 12, marginTop: 8 },
-  langCard: {
-    minHeight: 76,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 20,
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  langCardOn: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
-  notice: { backgroundColor: colors.warningLight, borderRadius: radius.input, padding: 12 },
+  langCol: { gap: spacing.md, marginTop: spacing.sm },
+  notice: { borderWidth: 1, borderColor: colors.warningBorder, backgroundColor: colors.warningLight, borderRadius: radius.input, padding: 12 },
   lines: { gap: 12, marginTop: 8 },
   line: {
     flexDirection: 'row',
@@ -400,8 +382,9 @@ const styles = StyleSheet.create({
     gap: 14,
     backgroundColor: colors.surface,
     borderRadius: radius.card,
-    padding: 14,
-    elevation: 1,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   lineIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
   amountBox: {
@@ -409,8 +392,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: colors.surface,
-    borderRadius: radius.card,
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: radius.input,
     borderWidth: 2,
     borderColor: colors.primary,
     paddingHorizontal: 16,
@@ -427,5 +410,5 @@ const styles = StyleSheet.create({
   bottom: { padding: screenPadding, gap: 12 },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 4 },
   dot: { height: 8, borderRadius: 4 },
-  dialog: { backgroundColor: colors.surface, borderRadius: radius.card },
+  dialog: { backgroundColor: colors.surfaceRaised, borderRadius: radius.card },
 });

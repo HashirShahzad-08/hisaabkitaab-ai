@@ -2,23 +2,26 @@
 import { useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Linking, Platform, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, TextInput } from 'react-native-paper';
-import { MotiView } from 'moti';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import AIThinking from '../components/AIThinking';
-import AlertCard from '../components/AlertCard';
 import AppText from '../components/AppText';
+import FadeInCard from '../components/FadeInCard';
 import LowConfidenceNote from '../components/LowConfidenceNote';
+import ScamAlert from '../components/ScamAlert';
 import ScreenHeader from '../components/ScreenHeader';
 import TransactionForm, { toFormValue } from '../components/TransactionForm';
+import Card from '../components/ui/Card';
+import FormInput from '../components/ui/FormInput';
+import PrimaryButton from '../components/ui/PrimaryButton';
+import SectionHeader from '../components/ui/SectionHeader';
 import { useAuth } from '../context/AuthContext';
 import { ApiError, parseSms } from '../services/api';
 import { addTransaction } from '../services/transactionService';
-import { colors, fonts, radius, screenPadding, sizes } from '../theme';
+import { colors, fonts, screenPadding, spacing } from '../theme';
 import { offlineScamCheck, scamFlags } from '../utils/offlineScam';
 
 const PTA_NUMBER = '080055055'; // 0800-55055
@@ -138,131 +141,82 @@ export default function SmsEntryScreen() {
 
   const busy = status === 'loading';
 
+  // The scam reasons as a list: one per red flag when checked on the phone, else one per sentence
+  // of the server's explanation (without splitting after "Rs.").
+  const reasonList = checkedOffline
+    ? scamFlagList.map((f) => t(`smsEntry.scam.reasons.${f}`))
+    : scamReason.split(/(?<=[!?۔]|(?<!Rs)(?<!\d)\.)\s+/).filter(Boolean);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <ScreenHeader title={t('smsEntry.title')} />
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <AppText variant="body" color={colors.textSecondary}>{t('smsEntry.helper')}</AppText>
-
-          <TextInput
-            mode="outlined"
-            multiline
-            value={text}
-            onChangeText={(v) => { setText(v); setError(null); }}
-            placeholder={t('smsEntry.placeholder')}
-            outlineColor={colors.border}
-            activeOutlineColor={colors.primary}
-            outlineStyle={{ borderRadius: radius.input }}
-            style={styles.input}
-            contentStyle={{ minHeight: 140, paddingTop: 12, fontFamily: fonts.en.regular }}
-            editable={!busy}
-          />
-
-          <Button
-            mode="outlined"
-            icon="content-paste"
-            onPress={paste}
-            disabled={busy}
-            textColor={colors.primary}
-            style={styles.pasteButton}
-            contentStyle={{ height: sizes.touch }}
-          >
-            {t('smsEntry.paste')}
-          </Button>
+          <FadeInCard index={0}>
+            <View style={styles.group}>
+              <AppText variant="body" color={colors.textSecondary}>{t('smsEntry.helper')}</AppText>
+              <FormInput
+                multiline
+                value={text}
+                onChangeText={(v) => { setText(v); setError(null); }}
+                placeholder={t('smsEntry.placeholder')}
+                font={fonts.en.regular}
+                contentStyle={styles.inputContent}
+                editable={!busy}
+              />
+              <PrimaryButton
+                label={t('smsEntry.paste')}
+                icon="clipboard-outline"
+                variant="outlined"
+                onPress={paste}
+                disabled={busy}
+                style={styles.pasteButton}
+              />
+            </View>
+          </FadeInCard>
 
           {error ? (
             <AppText variant="body" color={colors.danger}>{t(error)}</AppText>
           ) : null}
 
-          <Button
-            mode="contained"
-            onPress={analyze}
-            loading={busy}
-            disabled={busy}
-            buttonColor={colors.primary}
-            textColor={colors.onPrimary}
-            style={styles.primaryButton}
-            contentStyle={{ height: sizes.button }}
-            labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}
-          >
-            {t('smsEntry.analyze')}
-          </Button>
+          <FadeInCard index={1}>
+            <PrimaryButton label={t('smsEntry.analyze')} onPress={analyze} loading={busy} />
+          </FadeInCard>
 
           {busy ? <AIThinking messageKeys={THINKING} /> : null}
 
           {status === 'scam' ? (
-            <AlertCard variant="danger" title={t('smsEntry.scam.title')}>
-              {scamReason ? <AppText variant="body" color={colors.text}>{scamReason}</AppText> : null}
-              <AppText variant="bodyMedium" color={colors.danger}>{t('smsEntry.scam.never')}</AppText>
-              {checkedOffline ? (
-                <AppText variant="caption" color={colors.textSecondary}>{t('smsEntry.offlineNote')}</AppText>
-              ) : null}
-              <View style={styles.scamButtons}>
-                <Button
-                  mode="contained"
-                  onPress={clearAll}
-                  buttonColor={colors.danger}
-                  textColor={colors.onPrimary}
-                  style={styles.scamButton}
-                  contentStyle={{ height: sizes.button }}
-                >
-                  {t('smsEntry.scam.delete')}
-                </Button>
-                <View style={styles.scamRow}>
-                  <Button
-                    mode="outlined"
-                    onPress={() => Linking.openURL(`tel:${PTA_NUMBER}`)}
-                    textColor={colors.danger}
-                    style={[styles.scamButton, styles.scamHalf, { borderColor: colors.danger }]}
-                    contentStyle={{ minHeight: sizes.button }}
-                  >
-                    {t('smsEntry.scam.report')}
-                  </Button>
-                  <Button
-                    mode="outlined"
-                    icon="share-variant-outline"
-                    onPress={warnFamily}
-                    textColor={colors.danger}
-                    style={[styles.scamButton, styles.scamHalf, { borderColor: colors.danger }]}
-                    contentStyle={{ minHeight: sizes.button }}
-                  >
-                    {t('smsEntry.scam.warnFamily')}
-                  </Button>
-                </View>
-              </View>
-            </AlertCard>
+            <ScamAlert
+              title={t('smsEntry.scam.title')}
+              reasons={reasonList}
+              advice={t('smsEntry.scam.never')}
+              note={checkedOffline ? t('smsEntry.offlineNote') : null}
+            >
+              <PrimaryButton
+                label={t('smsEntry.scam.report')}
+                icon="call-outline"
+                variant="danger"
+                onPress={() => Linking.openURL(`tel:${PTA_NUMBER}`)}
+              />
+              <PrimaryButton label={t('smsEntry.scam.warnFamily')} icon="share-social-outline" variant="outlined" onPress={warnFamily} />
+              <PrimaryButton label={t('smsEntry.scam.delete')} variant="text" tone="danger" onPress={clearAll} />
+            </ScamAlert>
           ) : null}
 
           {status === 'normal' && form ? (
-            <MotiView
-              from={{ opacity: 0, translateY: 12 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              transition={{ type: 'timing', duration: 350 }}
-              style={styles.resultCard}
-            >
-              <AppText variant="h2">{t('smsEntry.found')}</AppText>
-              <LowConfidenceNote confidence={form.confidence} />
-              <TransactionForm
-                value={form}
-                onChange={(patch) => { setForm((f) => ({ ...f, ...patch })); setAmountError(null); }}
-                fields="merchant"
-                amountError={amountError}
-              />
-              <Button
-                mode="contained"
-                onPress={save}
-                loading={saving}
-                disabled={saving}
-                buttonColor={colors.primary}
-                textColor={colors.onPrimary}
-                style={styles.primaryButton}
-                contentStyle={{ height: sizes.button }}
-                labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}
-              >
-                {t('addTx.save')}
-              </Button>
-            </MotiView>
+            <FadeInCard>
+              <Card style={styles.group}>
+                <SectionHeader title={t('smsEntry.found')} />
+                <LowConfidenceNote confidence={form.confidence} />
+                <TransactionForm
+                  value={form}
+                  onChange={(patch) => { setForm((f) => ({ ...f, ...patch })); setAmountError(null); }}
+                  fields="merchant"
+                  amountError={amountError}
+                />
+                <PrimaryButton label={t('addTx.save')} onPress={save} loading={saving} />
+              </Card>
+            </FadeInCard>
           ) : null}
         </ScrollView>
       </KeyboardAvoidingView>
@@ -273,13 +227,8 @@ export default function SmsEntryScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  scroll: { padding: screenPadding, gap: 12, paddingBottom: 32 },
-  input: { backgroundColor: colors.surface },
-  pasteButton: { alignSelf: 'flex-start', borderRadius: radius.button, borderColor: colors.border },
-  primaryButton: { borderRadius: radius.button },
-  scamButtons: { gap: 8, marginTop: 8 },
-  scamButton: { borderRadius: radius.button },
-  scamRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  scamHalf: { flexGrow: 1, flexBasis: 150 },
-  resultCard: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, gap: 12, elevation: 1 },
+  scroll: { padding: screenPadding, gap: spacing.md, paddingBottom: spacing.xxl },
+  group: { gap: spacing.md },
+  inputContent: { minHeight: 144, paddingTop: 12 },
+  pasteButton: { alignSelf: 'flex-start' },
 });

@@ -1,13 +1,16 @@
-// One savings goal: name, saved of target, gold progress bar, optional target date and weekly saving.
-import { Pressable, StyleSheet, View } from 'react-native';
+// One savings goal: name, saved of target, progress bar, optional target date and weekly saving.
+// A reached goal turns gold.
+import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import AmountText from './ui/AmountText';
 import AppText from './AppText';
+import Card from './ui/Card';
+import PressableScale from './PressableScale';
 import PrimaryButton from './ui/PrimaryButton';
 import ProgressBar from './ui/ProgressBar';
-import { colors, radius, sizes } from '../theme';
+import { colors, radius, sizes, spacing } from '../theme';
 import { weeklySaving } from '../utils/budgets';
 import { rupeesText, shortDate } from '../utils/money';
 
@@ -19,32 +22,32 @@ export default function GoalCard({ goal, onAddMoney, onEdit, onDelete }) {
   const money = (n) => rupeesText(n, i18n.language, t('common.rupees'));
 
   return (
-    <View style={[styles.card, reached && styles.cardReached]}>
+    <Card style={[styles.card, reached && styles.cardReached]}>
       <View style={styles.top}>
-        <View style={[styles.iconCircle, reached && { backgroundColor: colors.accent }]}>
-          <Ionicons name={reached ? 'trophy' : 'flag-outline'} size={22} color={reached ? colors.background : colors.accent} />
+        <View style={styles.iconBox}>
+          <Ionicons name={reached ? 'trophy' : 'flag-outline'} size={22} color={reached ? colors.accent : colors.accentLight} />
         </View>
         <AppText variant="h2" style={styles.name} numberOfLines={2}>{goal.name}</AppText>
-        <Pressable onPress={onEdit} style={styles.iconButton} accessibilityRole="button" accessibilityLabel={t('goals.edit')} hitSlop={6}>
+        <PressableScale onPress={onEdit} accessibilityLabel={t('goals.edit')} hitSlop={6} pressableStyle={styles.iconButton}>
           <Ionicons name="create-outline" size={22} color={colors.textSecondary} />
-        </Pressable>
-        <Pressable onPress={onDelete} style={styles.iconButton} accessibilityRole="button" accessibilityLabel={t('goals.delete')} hitSlop={6}>
+        </PressableScale>
+        <PressableScale onPress={onDelete} accessibilityLabel={t('goals.delete')} hitSlop={6} pressableStyle={styles.iconButton}>
           <Ionicons name="trash-outline" size={22} color={colors.danger} />
-        </Pressable>
+        </PressableScale>
       </View>
 
       <View style={styles.amounts}>
-        <AmountText amount={goal.savedAmount} variant="amount" color={reached ? colors.accent : colors.text} />
+        <AmountText amount={goal.savedAmount} variant="h2" color={reached ? colors.accent : colors.text} />
         <AppText variant="caption" color={colors.textSecondary}>{t('goals.of')}</AppText>
         <AmountText amount={goal.targetAmount} variant="amount" color={colors.textSecondary} />
       </View>
 
-      <ProgressBar value={ratio} color={colors.accent} height={12} />
+      <ProgressBar value={ratio} color={reached ? colors.accent : colors.primary} />
 
       {reached ? (
         <View style={styles.badge}>
-          <Ionicons name="trophy-outline" size={18} color={colors.text} />
-          <AppText variant="bodyMedium" color={colors.text}>{t('goals.reached')}</AppText>
+          <Ionicons name="trophy-outline" size={18} color={colors.accent} />
+          <AppText variant="bodyMedium" color={colors.accent}>{t('goals.reached')}</AppText>
         </View>
       ) : (
         <>
@@ -52,36 +55,45 @@ export default function GoalCard({ goal, onAddMoney, onEdit, onDelete }) {
             <AppText variant="caption" color={colors.textSecondary}>{t('goals.targetDate', { date: shortDate(goal.targetDate, t) })}</AppText>
           ) : null}
           {plan && !plan.pastDue ? (
-            <AppText variant="bodyMedium" color={colors.primaryDark}>
+            <AppText variant="bodyMedium" color={colors.accentLight}>
               {t('goals.savePerWeek', { amount: money(plan.perWeek), date: shortDate(goal.targetDate, t) })}
             </AppText>
           ) : null}
           {plan && plan.pastDue ? (
-            <AppText variant="caption" color={colors.danger}>{t('goals.pastDue', { amount: money(plan.remaining) })}</AppText>
+            <AppText variant="caption" color={colors.warning}>{t('goals.pastDue', { amount: money(plan.remaining) })}</AppText>
           ) : null}
           <PrimaryButton label={t('goals.addMoney')} icon="add-circle-outline" variant="outlined" onPress={onAddMoney} />
         </>
       )}
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, gap: 12, elevation: 1, borderWidth: 2, borderColor: 'transparent' },
+  card: { gap: spacing.md },
   cardReached: { borderColor: colors.accent },
-  top: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  iconCircle: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.warningLight, alignItems: 'center', justifyContent: 'center' },
+  top: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  iconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.input,
+    backgroundColor: colors.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   name: { flex: 1 },
   iconButton: { width: sizes.touch, height: sizes.touch, alignItems: 'center', justifyContent: 'center' },
-  amounts: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
+  amounts: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
     alignSelf: 'flex-start',
-    backgroundColor: colors.accent,
+    backgroundColor: colors.surfaceRaised,
+    borderWidth: 1,
+    borderColor: colors.accent,
     borderRadius: radius.pill,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
 });
