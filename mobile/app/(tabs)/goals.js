@@ -12,7 +12,7 @@ import AppText from '../../components/AppText';
 import BudgetCard from '../../components/BudgetCard';
 import FadeInCard from '../../components/FadeInCard';
 import GoalCard from '../../components/GoalCard';
-import PrimaryButton from '../../components/PrimaryButton';
+import PrimaryButton from '../../components/ui/PrimaryButton';
 import { useAuth } from '../../context/AuthContext';
 import { useBudgets, useGoals } from '../../hooks/useBudgetsAndGoals';
 import useTransactions from '../../hooks/useTransactions';

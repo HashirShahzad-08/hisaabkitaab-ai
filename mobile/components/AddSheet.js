@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 import AppText from './AppText';
 import { useAddSheet } from '../context/AddSheetContext';
-import { colors, radius, sizes } from '../theme';
+import { colors, palette, radius, sizes } from '../theme';
 
 const ROWS = [
   { key: 'manual', icon: 'create-outline', route: '/add-transaction' },
@@ -47,8 +47,8 @@ export default function AddSheet() {
 
   if (!mounted) return null;
 
-  // Stop above the raised + button (it sticks out 28px above the bar).
-  const bottom = sizes.tabBar + insets.bottom + 28;
+  // Stop just above the tab bar, so the + button stays visible.
+  const bottom = sizes.tabBar + insets.bottom;
   const translateY = progress.interpolate({ inputRange: [0, 1], outputRange: [60, 0] });
 
   const go = (route) => {
@@ -77,7 +77,7 @@ export default function AddSheet() {
               accessibilityRole="button"
             >
               <View style={styles.iconCircle}>
-                <Ionicons name={row.icon} size={22} color={colors.primary} />
+                <Ionicons name={row.icon} size={22} color={colors.accentLight} />
               </View>
               <View style={styles.texts}>
                 <AppText variant="bodyMedium">{t(`addSheet.${row.key}.title`)}</AppText>
@@ -99,27 +99,29 @@ export default function AddSheet() {
 }
 
 const styles = StyleSheet.create({
-  overlay: { position: 'absolute', left: 0, right: 0, top: 0, justifyContent: 'flex-end' },
-  scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15, 23, 42, 0.45)' },
+  overlay: { position: 'absolute', start: 0, end: 0, top: 0, justifyContent: 'flex-end' },
+  scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: palette.scrim },
   sheet: {
     backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     marginHorizontal: 16,
     marginBottom: 8,
     borderRadius: 24,
     paddingVertical: 8,
     elevation: 8,
-    shadowColor: '#000',
+    shadowColor: colors.background,
     shadowOpacity: 0.15,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
   },
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, minHeight: 64 },
-  pressed: { backgroundColor: colors.primaryLight, borderRadius: radius.card },
+  pressed: { backgroundColor: colors.surfaceRaised, borderRadius: radius.card },
   iconCircle: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.primaryLight,
+    borderRadius: radius.input,
+    backgroundColor: colors.surfaceRaised,
     alignItems: 'center',
     justifyContent: 'center',
   },

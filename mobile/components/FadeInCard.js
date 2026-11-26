@@ -1,4 +1,4 @@
-// Fades in and slides up 12px, one after another (60ms apart). Uses Moti.
+// Fades in and slides up 12px once, one after another (80ms apart). Uses Moti.
 import { MotiView } from 'moti';
 
 export default function FadeInCard({ index = 0, style, children }) {
@@ -6,7 +6,7 @@ export default function FadeInCard({ index = 0, style, children }) {
     <MotiView
       from={{ opacity: 0, translateY: 12 }}
       animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: 'timing', duration: 350, delay: index * 60 }}
+      transition={{ type: 'timing', duration: 350, delay: index * 80 }}
       style={style}
     >
       {children}

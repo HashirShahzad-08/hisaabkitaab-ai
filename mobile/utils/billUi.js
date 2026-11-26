@@ -3,7 +3,7 @@ import { colors } from '../theme';
 
 // Verdict -> color, soft background, icon and the i18n key of its words
 export const VERDICT = {
-  looks_ok: { color: colors.primary, bg: colors.primaryLight, icon: 'checkmark-circle', key: 'bills.verdict.looks_ok', variant: 'success' },
+  looks_ok: { color: colors.accentLight, bg: colors.primaryLight, icon: 'checkmark-circle', key: 'bills.verdict.looks_ok', variant: 'success' },
   check: { color: colors.warning, bg: colors.warningLight, icon: 'alert-circle', key: 'bills.verdict.check', variant: 'warning' },
   likely_overbilled: { color: colors.danger, bg: colors.dangerLight, icon: 'close-circle', key: 'bills.verdict.likely_overbilled', variant: 'danger' },
 };

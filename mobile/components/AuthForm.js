@@ -153,7 +153,7 @@ export default function AuthForm({ mode }) {
             loading={busy}
             disabled={busy}
             buttonColor={colors.primary}
-            textColor="#FFFFFF"
+            textColor={colors.onPrimary}
             style={styles.button}
             contentStyle={styles.buttonContent}
             labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}

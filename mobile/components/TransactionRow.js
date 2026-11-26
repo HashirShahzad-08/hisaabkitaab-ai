@@ -1,25 +1,31 @@
-// One transaction in the History list. Swipe left to show a red delete action.
+// One transaction (Home and History). In History, swipe left to show a red delete action.
+// meta="source" shows "Today · SMS" under the title; otherwise payment type and time.
 import { useRef } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { useTranslation } from 'react-i18next';
 
-import AmountText from './AmountText';
+import AmountText from './ui/AmountText';
 import AppText from './AppText';
 import CategoryIcon from './CategoryIcon';
 import { categoryKey, paymentKey } from '../constants/categories';
 import { colors, radius, sizes } from '../theme';
-import { formatTime } from '../utils/format';
+import { formatDayLabel, formatTime } from '../utils/format';
 import { useIsRTL } from '../utils/rtl';
 
-export default function TransactionRow({ item, onDelete }) {
+// How a transaction was entered, as saved in Firestore -> the label to show
+const SOURCE_LABEL = { sms: 'sms', voice: 'voice', quick: 'voice', bill: 'bill' };
+
+export default function TransactionRow({ item, onDelete, meta, last = false }) {
   const { t } = useTranslation();
   const rtl = useIsRTL();
   const ref = useRef(null);
 
   const title = item.note || t(categoryKey(item.category));
-  const caption = `${t(paymentKey(item.paymentType))} · ${formatTime(item.dateTime)}`;
+  const caption = meta === 'source'
+    ? `${formatDayLabel(item.date, t)} · ${t(`home.source.${SOURCE_LABEL[item.source] || 'manual'}`)}`
+    : `${t(paymentKey(item.paymentType))} · ${formatTime(item.dateTime)}`;
 
   const renderRight = () => (
     <Pressable
@@ -28,13 +34,13 @@ export default function TransactionRow({ item, onDelete }) {
       accessibilityRole="button"
       accessibilityLabel={t('history.delete')}
     >
-      <Ionicons name="trash-outline" size={22} color="#FFFFFF" />
-      <AppText variant="caption" color="#FFFFFF">{t('history.delete')}</AppText>
+      <Ionicons name="trash-outline" size={22} color={colors.onPrimary} />
+      <AppText variant="caption" color={colors.onPrimary}>{t('history.delete')}</AppText>
     </Pressable>
   );
 
   const content = (
-    <View style={styles.row}>
+    <View style={[styles.row, last && styles.last]}>
       <CategoryIcon category={item.category} />
       <View style={styles.texts}>
         <AppText variant="bodyMedium" numberOfLines={1}>{title}</AppText>
@@ -69,8 +75,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.divider,
   },
+  last: { borderBottomWidth: 0 },
   texts: { flex: 1, marginHorizontal: 12 },
   deleteAction: {
     width: 88,

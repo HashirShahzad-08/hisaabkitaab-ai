@@ -1,55 +1,70 @@
 // Home dashboard - DESIGN.md section 8.3, with real data from Firestore.
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Card, Snackbar } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useMemo, useRef, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Snackbar } from 'react-native-paper';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
-import AppText from '../../components/AppText';
-import FadeInCard from '../../components/FadeInCard';
-import HealthScoreCard from '../../components/HealthScoreCard';
-import HomeHeader from '../../components/HomeHeader';
+import BalanceHero from '../../components/BalanceHero';
 import BudgetWarning from '../../components/BudgetWarning';
-import InsightCard from '../../components/InsightCard';
+import FadeInCard from '../../components/FadeInCard';
+import HomeHeader from '../../components/HomeHeader';
 import SpendingCard from '../../components/SpendingCard';
 import TransactionRow from '../../components/TransactionRow';
+import Card from '../../components/ui/Card';
+import EmptyState from '../../components/ui/EmptyState';
+import IconTile from '../../components/ui/IconTile';
+import SectionHeader from '../../components/ui/SectionHeader';
+import Skeleton from '../../components/ui/Skeleton';
 import { categoryKey } from '../../constants/categories';
 import { useAuth } from '../../context/AuthContext';
 import { useBudgets } from '../../hooks/useBudgetsAndGoals';
 import useProfile from '../../hooks/useProfile';
 import useTransactions from '../../hooks/useTransactions';
-import { colors, fonts, radius, screenPadding, sizes } from '../../theme';
+import { colors, radius, screenPadding, spacing } from '../../theme';
 import { budgetProgress, budgetsForScore, worstBudget } from '../../utils/budgets';
 import { calculateHealthScore } from '../../utils/healthScore';
 import { getMonthStats } from '../../utils/stats';
 
+const TILES = [
+  { key: 'sms', icon: 'chatbox-ellipses-outline', route: '/sms-entry' },
+  { key: 'speak', icon: 'mic-outline', route: '/quick-entry' },
+  { key: 'bill', icon: 'flash-outline', route: '/bill-form' },
+  { key: 'afford', icon: 'help-circle-outline', route: '/afford' },
+];
+
+function LoadingHome() {
+  return (
+    <>
+      <Skeleton height={216} round={radius.hero} />
+      <View style={styles.tiles}>
+        {TILES.map((tile) => <Skeleton key={tile.key} width={64} height={64} round={radius.card} />)}
+      </View>
+      <Skeleton height={192} round={radius.card} />
+      <Skeleton height={192} round={radius.card} />
+    </>
+  );
+}
+
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const isUrdu = i18n.language === 'ur';
 
   const [reloadKey, setReloadKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-  const [playKey, setPlayKey] = useState(0); // changes -> the animations play again
   const [snack, setSnack] = useState('');
 
   const { items, loading } = useTransactions(user?.uid, reloadKey);
   const profile = useProfile(user?.uid, reloadKey);
   const budgetData = useBudgets(user?.uid, reloadKey);
 
-  // Play the opening animations again each time the user comes back to Home (not on first load).
-  const firstFocus = useRef(true);
-  useFocusEffect(
-    useCallback(() => {
-      if (firstFocus.current) {
-        firstFocus.current = false;
-        return;
-      }
-      setPlayKey((k) => k + 1);
-    }, [])
-  );
+  // The skeleton is only for the first load, so pull to refresh does not blank the screen
+  const loadedOnce = useRef(false);
+  if (!loading) loadedOnce.current = true;
+  const showSkeleton = loading && !loadedOnce.current;
 
   const stats = useMemo(() => getMonthStats(items), [items]);
   const progress = useMemo(() => budgetProgress(budgetData.items, stats), [budgetData.items, stats]);
@@ -71,86 +86,101 @@ export default function HomeScreen() {
   const onRefresh = () => {
     setRefreshing(true);
     setReloadKey((k) => k + 1);
-    setPlayKey((k) => k + 1);
     setTimeout(() => setRefreshing(false), 700);
   };
 
   const hasAny = items.length > 0;
   const recent = items.slice(0, 5);
+  const warning = worstBudget(progress);
 
   return (
     <View style={styles.screen}>
       <ScrollView
-        contentContainerStyle={styles.scroll}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor="#FFFFFF" progressViewOffset={40} />}
+        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + spacing.md }]}
+        refreshControl={(
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.accentLight]}
+            tintColor={colors.accentLight}
+            progressBackgroundColor={colors.surfaceRaised}
+            progressViewOffset={insets.top}
+          />
+        )}
         showsVerticalScrollIndicator={false}
       >
-        <FadeInCard key={`h${playKey}`} index={0}>
+        <FadeInCard index={0}>
           <HomeHeader
             name={name}
-            balance={stats.balance}
-            income={stats.income}
-            expense={stats.expense}
-            restartKey={playKey}
             onBell={() => setSnack(t('home.noNotifications'))}
             onSettings={() => router.push('/settings')}
           />
         </FadeInCard>
 
-        <View style={styles.cards}>
-          {loading ? (
-            <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
-          ) : !hasAny ? (
-            <FadeInCard key={`e${playKey}`} index={1}>
-              <Card elevation={1} style={styles.emptyCard}>
-                <View style={styles.emptyCircle}>
-                  <Ionicons name="wallet-outline" size={40} color={colors.primary} />
-                </View>
-                <AppText variant="h2" style={styles.centerText}>{t('home.emptyTitle')}</AppText>
-                <AppText variant="body" color={colors.textSecondary} style={styles.centerText}>{t('home.emptyText')}</AppText>
-                <Button
-                  mode="contained"
-                  onPress={() => router.push('/add-transaction')}
-                  buttonColor={colors.primary}
-                  style={styles.emptyButton}
-                  contentStyle={{ height: sizes.button }}
-                  labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}
-                >
-                  {t('home.addFirst')}
-                </Button>
-              </Card>
+        {showSkeleton ? (
+          <LoadingHome />
+        ) : (
+          <>
+            <FadeInCard index={1}>
+              <BalanceHero
+                balance={stats.balance}
+                income={stats.income}
+                expense={stats.expense}
+                health={hasAny ? health : null}
+              />
             </FadeInCard>
-          ) : (
-            <>
-              {/* Overlaps the header by 24px (the header leaves 48px of space at the bottom) */}
-              <FadeInCard key={`s${playKey}`} index={1} style={styles.overlap}>
-                <HealthScoreCard result={health} restartKey={playKey} />
+
+            <FadeInCard index={2}>
+              <View style={styles.tiles}>
+                {TILES.map((tile) => (
+                  <IconTile
+                    key={tile.key}
+                    icon={tile.icon}
+                    label={t(`home.tiles.${tile.key}`)}
+                    onPress={() => router.push(tile.route)}
+                    style={styles.tile}
+                  />
+                ))}
+              </View>
+            </FadeInCard>
+
+            {!hasAny ? (
+              <FadeInCard index={3}>
+                <EmptyState
+                  icon="wallet-outline"
+                  title={t('home.emptyTitle')}
+                  text={t('home.emptyText')}
+                  buttonLabel={t('home.addFirst')}
+                  onPress={() => router.push('/add-transaction')}
+                />
               </FadeInCard>
-              <FadeInCard key={`i${playKey}`} index={2}>
-                <View style={styles.insightStack}>
-                  <InsightCard text={insightText} />
-                  <BudgetWarning budget={worstBudget(progress)} />
-                </View>
-              </FadeInCard>
-              <FadeInCard key={`p${playKey}`} index={3}>
-                <SpendingCard stats={stats} />
-              </FadeInCard>
-              <FadeInCard key={`r${playKey}`} index={4}>
-                <Card elevation={1} style={styles.recentCard}>
-                  <View style={styles.recentHeader}>
-                    <AppText variant="h2" style={styles.flex}>{t('home.recent')}</AppText>
-                    <Pressable onPress={() => router.navigate('/(tabs)/history')} hitSlop={8} style={styles.seeAll} accessibilityRole="link">
-                      <AppText variant="bodyMedium" color={colors.primary}>{t('home.seeAll')}</AppText>
-                    </Pressable>
-                  </View>
-                  {recent.map((tx) => (
-                    <TransactionRow key={tx.id} item={tx} />
-                  ))}
-                </Card>
-              </FadeInCard>
-            </>
-          )}
-        </View>
+            ) : (
+              <>
+                {warning ? (
+                  <FadeInCard index={3}>
+                    <BudgetWarning budget={warning} />
+                  </FadeInCard>
+                ) : null}
+                <FadeInCard index={4}>
+                  <SpendingCard stats={stats} tips={[t(health.tip), insightText]} />
+                </FadeInCard>
+                <FadeInCard index={5}>
+                  <Card style={styles.recentCard}>
+                    <SectionHeader
+                      title={t('home.recentShort')}
+                      linkLabel={t('home.seeAll')}
+                      onPressLink={() => router.navigate('/(tabs)/history')}
+                      style={styles.recentHeader}
+                    />
+                    {recent.map((tx, i) => (
+                      <TransactionRow key={tx.id} item={tx} meta="source" last={i === recent.length - 1} />
+                    ))}
+                  </Card>
+                </FadeInCard>
+              </>
+            )}
+          </>
+        )}
       </ScrollView>
 
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')} duration={2500}>{snack}</Snackbar>
@@ -160,25 +190,9 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  scroll: { paddingBottom: 64 }, // clears the raised + button above the tab bar
-  flex: { flex: 1 },
-  cards: { paddingHorizontal: screenPadding, gap: 12 },
-  overlap: { marginTop: -24 },
-  insightStack: { gap: 8 },
-  loader: { marginTop: 48 },
-  emptyCard: { marginTop: 24, backgroundColor: colors.surface, borderRadius: radius.card, padding: 24, alignItems: 'center' },
-  emptyCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: colors.primaryLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  centerText: { textAlign: 'center', marginTop: 4 },
-  emptyButton: { marginTop: 24, borderRadius: radius.button, alignSelf: 'stretch' },
-  recentCard: { backgroundColor: colors.surface, borderRadius: radius.card, overflow: 'hidden' },
-  recentHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, paddingBottom: 8 },
-  seeAll: { minHeight: sizes.touch, justifyContent: 'center' },
+  scroll: { paddingHorizontal: screenPadding, paddingBottom: spacing.xl, gap: spacing.md },
+  tiles: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  tile: { flex: 1 },
+  recentCard: { padding: 0, overflow: 'hidden' },
+  recentHeader: { paddingHorizontal: spacing.md, paddingTop: spacing.sm },
 });

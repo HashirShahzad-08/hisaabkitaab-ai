@@ -1,4 +1,4 @@
-// Tab icon: outline when idle, filled when active, a small bounce, and a green pill under it.
+// Tab icon: outline when idle, filled when active, a small bounce, and a blue pill under it.
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,7 +31,7 @@ export default function TabIcon({ name, focused }) {
         <Ionicons
           name={focused ? name : `${name}-outline`}
           size={24}
-          color={focused ? colors.primary : colors.textSecondary}
+          color={focused ? colors.accentLight : colors.textSecondary}
         />
       </Animated.View>
       <Animated.View style={[styles.pill, { opacity: pill, transform: [{ scaleX: pill }] }]} />
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 3,
     borderRadius: 999,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.accentLight,
     marginTop: 2,
   },
 });

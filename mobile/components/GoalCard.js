@@ -3,10 +3,10 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
-import AmountText from './AmountText';
+import AmountText from './ui/AmountText';
 import AppText from './AppText';
-import PrimaryButton from './PrimaryButton';
-import ProgressBar from './ProgressBar';
+import PrimaryButton from './ui/PrimaryButton';
+import ProgressBar from './ui/ProgressBar';
 import { colors, radius, sizes } from '../theme';
 import { weeklySaving } from '../utils/budgets';
 import { rupeesText, shortDate } from '../utils/money';
@@ -22,7 +22,7 @@ export default function GoalCard({ goal, onAddMoney, onEdit, onDelete }) {
     <View style={[styles.card, reached && styles.cardReached]}>
       <View style={styles.top}>
         <View style={[styles.iconCircle, reached && { backgroundColor: colors.accent }]}>
-          <Ionicons name={reached ? 'trophy' : 'flag-outline'} size={22} color={reached ? '#FFFFFF' : colors.accent} />
+          <Ionicons name={reached ? 'trophy' : 'flag-outline'} size={22} color={reached ? colors.background : colors.accent} />
         </View>
         <AppText variant="h2" style={styles.name} numberOfLines={2}>{goal.name}</AppText>
         <Pressable onPress={onEdit} style={styles.iconButton} accessibilityRole="button" accessibilityLabel={t('goals.edit')} hitSlop={6}>
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: radius.card, padding: 16, gap: 12, elevation: 1, borderWidth: 2, borderColor: 'transparent' },
   cardReached: { borderColor: colors.accent },
   top: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  iconCircle: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#FEF3C7', alignItems: 'center', justifyContent: 'center' },
+  iconCircle: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.warningLight, alignItems: 'center', justifyContent: 'center' },
   name: { flex: 1 },
   iconButton: { width: sizes.touch, height: sizes.touch, alignItems: 'center', justifyContent: 'center' },
   amounts: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },

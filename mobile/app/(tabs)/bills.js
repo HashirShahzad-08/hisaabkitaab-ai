@@ -7,11 +7,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import AmountText from '../../components/AmountText';
+import AmountText from '../../components/ui/AmountText';
 import AppText from '../../components/AppText';
 import FadeInCard from '../../components/FadeInCard';
 import PressableScale from '../../components/PressableScale';
-import PrimaryButton from '../../components/PrimaryButton';
+import PrimaryButton from '../../components/ui/PrimaryButton';
 import UnitsChart from '../../components/UnitsChart';
 import VerdictChip from '../../components/VerdictChip';
 import { useAuth } from '../../context/AuthContext';

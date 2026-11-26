@@ -1,6 +1,6 @@
 // Root layout: loads fonts + saved language + login state, then shows Login or the tabs.
 import { useEffect, useMemo, useState } from 'react';
-import { Stack } from 'expo-router';
+import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -25,9 +25,23 @@ import { loadSavedLanguage, reloadApp } from '../i18n';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { SettingsProvider } from '../context/SettingsContext';
 import { WelcomeProvider, useWelcome } from '../context/WelcomeContext';
-import { getPaperTheme } from '../theme';
+import { colors, getPaperTheme } from '../theme';
 
 SplashScreen.preventAutoHideAsync();
+
+// Dark background behind every screen, so nothing flashes white between screens
+const navigationTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: colors.primary,
+    background: colors.background,
+    card: colors.tabBar,
+    text: colors.text,
+    border: colors.border,
+    notification: colors.danger,
+  },
+};
 
 function Routes() {
   const { user, loading } = useAuth();
@@ -63,7 +77,7 @@ function Routes() {
   if (!ready) return null;
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
       {/* Logged in: the tabs */}
       <Stack.Protected guard={!!user && gate === 'skip'}>
         <Stack.Screen name="(tabs)" />
@@ -98,14 +112,16 @@ export default function RootLayout() {
   return (
     // direction: rows, margins and text alignment flip by themselves for Urdu (RTL). Setting it here also makes
     // Urdu mirror in Expo Go, where the phone-level RTL switch (I18nManager) is reset.
-    <GestureHandlerRootView style={{ flex: 1, direction: lang === 'ur' ? 'rtl' : 'ltr' }}>
+    <GestureHandlerRootView style={{ flex: 1, direction: lang === 'ur' ? 'rtl' : 'ltr', backgroundColor: colors.background }}>
       <SafeAreaProvider>
         <PaperProvider theme={theme}>
           <SettingsProvider>
             <AuthProvider>
               <WelcomeProvider>
-                <StatusBar style="dark" />
-                <Routes />
+                <StatusBar style="light" />
+                <ThemeProvider value={navigationTheme}>
+                  <Routes />
+                </ThemeProvider>
               </WelcomeProvider>
             </AuthProvider>
           </SettingsProvider>

@@ -28,7 +28,27 @@
     "seeAll": "See all",
     "emptyTitle": "Let's start your hisaab",
     "emptyText": "Add your first transaction and your dashboard will come alive.",
-    "addFirst": "Add first transaction"
+    "addFirst": "Add first transaction",
+    "goodMorning": "Good morning",
+    "goodAfternoon": "Good afternoon",
+    "goodEvening": "Good evening",
+    "spentTitle": "Spent",
+    "tiles": {
+      "sms": "Paste SMS",
+      "speak": "Speak",
+      "bill": "Check bill",
+      "afford": "Afford?"
+    },
+    "spendingThisMonth": "Spending this month",
+    "details": "Details",
+    "hideDetails": "Hide",
+    "recentShort": "Recent",
+    "source": {
+      "manual": "Manual",
+      "sms": "SMS",
+      "voice": "Voice",
+      "bill": "Bill"
+    }
   },
   "history": {
     "title": "History",

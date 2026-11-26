@@ -1,28 +1,45 @@
-// One small line on Home: "Food budget 92% used". Shown when a budget is at 80% or more.
+// Amber card on Home, shown only when a budget is at 80% or more, with a speaker button.
 import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import AppText from './AppText';
+import SpeakerButton from './ui/SpeakerButton';
 import { categoryKey } from '../constants/categories';
-import { colors, radius } from '../theme';
+import { colors, radius, spacing } from '../theme';
+import { rupeesText } from '../utils/money';
 
 export default function BudgetWarning({ budget }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   if (!budget) return null;
-  const over = budget.status === 'over';
-  const tint = over ? colors.danger : colors.warning;
+
+  const title = t('goals.budgetWarning', { category: t(categoryKey(budget.category)), percent: budget.percent });
+  const body = budget.status === 'over'
+    ? t('goals.overBy', { amount: rupeesText(budget.overBy, i18n.language, t('common.rupees')) })
+    : t('goals.percentUsed', { percent: budget.percent });
+
   return (
-    <View style={[styles.row, { backgroundColor: over ? colors.dangerLight : colors.warningLight }]} accessibilityRole="alert">
-      <Ionicons name={over ? 'alert-circle' : 'warning-outline'} size={18} color={tint} />
-      <AppText variant="caption" color={colors.text} style={styles.text}>
-        {t('goals.budgetWarning', { category: t(categoryKey(budget.category)), percent: budget.percent })}
-      </AppText>
+    <View style={styles.card} accessibilityRole="alert">
+      <Ionicons name="warning-outline" size={24} color={colors.warning} />
+      <View style={styles.texts}>
+        <AppText variant="bodyMedium" color={colors.warningTitle}>{title}</AppText>
+        <AppText variant="caption" color={colors.warningBody}>{body}</AppText>
+      </View>
+      <SpeakerButton text={`${title}. ${body}`} color={colors.warning} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: radius.input, paddingHorizontal: 12, paddingVertical: 8 },
-  text: { flex: 1 },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: colors.warningLight,
+    borderWidth: 1,
+    borderColor: colors.warningBorder,
+    borderRadius: radius.card,
+    padding: spacing.md,
+  },
+  texts: { flex: 1, gap: 2 },
 });

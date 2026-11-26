@@ -24,20 +24,19 @@ function TabsInner() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.accentLight,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarLabelStyle: {
           fontFamily: isUrdu ? fonts.ur.medium : fonts.en.medium,
           fontSize: 11,
         },
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.tabBar,
           borderTopColor: colors.border,
           borderTopWidth: 1,
           height: sizes.tabBar + insets.bottom,
           paddingBottom: insets.bottom,
           paddingTop: 6,
-          overflow: 'visible', // lets the raised + button stick out above the bar
         },
       }}
     >

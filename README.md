@@ -212,11 +212,12 @@ No SMS permission is used. The user pastes a message, so the app never reads the
 | expo-clipboard | ~58.0.4 | Paste button for SMS |
 | expo-speech | ~58.0.4 | Read aloud |
 | expo-haptics | ~58.0.8 | Touch feedback |
-| expo-linear-gradient | ~58.0.4 | Gradients on the Home header and AI loading card |
+| expo-linear-gradient | ~58.0.4 | Gradients on the Home balance card and loading placeholders |
 | expo-linking | ~58.0.17 | Link handling that Expo Router needs |
 | expo-constants | ~58.0.16 | App version info |
 | expo-splash-screen | ~58.0.14 | Splash screen |
 | expo-status-bar | ~58.0.5 | Status bar style |
+| expo-system-ui | ~58.0.7 | Dark system background and native dark controls |
 | expo-updates | ~58.0.22 | Restarts the app after a language change (updates are switched off) |
 
 ### Backend (`backend/requirements.txt`)

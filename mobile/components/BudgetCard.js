@@ -3,11 +3,11 @@ import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
-import AmountText from './AmountText';
+import AmountText from './ui/AmountText';
 import AppText from './AppText';
 import CategoryIcon from './CategoryIcon';
 import PressableScale from './PressableScale';
-import ProgressBar from './ProgressBar';
+import ProgressBar from './ui/ProgressBar';
 import { categoryKey } from '../constants/categories';
 import { colors, radius } from '../theme';
 import { rupeesText } from '../utils/money';

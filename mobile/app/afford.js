@@ -10,12 +10,12 @@ import { useTranslation } from 'react-i18next';
 
 import AIThinking from '../components/AIThinking';
 import AlertCard from '../components/AlertCard';
-import AmountText from '../components/AmountText';
+import AmountText from '../components/ui/AmountText';
 import AppText from '../components/AppText';
 import FadeInCard from '../components/FadeInCard';
 import { scoreColor } from '../components/HealthRing';
 import InsightCard from '../components/InsightCard';
-import PrimaryButton from '../components/PrimaryButton';
+import PrimaryButton from '../components/ui/PrimaryButton';
 import ScreenHeader from '../components/ScreenHeader';
 import { useAuth } from '../context/AuthContext';
 import useBills from '../hooks/useBills';

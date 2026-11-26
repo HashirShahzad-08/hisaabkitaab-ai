@@ -67,7 +67,7 @@ export default function TransactionForm({ value, onChange, fields = 'merchant', 
           value={value.digits ? formatNumber(value.digits) : ''}
           onChangeText={(v) => onChange({ digits: v.replace(/\D/g, '').slice(0, 9) })}
           placeholder="0"
-          placeholderTextColor={colors.border}
+          placeholderTextColor={colors.textSecondary}
           keyboardType="number-pad"
           style={styles.amountInput}
           selectionColor={colors.primary}
@@ -113,7 +113,7 @@ export default function TransactionForm({ value, onChange, fields = 'merchant', 
               accessibilityRole="button"
               accessibilityState={{ selected }}
             >
-              <AppText variant="bodyMedium" color={selected ? '#FFFFFF' : color}>{t(paymentKey(p))}</AppText>
+              <AppText variant="bodyMedium" color={selected ? colors.background : color}>{t(paymentKey(p))}</AppText>
             </Pressable>
           );
         })}
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   typeChipOn: { backgroundColor: colors.primaryLight, borderColor: colors.primary },
   amountRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', direction: 'ltr', marginVertical: 4 },
-  rs: { fontFamily: fonts.en.semibold, fontSize: 18, color: colors.textSecondary, marginRight: 6 },
+  rs: { fontFamily: fonts.en.semibold, fontSize: 18, color: colors.textSecondary, marginEnd: 6 },
   amountInput: { fontFamily: fonts.en.bold, fontSize: 28, color: colors.text, minWidth: 80, textAlign: 'center', padding: 0 },
   centerText: { textAlign: 'center' },
   chipRow: { gap: 8, paddingEnd: 8 },

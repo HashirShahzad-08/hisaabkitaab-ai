@@ -13,7 +13,7 @@ import AlertCard from '../components/AlertCard';
 import AppText from '../components/AppText';
 import FadeInCard from '../components/FadeInCard';
 import InsightCard from '../components/InsightCard';
-import PrimaryButton from '../components/PrimaryButton';
+import PrimaryButton from '../components/ui/PrimaryButton';
 import ScreenHeader from '../components/ScreenHeader';
 import { useAuth } from '../context/AuthContext';
 import { getCurrentBill, saveBill, setFlash } from '../services/billService';

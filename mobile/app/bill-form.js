@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 import AIThinking from '../components/AIThinking';
 import AppText from '../components/AppText';
-import PrimaryButton from '../components/PrimaryButton';
+import PrimaryButton from '../components/ui/PrimaryButton';
 import ScreenHeader from '../components/ScreenHeader';
 import { useAuth } from '../context/AuthContext';
 import useBills from '../hooks/useBills';

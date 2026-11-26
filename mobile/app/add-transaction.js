@@ -143,7 +143,7 @@ export default function AddTransactionScreen() {
                   accessibilityRole="button"
                   accessibilityState={{ selected }}
                 >
-                  <AppText variant="bodyMedium" color={selected ? '#FFFFFF' : color}>{t(paymentKey(p))}</AppText>
+                  <AppText variant="bodyMedium" color={selected ? colors.background : color}>{t(paymentKey(p))}</AppText>
                 </Pressable>
               );
             })}
@@ -193,7 +193,7 @@ export default function AddTransactionScreen() {
             loading={saving}
             disabled={saving}
             buttonColor={colors.primary}
-            textColor="#FFFFFF"
+            textColor={colors.onPrimary}
             style={styles.saveButton}
             contentStyle={{ height: sizes.button }}
             labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   scroll: { padding: screenPadding, paddingBottom: 24 },
   segment: { borderColor: colors.border },
   amountRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 24, direction: 'ltr' },
-  rs: { fontFamily: fonts.en.semibold, fontSize: 22, color: colors.textSecondary, marginRight: 8 },
+  rs: { fontFamily: fonts.en.semibold, fontSize: 22, color: colors.textSecondary, marginEnd: 8 },
   amountInput: { fontFamily: fonts.en.bold, fontSize: 34, color: colors.text, minWidth: 80, textAlign: 'center', padding: 0 },
   centerError: { alignItems: 'center', marginTop: 4 },
   section: { marginTop: 24, marginBottom: 12 },

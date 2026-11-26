@@ -181,7 +181,7 @@ export default function SmsEntryScreen() {
             loading={busy}
             disabled={busy}
             buttonColor={colors.primary}
-            textColor="#FFFFFF"
+            textColor={colors.onPrimary}
             style={styles.primaryButton}
             contentStyle={{ height: sizes.button }}
             labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}
@@ -203,7 +203,7 @@ export default function SmsEntryScreen() {
                   mode="contained"
                   onPress={clearAll}
                   buttonColor={colors.danger}
-                  textColor="#FFFFFF"
+                  textColor={colors.onPrimary}
                   style={styles.scamButton}
                   contentStyle={{ height: sizes.button }}
                 >
@@ -255,7 +255,7 @@ export default function SmsEntryScreen() {
                 loading={saving}
                 disabled={saving}
                 buttonColor={colors.primary}
-                textColor="#FFFFFF"
+                textColor={colors.onPrimary}
                 style={styles.primaryButton}
                 contentStyle={{ height: sizes.button }}
                 labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}

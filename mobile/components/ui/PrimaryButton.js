@@ -1,24 +1,27 @@
-// The big green button (DESIGN.md: height 52, radius 12, full width). Springs to 0.97 while pressed.
+// The big blue button (height 52, radius 12, full width). variant="outlined" is the dark outline button.
+// Springs to 0.97 while pressed and gives a light haptic.
 import { useRef } from 'react';
 import { ActivityIndicator, Animated, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTranslation } from 'react-i18next';
+import * as Haptics from 'expo-haptics';
 
-import AppText from './AppText';
-import { colors, radius, sizes } from '../theme';
+import AppText from '../AppText';
+import { colors, radius, sizes } from '../../theme';
 
 export default function PrimaryButton({ label, onPress, loading = false, disabled = false, icon, variant = 'filled', style }) {
-  const { i18n } = useTranslation();
   const scale = useRef(new Animated.Value(1)).current;
   const to = (v) => Animated.spring(scale, { toValue: v, damping: 15, stiffness: 300, useNativeDriver: true }).start();
   const filled = variant === 'filled';
-  const textColor = filled ? '#FFFFFF' : colors.primary;
+  const textColor = filled ? colors.onPrimary : colors.text;
   const inactive = disabled || loading;
 
   return (
     <Animated.View style={[{ transform: [{ scale }] }, style]}>
       <Pressable
-        onPress={onPress}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+          onPress?.();
+        }}
         onPressIn={() => !inactive && to(0.97)}
         onPressOut={() => to(1)}
         disabled={inactive}
@@ -53,7 +56,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   filled: { backgroundColor: colors.primary },
-  outlined: { borderWidth: 1.5, borderColor: colors.primary, backgroundColor: colors.surface },
+  outlined: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   inactive: { opacity: 0.6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   label: { textAlign: 'center' },

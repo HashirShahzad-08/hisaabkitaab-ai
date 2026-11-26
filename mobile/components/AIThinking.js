@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import AppText from './AppText';
-import { colors, radius } from '../theme';
+import { colors, palette, radius } from '../theme';
 
 function ShimmerBar({ width, height = 14 }) {
   const x = useRef(new Animated.Value(0)).current;
@@ -27,7 +27,7 @@ function ShimmerBar({ width, height = 14 }) {
     >
       <Animated.View style={[StyleSheet.absoluteFill, { transform: [{ translateX }] }]}>
         <LinearGradient
-          colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', 'rgba(255,255,255,0)']}
+          colors={[palette.shimmerClear, palette.shimmer, palette.shimmerClear]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={StyleSheet.absoluteFill}

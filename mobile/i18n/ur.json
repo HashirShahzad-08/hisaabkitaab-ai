@@ -28,7 +28,27 @@
     "seeAll": "سب دیکھیں",
     "emptyTitle": "آئیں اپنا حساب شروع کریں",
     "emptyText": "اپنا پہلا لین دین شامل کریں، آپ کا ڈیش بورڈ بھر جائے گا۔",
-    "addFirst": "پہلا لین دین شامل کریں"
+    "addFirst": "پہلا لین دین شامل کریں",
+    "goodMorning": "صبح بخیر",
+    "goodAfternoon": "دوپہر بخیر",
+    "goodEvening": "شام بخیر",
+    "spentTitle": "خرچ",
+    "tiles": {
+      "sms": "ایس ایم ایس",
+      "speak": "بولیں",
+      "bill": "بل چیک",
+      "afford": "خرید سکتے ہیں؟"
+    },
+    "spendingThisMonth": "اس مہینے کا خرچ",
+    "details": "تفصیل",
+    "hideDetails": "چھپائیں",
+    "recentShort": "حالیہ",
+    "source": {
+      "manual": "دستی",
+      "sms": "ایس ایم ایس",
+      "voice": "آواز",
+      "bill": "بل"
+    }
   },
   "history": {
     "title": "تاریخ",

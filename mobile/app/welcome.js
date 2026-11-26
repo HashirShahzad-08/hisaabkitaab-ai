@@ -11,7 +11,7 @@ import { MotiView } from 'moti';
 import { useTranslation } from 'react-i18next';
 
 import AppText from '../components/AppText';
-import PrimaryButton from '../components/PrimaryButton';
+import PrimaryButton from '../components/ui/PrimaryButton';
 import { useAuth } from '../context/AuthContext';
 import { WELCOME_STEP_KEY, useWelcome } from '../context/WelcomeContext';
 import useProfile from '../hooks/useProfile';
@@ -304,7 +304,7 @@ export default function WelcomeScreen() {
                     value={digits ? formatNumber(digits) : ''}
                     onChangeText={(v) => { setDigits(v.replace(/\D/g, '').slice(0, 9)); setIncomeError(null); }}
                     placeholder="0"
-                    placeholderTextColor={colors.border}
+                    placeholderTextColor={colors.textSecondary}
                     keyboardType="number-pad"
                     style={styles.amountInput}
                     accessibilityLabel={t('welcome.income.title')}

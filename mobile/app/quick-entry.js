@@ -144,7 +144,7 @@ export default function QuickEntryScreen() {
             loading={busy}
             disabled={busy || saving}
             buttonColor={colors.primary}
-            textColor="#FFFFFF"
+            textColor={colors.onPrimary}
             style={styles.primaryButton}
             contentStyle={{ height: sizes.button }}
             labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}
@@ -192,7 +192,7 @@ export default function QuickEntryScreen() {
               loading={saving}
               disabled={saving || selected.length === 0}
               buttonColor={colors.primary}
-              textColor="#FFFFFF"
+              textColor={colors.onPrimary}
               style={styles.primaryButton}
               contentStyle={{ height: sizes.button }}
               labelStyle={{ fontFamily: isUrdu ? fonts.ur.semibold : fonts.en.semibold, fontSize: 16 }}

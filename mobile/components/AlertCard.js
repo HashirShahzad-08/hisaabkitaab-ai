@@ -9,10 +9,10 @@ import AppText from './AppText';
 import { colors, radius } from '../theme';
 
 const VARIANTS = {
-  danger: { bg: colors.dangerLight, fg: colors.danger, icon: 'shield-half-outline' },
-  warning: { bg: colors.warningLight, fg: colors.warning, icon: 'alert-circle-outline' },
-  success: { bg: colors.primaryLight, fg: colors.primary, icon: 'checkmark-circle-outline' },
-  info: { bg: colors.primaryLight, fg: colors.info, icon: 'information-circle-outline' },
+  danger: { bg: colors.dangerLight, border: colors.dangerBorder, fg: colors.danger, title: colors.dangerText, icon: 'shield-half-outline' },
+  warning: { bg: colors.warningLight, border: colors.warningBorder, fg: colors.warning, title: colors.warningTitle, icon: 'alert-circle-outline' },
+  success: { bg: colors.primaryLight, border: colors.primary, fg: colors.accentLight, title: colors.accentLight, icon: 'checkmark-circle-outline' },
+  info: { bg: colors.primaryLight, border: colors.border, fg: colors.info, title: colors.info, icon: 'information-circle-outline' },
 };
 
 export default function AlertCard({ variant = 'info', title, icon, children }) {
@@ -38,7 +38,7 @@ export default function AlertCard({ variant = 'info', title, icon, children }) {
       animate={{ opacity: 1, translateY: 0 }}
       transition={{ type: 'spring', damping: 15 }}
     >
-      <Animated.View style={[styles.card, { backgroundColor: v.bg, transform: [{ translateX: shake }] }]}>
+      <Animated.View style={[styles.card, { backgroundColor: v.bg, borderColor: v.border, transform: [{ translateX: shake }] }]}>
         <View style={styles.iconWrap}>
           {variant === 'danger' ? (
             <MotiView
@@ -52,7 +52,7 @@ export default function AlertCard({ variant = 'info', title, icon, children }) {
             iconView
           )}
         </View>
-        <AppText variant="h2" color={v.fg} style={styles.title}>{title}</AppText>
+        <AppText variant="h2" color={v.title} style={styles.title}>{title}</AppText>
         {children}
       </Animated.View>
     </MotiView>
@@ -60,7 +60,7 @@ export default function AlertCard({ variant = 'info', title, icon, children }) {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.card, padding: 16, gap: 8 },
+  card: { borderRadius: radius.card, borderWidth: 1, padding: 16, gap: 8 },
   iconWrap: { alignSelf: 'flex-start' },
   title: {},
 });
