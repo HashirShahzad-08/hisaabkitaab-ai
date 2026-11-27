@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HisaabKitaab AI - Download for Android</title>
+<meta name="description" content="An Urdu-first Android app to track money, check electricity bills and stay safe from scam SMS.">
+<meta name="theme-color" content="#0E0F12">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E0F12; --card: #17181C; --raised: #1E2026; --border: #26282E;
+    --blue: #3B82F6; --blue-light: #60A5FA; --text: #F3F4F6; --body: #C9CCD3; --muted: #9A9DA6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { color-scheme: dark; -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--text); font-family: Poppins, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.6; }
+  main, footer { max-width: 720px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+  main { padding-top: 24px; }
+  a { color: var(--blue-light); }
+  a:focus-visible { outline: 3px solid var(--blue-light); outline-offset: 3px; }
+
+  .hero { background: linear-gradient(160deg, #2563EB, #1E3A8A); border: 1px solid #3B6FE0; border-radius: 24px; padding: 32px 24px; text-align: center; }
+  .hero img { width: 112px; height: 112px; border-radius: 24px; display: block; margin: 0 auto 16px; }
+  h1 { font-size: 28px; line-height: 1.25; font-weight: 700; }
+  .tagline { color: #C7D7FE; font-weight: 500; margin-top: 4px; }
+  .lead { margin: 16px auto 0; max-width: 460px; }
+
+  .download { margin-top: 24px; text-align: center; }
+  .button { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 60px; padding: 12px 24px; background: var(--blue); color: #FFFFFF; border-radius: 12px; font-size: 17px; font-weight: 600; text-decoration: none; }
+  .button:hover { background: #2563EB; }
+  .button:active { transform: scale(0.98); }
+  .button svg { flex: none; }
+  .meta { color: var(--muted); font-size: 13px; margin-top: 8px; }
+
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; }
+
+  ol { list-style: none; counter-reset: step; display: grid; gap: 8px; }
+  ol li { counter-increment: step; display: flex; gap: 16px; align-items: flex-start; }
+  ol li::before { content: counter(step); flex: none; width: 32px; height: 32px; border-radius: 12px; background: var(--raised); border: 1px solid var(--border); color: var(--blue-light); font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  ol strong { display: block; font-weight: 500; }
+  ol span { color: var(--muted); font-size: 13px; }
+
+  .features { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .features h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .features h3::before { content: ""; display: block; width: 24px; height: 4px; border-radius: 999px; background: var(--blue); margin-bottom: 12px; }
+  .features p { color: var(--body); font-size: 14px; }
+  @media (min-width: 560px) { .features { grid-template-columns: 1fr 1fr; } }
+
+  .try { background: #16233D; border-color: #3B6FE0; }
+  .links { display: grid; gap: 0; padding: 0 16px; }
+  .links a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; text-decoration: none; border-top: 1px solid #202228; font-weight: 500; }
+  .links a:first-child { border-top: 0; }
+  .links small { color: var(--muted); font-weight: 400; text-align: right; }
+
+  footer { color: var(--muted); font-size: 13px; text-align: center; padding-top: 32px; padding-bottom: 32px; }
+</style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <img src="icon.png" width="112" height="112" alt="HisaabKitaab AI wallet icon">
+    <h1>HisaabKitaab AI</h1>
+    <p class="tagline">Hisaab bhi, hifazat bhi</p>
+    <p class="lead">An Urdu-first Android app to track money, check electricity bills and stay safe from scam SMS.</p>
+  </header>
+
+  <section class="download" aria-label="Download">
+    <a class="button" href="https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+      Download APK (Android)
+    </a>
+    <p class="meta">Version 1.0.0 &middot; 101 MB &middot; No login needed to download</p>
+  </section>
+
+  <section>
+    <h2>How to install</h2>
+    <ol class="card">
+      <li><div><strong>Download the APK</strong><span>Tap the blue button above on your Android phone.</span></div></li>
+      <li><div><strong>Open the file</strong><span>Tap the finished download, or find it in your Downloads folder.</span></div></li>
+      <li><div><strong>Allow installing from this source</strong><span>If Android asks, turn on the permission for your browser or file app.</span></div></li>
+      <li><div><strong>If Play Protect warns you</strong><span>Tap "More details", then "Install anyway".</span></div></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>What it does</h2>
+    <div class="features">
+      <article class="card"><h3>SMS auto-entry and scam warning</h3><p>Paste a JazzCash, Easypaisa or bank SMS. It is recorded for you, and scam messages get a clear red warning you can share with family.</p></article>
+      <article class="card"><h3>Urdu voice entry</h3><p>Speak with your keyboard's microphone, or type, in Urdu, Roman Urdu or English. Each expense becomes an entry.</p></article>
+      <article class="card"><h3>Bill Analyzer</h3><p>Check an electricity bill against the meter readings, understand it in simple words, and get a ready complaint if it looks overbilled.</p></article>
+      <article class="card"><h3>Can I afford it?</h3><p>Enter an item and its price. See yes, careful or not now, worked out from your own income and spending.</p></article>
+      <article class="card"><h3>Health Score</h3><p>A monthly score from 0 to 100 with a short tip, based on clear rules about saving, spending and budgets.</p></article>
+      <article class="card"><h3>Full Urdu mode</h3><p>Every screen works in Urdu script with a right-to-left layout, or in English.</p></article>
+    </div>
+  </section>
+
+  <section>
+    <h2>Try it fast</h2>
+    <div class="card try">
+      <p>Sign up with an email and password. Then open <strong>Settings</strong> and tap <strong>Load demo data</strong> to see a sample month right away.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Links</h2>
+    <nav class="card links">
+      <a href="https://github.com/HashirShahzad-08/hisaabkitaab-ai">GitHub repository <small>Source code</small></a>
+      <a href="https://hisaabkitaab-ai-omega.vercel.app/health">Backend health <small>Server status</small></a>
+      <a href="VIDEO_LINK">Demo video <small>Watch</small></a>
+    </nav>
+  </section>
+</main>
+
+<footer>
+  <p>Team Hawk AI &middot; NUTECH University &middot; Capital Youth Expo 2026</p>
+</footer>
+</body>
+</html>

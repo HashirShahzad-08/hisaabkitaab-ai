@@ -11,7 +11,8 @@ Built by Team Hawk AI for Capital Youth Expo 2026, category FinTech and Financia
 | What | Link |
 | --- | --- |
 | Source code | https://github.com/HashirShahzad-08/hisaabkitaab-ai |
-| Android APK download | APK_LINK |
+| Download page | https://hashirshahzad-08.github.io/hisaabkitaab-ai/ |
+| Android APK download | https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk |
 | Backend health check | https://hisaabkitaab-ai-omega.vercel.app/health |
 | Demo video | VIDEO_LINK |
 | Slides | SLIDES_LINK |
@@ -125,7 +126,7 @@ Targets: scam detection at or above 95 percent, field accuracy at or above 90 pe
 
 ## Try it
 
-1. Download and install the APK from the APK_LINK above (allow install from unknown sources if Android asks).
+1. Download and install the APK from the [download page](https://hashirshahzad-08.github.io/hisaabkitaab-ai/) (allow install from unknown sources if Android asks).
 2. Open the app, choose a language, and sign up with an email and password.
 3. Go to Settings, scroll to About, and tap "Load demo data". Confirm. Home now shows a sample month for a household in Rawalpindi.
 4. Try Paste SMS with a scam message, for example: `BISP: Mubarak ho! Aap ka 25,000 inaam nikla hai. Claim karne ke liye processing fee Rs 500 jama karwayein: http://bit.ly/bisp-claim`. Then tap "Warn my family".
