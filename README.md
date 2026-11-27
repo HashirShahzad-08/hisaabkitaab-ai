@@ -14,7 +14,6 @@ Built by Team Hawk AI for Capital Youth Expo 2026, category FinTech and Financia
 | Download page | https://hashirshahzad-08.github.io/hisaabkitaab-ai/ |
 | Android APK download | https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk |
 | Backend health check | https://hisaabkitaab-ai-omega.vercel.app/health |
-| Demo video | VIDEO_LINK |
 | Slides | https://github.com/HashirShahzad-08/hisaabkitaab-ai/blob/main/docs/HisaabKitaab-AI-Pitch-Deck.pdf |
 
 ## The problem
@@ -109,20 +108,18 @@ Scam red flags checked: asks for a fee before receiving money, asks for OTP, PIN
 
 ## Accuracy
 
-We measure the AI + rules pipeline with `backend/tests/run_eval.py`. Results will be filled in before the final submission.
+These are the results of our rule tests. No AI is used in them, so anyone can repeat them with no key and no network.
 
-| Test set | Cases | Scam detection | Field accuracy | Notes |
-| --- | --- | --- | --- | --- |
-| Main set (30 SMS + 10 quick entry) | 40 | TBD | TBD | |
-| Hold-out set (20 SMS + 10 quick entry) | 30 | TBD | TBD | Not used while tuning the rules |
-| Scam trap set (29 tricky SMS) | 29 | TBD | n/a | Normal messages that look like scams, and the reverse |
-| Real SMS set | TBD | TBD | TBD | Anonymized real messages |
-| Bill rules (plain code) | 8 | n/a | TBD | `check_bill_rules.py` |
-| Can I afford it rules (plain code) | 8 | n/a | TBD | `check_afford_rules.py` |
+| Test | Result | What it covers | How to run |
+| --- | --- | --- | --- |
+| Scam rules | 79/79 | 30 main, 20 hold-out and 29 trick SMS cases | `python tests/check_rules.py` (in `backend`) |
+| Offline scam check on the phone | 103/103 | Sample messages, the red-flag examples, and the same 79 SMS cases | `node utils/offlineScam.test.mjs` (in `mobile`) |
+| Bill Analyzer rules | 18/18 | Bill cases and edge cases | `python tests/check_bill_rules.py` |
+| Can I afford it rules | 15/15 | Spending cases and edge cases | `python tests/check_afford_rules.py` |
 
-Targets: scam detection at or above 95 percent, field accuracy at or above 90 percent.
+**Honest note:** these are rule tests, not a field accuracy figure: our team wrote the cases and tuned the rules on them (including the hold-out set), so real messages will be harder.
 
-**Honest note:** the main, hold-out and trap cases were written by our team, so they can be easier or more familiar than real life. Because of that, we are adding real anonymized SMS (no names, no account numbers, no personal phone numbers) in `backend/tests/real_sms_cases.json` and reporting them separately. See `backend/tests/README.md`.
+The full AI and rules pipeline can be measured with `backend/tests/run_eval.py` (it uses AI quota). We do not report a figure for it here.
 
 ## Try it
 
