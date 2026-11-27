@@ -85,6 +85,7 @@ codes = [i["code"] for i in r["issues"]]
 extra("more than 10 times the billed units (1600 vs 150) is a reading_typo",
       r["verdict"] == "check" and "reading_typo" in codes and "units_mismatch" not in codes)
 
+total = passed + len(failures)  # counted after every case has run
 print(f"\n{passed}/{total} passed")
 if failures:
     print("FAILURES:")
