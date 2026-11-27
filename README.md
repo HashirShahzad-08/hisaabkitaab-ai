@@ -56,17 +56,9 @@ If spending is more than income, the score is capped at 45. The result is kept b
 
 ## Screenshots
 
-| Home | Paste SMS | Scam alert |
-| --- | --- | --- |
-| ![Home](docs/screenshots/home.png) | ![Paste SMS](docs/screenshots/sms.png) | ![Scam alert](docs/screenshots/scam.png) |
-
-| Quick entry | Bill Analyzer | Can I afford it? |
-| --- | --- | --- |
-| ![Quick entry](docs/screenshots/quick-entry.png) | ![Bill Analyzer](docs/screenshots/bill.png) | ![Can I afford it](docs/screenshots/afford.png) |
-
-| Goals and Budgets | Urdu (RTL) | Settings |
-| --- | --- | --- |
-| ![Goals and Budgets](docs/screenshots/goals.png) | ![Urdu](docs/screenshots/urdu.png) | ![Settings](docs/screenshots/settings.png) |
+| Home | Paste SMS | Quick entry | Scam alert |
+| --- | --- | --- | --- |
+| ![Home](docs/screenshots/home.png) | ![Paste SMS](docs/screenshots/sms.png) | ![Quick entry](docs/screenshots/quick-entry.png) | ![Scam alert](docs/screenshots/scam.png) |
 
 ## How it works
 
