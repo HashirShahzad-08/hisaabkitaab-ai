@@ -15,7 +15,7 @@ Built by Team Hawk AI for Capital Youth Expo 2026, category FinTech and Financia
 | Android APK download | https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk |
 | Backend health check | https://hisaabkitaab-ai-omega.vercel.app/health |
 | Demo video | VIDEO_LINK |
-| Slides | SLIDES_LINK |
+| Slides | https://github.com/HashirShahzad-08/hisaabkitaab-ai/blob/main/docs/HisaabKitaab-AI-Pitch-Deck.pdf |
 
 ## The problem
 
@@ -242,10 +242,10 @@ NUTECH University
 | Member | Role |
 | --- | --- |
 | Hashir Shahzad | Team Lead, AI backend |
-| NAME_2 | ROLE_2 |
-| NAME_3 | ROLE_3 |
-| NAME_4 | ROLE_4 |
-| NAME_5 | ROLE_5 |
+| Muhammad Anus Manan | Team member |
+| Shaban Faqar | Team member |
+| Syed Ruidar Ali Shah | Team member |
+| Muhammad Azfar | Team member |
 
 ## Built during the hackathon
 
