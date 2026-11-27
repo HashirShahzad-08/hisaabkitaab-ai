@@ -234,8 +234,8 @@ NUTECH University
 
 | Member | Role |
 | --- | --- |
-| Hashir Shahzad | Team Lead, AI backend |
-| Muhammad Anus Manan | Team member |
+| Muhammad Anus Manan | Team Lead |
+| Hashir Shahzad |  AI backend |
 | Shaban Faqar | Team member |
 | Syed Ruidar Ali Shah | Team member |
 | Muhammad Azfar | Team member |
