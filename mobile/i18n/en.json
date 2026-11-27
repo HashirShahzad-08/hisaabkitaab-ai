@@ -122,7 +122,8 @@
         "required": "Please fill this in",
         "number": "Use numbers only, for example 150",
         "currentLower": "The current reading cannot be lower than the previous reading",
-        "zero": "Enter a number above 0"
+        "zero": "Enter a number above 0",
+        "typo": "These readings look wrong. Please check for an extra or missing digit."
       }
     },
     "result": {
@@ -213,7 +214,8 @@
     "cancel": "Cancel",
     "checkDetails": "Please check these details",
     "loading": "Loading",
-    "noUrduVoice": "Urdu voice not installed on this phone"
+    "noUrduVoice": "Urdu voice not installed on this phone",
+    "explanation": "Explanation"
   },
   "auth": {
     "login": "Login",

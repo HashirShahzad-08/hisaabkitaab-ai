@@ -76,7 +76,15 @@ extra("English messages have no Urdu letters", not any("؀" <= ch <= "ۿ" for ch
 text = " ".join(m for lang in bill_rules.MESSAGES.values() for m in lang.values()) + " ".join(bill_rules.FALLBACK_TIPS["en"])
 extra("no emojis in the messages", all(ord(ch) < 0x2190 or 0x0600 <= ord(ch) <= 0x06ff or ord(ch) in (0x2019,) for ch in text))
 
-total = len(cases) + 10
+r = bill_rules.analyze(previous_reading=1000, current_reading=11150, units_billed=150, amount=3000)
+codes = [i["code"] for i in r["issues"]]
+extra("an extra digit (10150 units) is a reading_typo and only 'check', with no catch-up warning",
+      r["verdict"] == "check" and "reading_typo" in codes and "units_mismatch" not in codes and r["extra_units"] == 0)
+r = bill_rules.analyze(previous_reading=100, current_reading=1700, units_billed=150, amount=3000, lang="ur")
+codes = [i["code"] for i in r["issues"]]
+extra("more than 10 times the billed units (1600 vs 150) is a reading_typo",
+      r["verdict"] == "check" and "reading_typo" in codes and "units_mismatch" not in codes)
+
 print(f"\n{passed}/{total} passed")
 if failures:
     print("FAILURES:")

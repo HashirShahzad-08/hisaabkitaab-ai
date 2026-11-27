@@ -106,7 +106,7 @@ These are the results of our rule tests. No AI is used in them, so anyone can re
 | --- | --- | --- | --- |
 | Scam rules | 79/79 | 30 main, 20 hold-out and 29 trick SMS cases | `python tests/check_rules.py` (in `backend`) |
 | Offline scam check on the phone | 103/103 | Sample messages, the red-flag examples, and the same 79 SMS cases | `node utils/offlineScam.test.mjs` (in `mobile`) |
-| Bill Analyzer rules | 18/18 | Bill cases and edge cases | `python tests/check_bill_rules.py` |
+| Bill Analyzer rules | 20/20 | Bill cases and edge cases | `python tests/check_bill_rules.py` |
 | Can I afford it rules | 15/15 | Spending cases and edge cases | `python tests/check_afford_rules.py` |
 
 **Honest note:** these are rule tests, not a field accuracy figure: our team wrote the cases and tuned the rules on them (including the hold-out set), so real messages will be harder.

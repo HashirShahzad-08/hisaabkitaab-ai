@@ -39,6 +39,7 @@ const ISSUE_COLOR = {
   sudden_jump: colors.warning,
   higher_than_last_year: colors.warning,
   near_200: colors.warning,
+  reading_typo: colors.warning,
   above_200: colors.info,
 };
 

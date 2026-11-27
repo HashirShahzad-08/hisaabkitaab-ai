@@ -25,6 +25,8 @@ import { colors, fonts, radius, screenPadding, sizes, spacing } from '../theme';
 import { currentMonthKey, monthLabel, shiftMonth } from '../utils/billUi';
 
 const THINKING = ['thinking.bill.0', 'thinking.bill.1', 'thinking.bill.2'];
+const MAX_MONTH_UNITS = 3000;
+const MAX_TIMES_BILLED = 10;
 
 // Keep digits and one dot only. "1,250" becomes "1250".
 const cleanNumber = (v) => {
@@ -64,7 +66,12 @@ export default function BillFormScreen() {
     }
   }, [bills]);
 
-  const clear = (field) => setErrors((e) => ({ ...e, [field]: undefined }));
+  // Changing a reading or the units also clears the "readings look wrong" warning
+  const clear = (field) => setErrors((e) => ({
+    ...e,
+    [field]: undefined,
+    ...(['previous', 'current', 'units'].includes(field) ? { typo: undefined } : null),
+  }));
   const isCurrentMonth = month >= currentMonthKey();
 
   function validate() {
@@ -77,6 +84,11 @@ export default function BillFormScreen() {
     if (!e.previous && !e.current && Number(current) < Number(previous)) e.current = 'bills.form.errors.currentLower';
     if (!e.units && Number(units) === 0) e.units = 'bills.form.errors.zero';
     if (!e.amount && Number(amount) === 0) e.amount = 'bills.form.errors.zero';
+    // Sanity check (the server has the same one): readings that move far too much are probably a typing mistake
+    if (!e.previous && !e.current && !e.units) {
+      const used = Number(current) - Number(previous);
+      if (used > MAX_MONTH_UNITS || used > MAX_TIMES_BILLED * Number(units)) e.typo = 'bills.form.errors.typo';
+    }
     for (const [key, value] of Object.entries({ lastMonth, lastYear })) {
       if (value.trim() !== '' && !/^\d+(\.\d+)?$/.test(value.trim())) {
         e[key] = 'bills.form.errors.number';
@@ -164,6 +176,12 @@ export default function BillFormScreen() {
             <Card style={styles.group}>
               {field('previous', t('bills.form.previous'), previous, setPrevious)}
               {field('current', t('bills.form.current'), current, setCurrent)}
+              {errors.typo ? (
+                <View style={styles.warningBox} accessibilityRole="alert">
+                  <Ionicons name="warning-outline" size={20} color={colors.warning} />
+                  <AppText variant="caption" color={colors.warningTitle} style={styles.helperText}>{t(errors.typo)}</AppText>
+                </View>
+              ) : null}
               <View style={styles.helper}>
                 <Ionicons name="information-circle-outline" size={18} color={colors.info} />
                 <AppText variant="caption" color={colors.textSecondary} style={styles.helperText}>{t('bills.form.readingsHelp')}</AppText>
@@ -255,6 +273,16 @@ const styles = StyleSheet.create({
   error: { marginHorizontal: spacing.xs },
   helper: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
   helperText: { flex: 1 },
+  warningBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.warningLight,
+    borderWidth: 1,
+    borderColor: colors.warningBorder,
+    borderRadius: radius.input,
+    padding: 12,
+  },
   moreHeader: { flexDirection: 'row', alignItems: 'center', minHeight: sizes.touch },
   errorBox: { backgroundColor: colors.dangerLight, borderColor: colors.dangerBorder, borderWidth: 1, borderRadius: radius.input, padding: 12 },
   footer: { padding: screenPadding, backgroundColor: colors.background },

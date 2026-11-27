@@ -2,7 +2,9 @@
 
 Rules:
   1. reading_units = current_reading - previous_reading. If current < previous: "reading_error".
-  2. If units_billed differs from reading_units by more than 5 units: "units_mismatch".
+  2. If reading_units is above 3000, or above 10 times units_billed: "reading_typo" (probably a digit typed
+     wrongly), so no mismatch is reported and the verdict is "check".
+     Otherwise, if units_billed differs from reading_units by more than 5 units: "units_mismatch".
   3. Units more than 40% higher than last month: "sudden_jump".
   4. Units more than 40% higher than the same month last year: "higher_than_last_year".
   5. Billed units from 180 to 200: warning "near_200". Above 200: note "above_200".
@@ -13,12 +15,14 @@ Rules:
 from typing import Any, Dict, List, Optional
 
 MISMATCH_TOLERANCE_UNITS = 5
+TYPO_MAX_UNITS = 3000  # a home meter does not move this much in a month
+TYPO_TIMES_BILLED = 10
 JUMP_PERCENT = 40
 NEAR_200_FROM = 180
 LIMIT_200 = 200
 
 # Warnings make the verdict "check". Notes (above_200) do not change it.
-WARNINGS = {"sudden_jump", "higher_than_last_year", "near_200"}
+WARNINGS = {"sudden_jump", "higher_than_last_year", "near_200", "reading_typo"}
 
 # Messages in both languages. {placeholders} are filled with the numbers worked out below.
 MESSAGES = {
@@ -29,6 +33,8 @@ MESSAGES = {
                                "That is {extra} extra units.",
         "units_mismatch_under": "The bill charges {billed} units but your readings show {reading} units. "
                                 "The bill is {less} units lower than the meter, so a catch-up charge may come later.",
+        "reading_typo": "Your readings show {reading} units but the bill charges {billed} units. One of the readings "
+                        "may have an extra or missing digit. Please check them against the bill.",
         "sudden_jump": "Your units are {percent}% higher than last month ({last} units).",
         "higher_than_last_year": "Your units are {percent}% higher than the same month last year ({last} units).",
         "near_200": "You used {billed} units. Going above 200 units can make your next bills much more expensive.",
@@ -41,6 +47,8 @@ MESSAGES = {
                                "یہ {extra} یونٹ زیادہ ہیں۔",
         "units_mismatch_under": "بل میں {billed} یونٹ لگائے گئے ہیں لیکن آپ کی ریڈنگ {reading} یونٹ دکھاتی ہے۔ "
                                 "بل میٹر سے {less} یونٹ کم ہے، اس لیے بعد میں فرق کی رقم آ سکتی ہے۔",
+        "reading_typo": "آپ کی ریڈنگ {reading} یونٹ دکھاتی ہے لیکن بل میں {billed} یونٹ ہیں۔ شاید کسی ریڈنگ میں "
+                        "ایک ہندسہ زیادہ یا کم لکھا گیا ہے۔ براہ کرم بل سے ملا کر دیکھیں۔",
         "sudden_jump": "آپ کے یونٹ پچھلے مہینے ({last} یونٹ) سے {percent} فیصد زیادہ ہیں۔",
         "higher_than_last_year": "آپ کے یونٹ پچھلے سال اسی مہینے ({last} یونٹ) سے {percent} فیصد زیادہ ہیں۔",
         "near_200": "آپ نے {billed} یونٹ استعمال کیے۔ 200 یونٹ سے اوپر جانے پر اگلے بل بہت مہنگے ہو سکتے ہیں۔",
@@ -84,6 +92,10 @@ def analyze(
     if reading_error:
         issues.append({"code": "reading_error", "message": msgs["reading_error"].format(
             current=_num(current_reading), previous=_num(previous_reading))})
+    elif reading_units > TYPO_MAX_UNITS or (units_billed > 0 and reading_units > TYPO_TIMES_BILLED * units_billed):
+        # Most likely a typing mistake: do not work out "extra units" from it
+        issues.append({"code": "reading_typo", "message": msgs["reading_typo"].format(
+            reading=_num(reading_units), billed=_num(units_billed))})
     else:
         extra_units = round(units_billed - reading_units, 2)
         if abs(extra_units) > MISMATCH_TOLERANCE_UNITS:
