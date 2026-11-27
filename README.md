@@ -60,6 +60,10 @@ If spending is more than income, the score is capped at 45. The result is kept b
 | --- | --- | --- | --- |
 | ![Home](docs/screenshots/home.png) | ![Paste SMS](docs/screenshots/sms.png) | ![Quick entry](docs/screenshots/quick-entry.png) | ![Scam alert](docs/screenshots/scam.png) |
 
+| Can I afford it? | Goals | Urdu mode |
+| --- | --- | --- |
+| ![Can I afford it](docs/screenshots/afford.png) | ![Goals](docs/screenshots/goals.png) | ![Urdu mode](docs/screenshots/urdu.png) |
+
 ## How it works
 
 ```
