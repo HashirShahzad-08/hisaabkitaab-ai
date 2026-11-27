@@ -53,8 +53,8 @@ r = afford_rules.analyze(price=50000, days_left_in_month=10, monthly_income=3000
 en_e, en_s = afford_rules.fallback_explanation(r, "laptop", "en"), afford_rules.fallback_suggestion(r, "en")
 ur_e, ur_s = afford_rules.fallback_explanation(r, "laptop", "ur"), afford_rules.fallback_suggestion(r, "ur")
 has_urdu = lambda s: any("؀" <= ch <= "ۿ" for ch in s)
-extra("English templates: numbers filled in, no Urdu letters", "Rs 50,000" in en_e and "Rs 698" in en_s and "72 weeks" in en_s and not has_urdu(en_e + en_s))
-extra("Urdu templates: Urdu script with the same numbers", has_urdu(ur_e) and "50,000" in ur_e and "698" in ur_s and "72" in ur_s)
+extra("English templates: price filled in, tip without the weekly plan, no Urdu letters", "Rs 50,000" in en_e and "second-hand" in en_s and "698" not in en_s and "weeks" not in en_s and not has_urdu(en_e + en_s))
+extra("Urdu templates: Urdu script, price filled in, tip without the weekly plan", has_urdu(ur_e) and has_urdu(ur_s) and "50,000" in ur_e and "698" not in ur_s and "72" not in ur_s)
 every = " ".join([en_e, en_s, ur_e, ur_s])
 extra("no emojis in the template texts", all(ord(ch) < 0x2190 or 0x0600 <= ord(ch) <= 0x06ff for ch in every))
 

@@ -24,6 +24,7 @@ import rules
 from ai_client import AIError, ask_ai
 from models import AffordAiText, AffordRequest, AffordResult, BillAiText, BillIssue, BillRequest, BillResult, QuickEntryResult, SmsResult, Transaction
 from prompts import afford_prompt, bill_prompt, quick_entry_prompt, sms_prompt
+from text_format import format_numbers
 
 log = logging.getLogger("uvicorn.error")
 
@@ -322,6 +323,16 @@ def _only_allowed_numbers(text: str, allowed: List[float]) -> bool:
     return all(any(abs(n - a) < 0.06 for a in allowed) for n in _numbers_in(text))
 
 
+def _repeats_saving_plan(text: str, weekly_saving: float, weeks: int) -> bool:
+    """The app already shows "save X a week for N weeks", so the suggestion must not say it again."""
+    if not weeks:
+        return False
+    plain = text.translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789"))
+    if any(abs(n - weekly_saving) < 0.06 for n in _numbers_in(plain)):
+        return True
+    return bool(re.search(rf"(?<!\d){weeks}\s*(?:-\s*)?(?:weeks?\b|ہفت)", plain, re.I))
+
+
 def _issue_facts(req: BillRequest, rules_result: dict) -> list:
     """The issues, with their numbers, as the AI sees them."""
     out = []
@@ -387,6 +398,10 @@ def analyze_bill(req: BillRequest) -> BillResult:
             break
         tips.append(tip)
 
+    # Every number has passed the guard by now: write them the same way, with thousands commas
+    explanation, complaint = format_numbers(explanation), format_numbers(complaint)
+    tips = [format_numbers(tip) for tip in tips]
+
     log.info("route=/analyze-bill verdict=%s ai=%s", result["verdict"], used_ai)
     return BillResult(
         verdict=result["verdict"], reading_units=result["reading_units"], units_billed=result["units_billed"],
@@ -405,10 +420,10 @@ def afford(req: AffordRequest) -> AffordResult:
         upcoming_bills_estimate=req.upcoming_bills_estimate, savings_goal_monthly=req.savings_goal_monthly,
     )
     item = req.item.strip()
+    # The weekly saving plan is not given to the AI: the app shows it on its own
     facts = {
         "verdict": result["verdict"], "item": item, "price": result["price"], "remaining": result["remaining"],
         "safe_to_spend": result["safe_to_spend"], "needed_until_month_end": result["needed_until_month_end"],
-        "weeks_to_save": result["weeks_to_save"], "weekly_saving": result["weekly_saving"],
     }
 
     explanation = suggestion = ""
@@ -426,7 +441,8 @@ def afford(req: AffordRequest) -> AffordResult:
         ) if v is not None] + _numbers_in(item)
         if ai.explanation.strip() and _only_allowed_numbers(ai.explanation, allowed):
             explanation = ai.explanation.strip()
-        if ai.suggestion.strip() and _only_allowed_numbers(ai.suggestion, allowed):
+        if (ai.suggestion.strip() and _only_allowed_numbers(ai.suggestion, allowed)
+                and not _repeats_saving_plan(ai.suggestion, result["weekly_saving"], result["weeks_to_save"])):
             suggestion = ai.suggestion.strip()
         used_ai = True
     except AIError:
@@ -436,6 +452,9 @@ def afford(req: AffordRequest) -> AffordResult:
         explanation = afford_rules.fallback_explanation(result, item, req.lang)
     if not suggestion:
         suggestion = afford_rules.fallback_suggestion(result, req.lang)
+
+    explanation = format_numbers(explanation, keep=item)
+    suggestion = format_numbers(suggestion, keep=item)
 
     log.info("route=/afford verdict=%s ai=%s", result["verdict"], used_ai)
     return AffordResult(

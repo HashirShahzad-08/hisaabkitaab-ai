@@ -109,23 +109,20 @@ def fallback_explanation(result: Dict[str, Any], item: str, lang: str) -> str:
 
 
 def fallback_suggestion(result: Dict[str, Any], lang: str) -> str:
+    """One practical tip. It does not repeat the weekly amount or the weeks: the app shows those itself."""
     verdict = result["verdict"]
-    weekly = _rs_text(result["weekly_saving"], lang)
-    weeks = result["weeks_to_save"]
     if lang == "ur":
         if verdict == "yes":
             return "خرید لیں، لیکن باقی مہینے کا خرچ معمول پر رکھیں۔"
         if verdict == "careful":
             return "کوئی سستا آپشن دیکھ لیں، یا اگلی تنخواہ کا انتظار کریں تاکہ آپ کی احتیاطی بچت نہ چھیڑنی پڑے۔"
-        text = f"ہر ہفتے {weekly} بچائیں، تقریباً {weeks} ہفتوں میں یہ رقم جمع ہو جائے گی۔"
         if result["after_salary"]:
-            text += " یا اگلی تنخواہ کے بعد خریدیں۔"
-        return text
+            return "اگلی تنخواہ کے بعد خریدیں، یا کوئی سستا یا استعمال شدہ آپشن دیکھ لیں۔"
+        return "کوئی سستا یا اچھی حالت میں استعمال شدہ آپشن دیکھ لیں۔"
     if verdict == "yes":
         return "Go ahead, but keep the rest of your month's spending steady."
     if verdict == "careful":
         return "Look for a cheaper option, or wait for your next salary so you do not touch your safety buffer."
-    text = f"Save {weekly} a week and you will have the money in about {weeks} weeks."
     if result["after_salary"]:
-        text += " Or buy it after your next salary."
-    return text
+        return "Buy it after your next salary, or look for a cheaper or second-hand one."
+    return "Look for a cheaper one, or a good second-hand one."

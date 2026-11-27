@@ -140,7 +140,7 @@ uvicorn main:app --reload
 
 The server runs at http://127.0.0.1:8000 and the health check is at `/health`. In development the API docs are at `/docs`.
 
-Plain-rule tests (no AI, no network): `python tests/check_rules.py`, `python tests/check_bill_rules.py`, `python tests/check_afford_rules.py`.
+Plain-rule tests (no AI, no network): `python tests/check_rules.py`, `python tests/check_bill_rules.py`, `python tests/check_afford_rules.py`, `python tests/check_text.py` (number formatting, with a fake AI).
 AI accuracy test (uses real AI quota): `python tests/run_eval.py` (options: `--file`, `--only`, `--ids`, `--compare`, `--sleep`, `--provider zai`).
 
 ### Mobile app (Node.js and npm)
