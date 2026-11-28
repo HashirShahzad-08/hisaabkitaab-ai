@@ -242,4 +242,4 @@ NUTECH University
 
 ## Built during the hackathon
 
-This project was built during the hackathon window, November 23 to 27, 2026. We used AI coding tools (Claude Code) to help write and review code, as allowed by the rules. The design, the rules, the test cases and the decisions are ours, and the full history is in the git log.
+This project was built during the hackathon window, November 23 to 27, 2026. We used AI coding tools (Claude Code) to help review code, as allowed by the rules. The design, the rules, the test cases and the decisions are ours, and the full history is in the git log.
