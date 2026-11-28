@@ -27,9 +27,9 @@ Many Pakistani households run on notebooks, memory and trust. Common pain points
 - Most finance apps are in English and need a lot of typing. Many users are more comfortable in Urdu, and in speaking than typing.
 
 
-## What it does
+## What it does.
 
-- **SMS auto-entry with scam warning.** Paste a JazzCash, Easypaisa or bank SMS. The app fills in the transaction (amount, type, category, payment method, date). If the SMS looks like a scam, a red alert explains why.
+- **SMS auto-entry with scam warning.** Paste a Jazz Cash, Easypaisa or bank SMS. The app fills in the transaction (amount, type, category, payment method, date). If the SMS looks like a scam and a red alert explains why.
 - **Warn my family.** On a scam alert, one button opens the phone's share sheet with a short warning in the app language (English or Urdu), based on what the SMS asked for. It also gives the PTA number 0800-55055.
 - **Offline scam check.** If the server cannot be reached, the phone runs its own copy of the scam rules. With 2 or more red flags it shows the same alert, marked "Checked on your phone (offline)". It never guesses a transaction offline.
 - **Urdu quick entry (type or speak).** Write or dictate with the keyboard microphone, for example "aaj 800 ka petrol aur 300 ka doodh", and get one editable entry per item.
