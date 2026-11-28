@@ -6,7 +6,7 @@ An Urdu-first Android app that helps Pakistani households track money, check ele
 
 Built by Team Hawk AI for Capital Youth Expo 2026, category FinTech and Financial Inclusion.
 
-## Links
+# Links
 
 | What | Link |
 | --- | --- |
@@ -41,7 +41,7 @@ Many Pakistani households run on notebooks, memory and trust. Common pain points
 - **Read aloud.** Optional speaker button that reads tips and explanations aloud (can be turned off in Settings).
 - **Demo data.** Settings, About, "Load demo data" fills the account with a sample month for a family in Rawalpindi.
 
-### Health Score formula
+## Health Score formula
 
 Start at 50 points, then:
 
@@ -79,7 +79,7 @@ user's own data          Groq (primary): openai/gpt-oss-120b
 
 The app saves each user's transactions, bills, budgets and goals directly in their own space in Cloud Firestore. The backend only does the AI work (parse SMS, parse quick entry, analyze a bill, answer "can I afford it") and keeps no user data.
 
-### The "AI + rules" design
+## The "AI + rules" design
 
 Money and safety should not depend on an AI guess, so the AI and plain code check each other.
 
@@ -147,7 +147,7 @@ The server runs at http://127.0.0.1:8000 and the health check is at `/health`. I
 Plain-rule tests (no AI, no network): `python tests/check_rules.py`, `python tests/check_bill_rules.py`, `python tests/check_afford_rules.py`, `python tests/check_text.py` (number formatting, with a fake AI).
 AI accuracy test (uses real AI quota): `python tests/run_eval.py` (options: `--file`, `--only`, `--ids`, `--compare`, `--sleep`, `--provider zai`).
 
-### Mobile app (Node.js and npm)
+## Mobile app (Node.js and npm)
 
 ```bash
 cd mobile
