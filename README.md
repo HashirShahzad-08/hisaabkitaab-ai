@@ -235,12 +235,12 @@ NUTECH University
 
 | Member | Role |
 | --- | --- |
-| Muhammad Anus Manan | Team Lead |
-| Hashir Shahzad |  AI backend |
+| Hashir Shahzad | Team Lead, AI backend |
+| Muhammad Anus Manan | Team member |
 | Shaban Faqar | Team member |
 | Syed Ruidar Ali Shah | Team member |
 | Muhammad Azfar | Team member |
 
 ## Built during the hackathon
 
-This project was built during the hackathon window, November 23 to 27, 2026. We used AI coding tools (Claude Code) to help review code, as allowed by the rules. The design, the rules, the test cases and the decisions are ours, and the full history is in the git log.
+This project was built during the hackathon window, November 23 to 27, 2026. As allowed by the rules, we used AI coding tools (Claude Code) to write and review much of the code, tests and documentation. We directed the work, made the product decisions and tested the app, and the full history is in the git log.

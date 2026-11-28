@@ -21,6 +21,7 @@ img{display:block;max-width:100%}
   padding:16px clamp(20px,5vw,72px);background:rgba(244,241,234,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px;white-space:nowrap;text-decoration:none;font-weight:900;font-size:20px;letter-spacing:-.02em}
 .brand b{color:var(--blue)}
+.brand img{width:34px;height:34px;border-radius:9px}
 .nav nav{display:flex;align-items:center;gap:26px}
 .nav nav a{text-decoration:none;font-weight:600;font-size:15px;color:var(--ink2)}
 .nav nav a:hover{color:var(--ink)}
