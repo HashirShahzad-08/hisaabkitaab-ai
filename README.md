@@ -26,7 +26,6 @@ Many Pakistani households run on notebooks, memory and trust. Common pain points
 - Fake SMS pretending to be BISP, JazzCash, Easypaisa or a bank ask for a fee, an OTP or a CNIC number. Real people lose real money.
 - Most finance apps are in English and need a lot of typing. Many users are more comfortable in Urdu, and in speaking than typing.
 
-**Meet Shazia, 42, Rawalpindi.** She runs a household on a lower-middle income. She keeps accounts in a notebook, gets bills and SMS she cannot always judge, and has family members who also receive scam messages. HisaabKitaab AI is built for her: Urdu screens, short sentences, large buttons, and warnings she can forward to her family in one tap.
 
 ## What it does
 
