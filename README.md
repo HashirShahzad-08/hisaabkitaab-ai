@@ -241,15 +241,6 @@ NUTECH University
 | Muhammad Azfar | Team member |
 
 
-## 📊 GitHub Repository Badges
-
-![GitHub Stars](https://img.shields.io/github/stars/HashirShahzad-08/hisaabkitaab-ai?style=social)
-![GitHub Forks](https://img.shields.io/github/forks/HashirShahzad-08/hisaabkitaab-ai?style=social)
-![GitHub Issues](https://img.shields.io/github/issues/HashirShahzad-08/hisaabkitaab-ai)
-![GitHub Last Commit](https://img.shields.io/github/last-commit/HashirShahzad-08/hisaabkitaab-ai)
-
-
-
 ## Built during the hackathon
 This project was built during the hackathon window, November 23 to 27, 2026. As allowed by the rules, we used AI coding tools (Claude Code) for tests and documentation. We directed the work made the product decisions and tested the app, and the full history is in the git log.
 
