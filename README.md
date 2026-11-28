@@ -1,6 +1,6 @@
 # HisaabKitaab AI
 
-**Hisaab bhi, hifazat bhi** (Accounts and protection, together)
+**Hisaab bhi, hifazat bhi** ( Accounts and protection, together )
 
 An Urdu-first Mobile app that helps Pakistani households track money, check electricity bills, and stay safe from scam SMS, using AI for the words and plain rules for every number.
 
