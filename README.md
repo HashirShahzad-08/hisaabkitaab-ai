@@ -52,7 +52,7 @@ Start at 50 points, then:
 | Spending is below income | +15 |
 | Any budget is over 100% used | -20 |
 
-If spending is more than income, the score is capped at 45. The result is kept between 0 and 100. Bands: 80 to 100 excellent, 60 to 79 good, 40 to 59 okay, below 40 care.
+If spending is more than income, the score is capped at 45. The result is kept between 0 and 100.  Bands: 80 to 100 excellent, 60 to 79 good, 40 to 59 okay, below 40 care.
 
 ## Screenshots
 
