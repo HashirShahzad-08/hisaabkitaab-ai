@@ -2,7 +2,7 @@
 
 **Hisaab bhi, hifazat bhi** (Accounts and protection, together)
 
-An Urdu-first Android app that helps Pakistani households track money, check electricity bills, and stay safe from scam SMS, using AI for the words and plain rules for every number.
+An Urdu-first Mobile app that helps Pakistani households track money, check electricity bills, and stay safe from scam SMS, using AI for the words and plain rules for every number.
 
 Built by Team Hawk AI for Capital Youth Expo 2026, category FinTech and Financial Inclusion.
 
