@@ -282,4 +282,4 @@ Opened from the avatar on Home. Grouped cards:
 - [ ] Amounts formatted `Rs 12,500`, income light blue, expense primary text
 - [ ] Tested on a real Android phone (small screen too)
 - [ ] Checked in **both** English and Urdu mode: no hard-coded text, layout mirrored correctly, no Urdu text clipped
-- [ ] No text cut off; Urdu text right-aligned with enough line height
+- [ ] No clipped text; Urdu aligned right with comfortable line spacing.
