@@ -14,6 +14,7 @@ Built by Team Hawk AI for Capital Youth Expo 2026, category FinTech and Financia
 | Download page | https://hashirshahzad-08.github.io/hisaabkitaab-ai/ |
 | Android APK download | https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk |
 | Backend health check | https://hisaabkitaab-ai-omega.vercel.app/health |
+| Demo video (2 min) | https://drive.google.com/file/d/1ZPI2ahpoFSIYd0cVRVECu7sQwg0xVE6F/view?usp=sharing |
 | Slides | https://github.com/HashirShahzad-08/hisaabkitaab-ai/blob/main/docs/HisaabKitaab-AI-Pitch-Deck.pdf |
 
 ## The problem
