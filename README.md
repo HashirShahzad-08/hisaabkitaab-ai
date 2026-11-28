@@ -238,7 +238,6 @@ NUTECH University
 | Muhammad Anus Manan | Team member |
 | Shaban Faqar | Team member |
 | Syed Ruidar Ali Shah | Team member |
-| Muhammad Azfar | Team member |
 
 ## Built during the hackathon
 
