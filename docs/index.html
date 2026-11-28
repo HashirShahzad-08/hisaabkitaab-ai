@@ -1,126 +1,289 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HisaabKitaab AI - Download for Android</title>
-<meta name="description" content="An Urdu-first Android app to track money, check electricity bills and stay safe from scam SMS.">
-<meta name="theme-color" content="#0E0F12">
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0E0F12; --card: #17181C; --raised: #1E2026; --border: #26282E;
-    --blue: #3B82F6; --blue-light: #60A5FA; --text: #F3F4F6; --body: #C9CCD3; --muted: #9A9DA6;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { color-scheme: dark; -webkit-text-size-adjust: 100%; }
-  body { background: var(--bg); color: var(--text); font-family: Poppins, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.6; }
-  main, footer { max-width: 720px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
-  main { padding-top: 24px; }
-  a { color: var(--blue-light); }
-  a:focus-visible { outline: 3px solid var(--blue-light); outline-offset: 3px; }
-
-  .hero { background: linear-gradient(160deg, #2563EB, #1E3A8A); border: 1px solid #3B6FE0; border-radius: 24px; padding: 32px 24px; text-align: center; }
-  .hero img { width: 112px; height: 112px; border-radius: 24px; display: block; margin: 0 auto 16px; }
-  h1 { font-size: 28px; line-height: 1.25; font-weight: 700; }
-  .tagline { color: #C7D7FE; font-weight: 500; margin-top: 4px; }
-  .lead { margin: 16px auto 0; max-width: 460px; }
-
-  .download { margin-top: 24px; text-align: center; }
-  .button { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 60px; padding: 12px 24px; background: var(--blue); color: #FFFFFF; border-radius: 12px; font-size: 17px; font-weight: 600; text-decoration: none; }
-  .button:hover { background: #2563EB; }
-  .button:active { transform: scale(0.98); }
-  .button svg { flex: none; }
-  .meta { color: var(--muted); font-size: 13px; margin-top: 8px; }
-
-  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 16px; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; }
-
-  ol { list-style: none; counter-reset: step; display: grid; gap: 8px; }
-  ol li { counter-increment: step; display: flex; gap: 16px; align-items: flex-start; }
-  ol li::before { content: counter(step); flex: none; width: 32px; height: 32px; border-radius: 12px; background: var(--raised); border: 1px solid var(--border); color: var(--blue-light); font-weight: 600; display: flex; align-items: center; justify-content: center; }
-  ol strong { display: block; font-weight: 500; }
-  ol span { color: var(--muted); font-size: 13px; }
-
-  .features { display: grid; grid-template-columns: 1fr; gap: 16px; }
-  .features h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-  .features h3::before { content: ""; display: block; width: 24px; height: 4px; border-radius: 999px; background: var(--blue); margin-bottom: 12px; }
-  .features p { color: var(--body); font-size: 14px; }
-  @media (min-width: 560px) { .features { grid-template-columns: 1fr 1fr; } }
-
-  .try { background: #16233D; border-color: #3B6FE0; }
-  .links { display: grid; gap: 0; padding: 0 16px; }
-  .links a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; text-decoration: none; border-top: 1px solid #202228; font-weight: 500; }
-  .links a:first-child { border-top: 0; }
-  .links small { color: var(--muted); font-weight: 400; text-align: right; }
-
-  footer { color: var(--muted); font-size: 13px; text-align: center; padding-top: 32px; padding-bottom: 32px; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HisaabKitaab AI — Download for Android</title>
+  <meta name="description" content="HisaabKitaab AI: an Urdu-first money manager for Pakistani households. Track spending, catch scam SMS, check electricity bills. Download the Android app.">
+  <meta property="og:title" content="HisaabKitaab AI — Hisaab bhi, hifazat bhi">
+  <meta property="og:description" content="Urdu-first AI money manager for every Pakistani home. Download the Android app.">
+  <meta property="og:image" content="https://hashirshahzad-08.github.io/hisaabkitaab-ai/assets/video/poster.jpg">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-<main>
-  <header class="hero">
-    <img src="icon.png" width="112" height="112" alt="HisaabKitaab AI wallet icon">
-    <h1>HisaabKitaab AI</h1>
-    <p class="tagline">Hisaab bhi, hifazat bhi</p>
-    <p class="lead">An Urdu-first Android app to track money, check electricity bills and stay safe from scam SMS.</p>
-  </header>
 
-  <section class="download" aria-label="Download">
-    <a class="button" href="https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
-      Download APK (Android)
-    </a>
-    <p class="meta">Version 1.0.0 &middot; 101 MB &middot; No login needed to download</p>
+<header class="nav">
+  <a class="brand" href="#top">
+    <img src="assets/img/favicon.svg" alt="" width="34" height="34">
+    <span>HisaabKitaab <b>AI</b></span>
+  </a>
+  <nav>
+    <a href="#features">Features</a>
+    <a href="#demo">Demo</a>
+    <a href="#install">Install</a>
+    <a href="#faq">FAQ</a>
+    <a class="btn btn-small" href="#install">Download</a>
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mnav">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<div class="mnav" id="mnav" aria-hidden="true">
+  <a href="#features"><span>01</span>Features</a>
+  <a href="#demo"><span>02</span>Demo video</a>
+  <a href="#install"><span>03</span>How to install</a>
+  <a href="#faq"><span>04</span>Questions</a>
+  <a class="btn btn-big" href="https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk">
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span><small>Download for</small>Android (APK)</span>
+  </a>
+  <p class="mnav-tag">Hisaab bhi, hifazat bhi.</p>
+</div>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero" id="download">
+    <div class="hero-text">
+      <p class="eyebrow">Android app &nbsp;·&nbsp; Urdu + English</p>
+      <h1>Hisaab bhi,<br><span class="blue">hifazat bhi.</span></h1>
+      <p class="lead">An AI money manager for every Pakistani home. Write expenses the way you speak, catch scam SMS before you lose money, and find out if your electricity bill is too high.</p>
+
+      <div class="cta">
+        <a class="btn btn-big" id="apk-link" href="https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk">
+          <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span><small>Download for</small>Android (APK)</span>
+        </a>
+        <div class="qr" id="qr-box">
+          <img id="qr" alt="QR code to download the app on your phone" width="132" height="132">
+          <span>Scan to download<br>on your phone</span>
+        </div>
+      </div>
+      <p class="meta"><span id="apk-version">Version 1.0.0</span> &nbsp;·&nbsp; Free &nbsp;·&nbsp; <a href="#install">How to install</a></p>
+      <p class="ios-note" id="ios-note">HisaabKitaab AI is for Android phones. Open this page on an Android phone to install it.</p>
+      <ul class="trust">
+        <li><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>Free, no ads</li>
+        <li><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>Urdu + English</li>
+        <li><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>Your data stays in your account</li>
+      </ul>
+    </div>
+
+    <div class="hero-phone">
+      <div class="blob"></div>
+      <div class="ring"></div>
+      <div class="phone">
+        <div class="screen">
+          <img src="assets/img/screens/home.jpg" alt="Home dashboard" class="slide active">
+          <img src="assets/img/screens/scam.jpg" alt="Scam SMS caught" class="slide">
+          <img src="assets/img/screens/bill.jpg" alt="Bill check" class="slide">
+          <img src="assets/img/screens/urdu.jpg" alt="Urdu mode" class="slide">
+        </div>
+      </div>
+      <div class="chip chip-a"><i class="dot red"></i><div><b>Fraud detected</b><small>Asks for OTP and money</small></div></div>
+      <div class="chip chip-b"><i class="dot green"></i><div><b>Rs 15,000 saved</b><small>Income · JazzCash</small></div></div>
+    </div>
   </section>
 
-  <section>
-    <h2>How to install</h2>
-    <ol class="card">
-      <li><div><strong>Download the APK</strong><span>Tap the blue button above on your Android phone.</span></div></li>
-      <li><div><strong>Open the file</strong><span>Tap the finished download, or find it in your Downloads folder.</span></div></li>
-      <li><div><strong>Allow installing from this source</strong><span>If Android asks, turn on the permission for your browser or file app.</span></div></li>
-      <li><div><strong>If Play Protect warns you</strong><span>Tap "More details", then "Install anyway".</span></div></li>
+  <!-- STAT STRIP -->
+  <section class="strip">
+    <div class="strip-num">81,996</div>
+    <p>financial fraud complaints in Pakistan in 2025.<br><small><a href="https://thepenpk.com/cybercrime-complaints-top-150000-in-2025-na-told">Source: NCCIA figures, National Assembly, Jan 2026</a></small></p>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <h2>Everything a household needs.<br><span class="muted">Nothing it doesn't.</span></h2>
+
+    <div class="grid">
+      <article class="card c-blue">
+        <div class="card-text">
+          <span class="num">01</span>
+          <svg class="ic" viewBox="0 0 48 48"><rect x="5" y="13" width="38" height="22" rx="4"/><path d="M12 20h2M19 20h2M26 20h2M33 20h2M12 27h2M33 27h2M19 28h10"/></svg>
+          <h3>Type it like you speak</h3>
+          <p>"Kal maine 2000 ki grocery li." Roman Urdu or English. AI picks the amount, category and wallet.</p>
+        </div>
+        <img src="assets/img/screens/entry.jpg" alt="Quick entry screen" loading="lazy">
+      </article>
+
+      <article class="card c-red">
+        <div class="card-text">
+          <span class="num">02</span>
+          <svg class="ic" viewBox="0 0 48 48"><path d="M24 5l15 6v11c0 10-6.5 17-15 21-8.5-4-15-11-15-21V11z"/><path d="M24 15v11M24 32v1"/></svg>
+          <h3>Scam SMS shield</h3>
+          <p>Paste any JazzCash, Easypaisa or bank message. Fake ones are flagged in seconds, with one tap to report to PTA.</p>
+        </div>
+        <img src="assets/img/screens/scam.jpg" alt="Scam alert screen" loading="lazy">
+      </article>
+
+      <article class="card c-amber">
+        <div class="card-text">
+          <span class="num">03</span>
+          <svg class="ic" viewBox="0 0 48 48"><path d="M27 4L10 27h12l-4 17 20-25H26z"/></svg>
+          <h3>Bill check</h3>
+          <p>Enter your meter readings. The app catches overbilling and writes the complaint for your electricity company.</p>
+        </div>
+        <img src="assets/img/screens/bill.jpg" alt="Bill check screen" loading="lazy">
+      </article>
+
+      <article class="card c-green">
+        <div class="card-text">
+          <span class="num">04</span>
+          <svg class="ic" viewBox="0 0 48 48"><path d="M5 9h6l5 21h22l4-14H14"/><circle cx="19" cy="38" r="2.5"/><circle cx="35" cy="38" r="2.5"/></svg>
+          <h3>Can I afford it?</h3>
+          <p>Ask before you buy. A clear yes, or "not right now" with a weekly saving plan.</p>
+        </div>
+        <img src="assets/img/screens/afford.jpg" alt="Afford check screen" loading="lazy">
+      </article>
+
+      <article class="card c-purple">
+        <div class="card-text">
+          <span class="num">05</span>
+          <svg class="ic" viewBox="0 0 48 48"><path d="M6 42h36"/><rect x="10" y="24" width="7" height="14" rx="1.5"/><rect x="21" y="14" width="7" height="24" rx="1.5"/><rect x="32" y="28" width="7" height="10" rx="1.5"/></svg>
+          <h3>Your month at a glance</h3>
+          <p>Balance, spending by category and a Health Score, with a tip read aloud in simple words.</p>
+        </div>
+        <img src="assets/img/screens/home.jpg" alt="Dashboard screen" loading="lazy">
+      </article>
+
+      <article class="card c-navy">
+        <div class="card-text">
+          <span class="num">06</span>
+          <span class="ic urdu" lang="ur">اردو</span>
+          <h3>Fully in Urdu</h3>
+          <p>One tap switches the whole app to Urdu, with a right-to-left layout. Made for every home.</p>
+        </div>
+        <img src="assets/img/screens/urdu.jpg" alt="Urdu mode screen" loading="lazy">
+      </article>
+    </div>
+    <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </section>
+
+  <!-- DEMO VIDEO -->
+  <section class="demo" id="demo">
+    <h2>See it in 2 minutes</h2>
+    <div class="video-wrap">
+      <a href="https://drive.google.com/file/d/1ZPI2ahpoFSIYd0cVRVECu7sQwg0xVE6F/view?usp=sharing" aria-label="Watch the 2-minute demo">
+        <img src="assets/video/poster.jpg" alt="HisaabKitaab AI demo video" width="1280" height="720" loading="lazy">
+      </a>
+    </div>
+    <div class="demo-actions">
+      <a class="btn btn-big" href="https://drive.google.com/file/d/1ZPI2ahpoFSIYd0cVRVECu7sQwg0xVE6F/view?usp=sharing">Watch the 2-minute demo</a>
+      <a class="deck-link" href="HisaabKitaab-AI-Pitch-Deck.pdf">Pitch deck (PDF)</a>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section class="install" id="install">
+    <h2>Install in 3 steps</h2>
+    <ol class="steps">
+      <li>
+        <span class="step-n">1</span>
+        <h3>Download the APK</h3>
+        <p>Tap <b>Download for Android</b> above, or scan the QR code with your phone camera.</p>
+      </li>
+      <li>
+        <span class="step-n">2</span>
+        <h3>Allow the install</h3>
+        <p>Open the downloaded file. If Android asks, allow <b>Install unknown apps</b> for your browser or file manager. This is normal for apps outside the Play Store.</p>
+      </li>
+      <li>
+        <span class="step-n">3</span>
+        <h3>Sign up and start</h3>
+        <p>Open HisaabKitaab AI, create an account with your email, and add your first expense.</p>
+      </li>
     </ol>
   </section>
 
-  <section>
-    <h2>What it does</h2>
-    <div class="features">
-      <article class="card"><h3>SMS auto-entry and scam warning</h3><p>Paste a JazzCash, Easypaisa or bank SMS. It is recorded for you, and scam messages get a clear red warning you can share with family.</p></article>
-      <article class="card"><h3>Urdu voice entry</h3><p>Speak with your keyboard's microphone, or type, in Urdu, Roman Urdu or English. Each expense becomes an entry.</p></article>
-      <article class="card"><h3>Bill Analyzer</h3><p>Check an electricity bill against the meter readings, understand it in simple words, and get a ready complaint if it looks overbilled.</p></article>
-      <article class="card"><h3>Can I afford it?</h3><p>Enter an item and its price. See yes, careful or not now, worked out from your own income and spending.</p></article>
-      <article class="card"><h3>Health Score</h3><p>A monthly score from 0 to 100 with a short tip, based on clear rules about saving, spending and budgets.</p></article>
-      <article class="card"><h3>Full Urdu mode</h3><p>Every screen works in Urdu script with a right-to-left layout, or in English.</p></article>
+  <!-- FAQ -->
+  <section class="faq" id="faq">
+    <h2>Questions</h2>
+    <div class="faq-list">
+      <details>
+        <summary>Why does Android ask to allow "unknown apps"?</summary>
+        <p>The app is installed directly from this page instead of the Play Store. Android asks for permission every time you install an app this way. You only need to allow it once, for your browser or file manager.</p>
+      </details>
+      <details>
+        <summary>Is my money data safe?</summary>
+        <p>You sign in with your own email. Your entries are saved in your account, and only you can read them.</p>
+      </details>
+      <details>
+        <summary>Do I need to type in English?</summary>
+        <p>No. Write the way you speak, in Roman Urdu or English, for example "aaj 800 ka petrol". You can also switch the whole app to Urdu in Settings.</p>
+      </details>
+      <details>
+        <summary>Does it work on iPhone?</summary>
+        <p>Not yet. HisaabKitaab AI is available for Android phones.</p>
+      </details>
     </div>
   </section>
 
-  <section>
-    <h2>Try it fast</h2>
-    <div class="card try">
-      <p>Sign up with an email and password. Then open <strong>Settings</strong> and tap <strong>Load demo data</strong> to see a sample month right away.</p>
-    </div>
-  </section>
-
-  <section>
-    <h2>Links</h2>
-    <nav class="card links">
-      <a href="https://github.com/HashirShahzad-08/hisaabkitaab-ai">GitHub repository <small>Source code</small></a>
-      <a href="HisaabKitaab-AI-Pitch-Deck.pdf">Pitch deck (PDF) <small>Slides</small></a>
-      <a href="https://hisaabkitaab-ai-omega.vercel.app/health">Backend health <small>Server status</small></a>
-      <a href="https://drive.google.com/file/d/1ZPI2ahpoFSIYd0cVRVECu7sQwg0xVE6F/view?usp=sharing">Demo video <small>Watch (2 min)</small></a>
-    </nav>
+  <!-- FINAL CTA -->
+  <section class="final">
+    <h2>Pehle andaza tha.<br>Ab hisaab hai.</h2>
+    <a class="btn btn-big btn-light" href="https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span><small>Download for</small>Android (APK)</span>
+    </a>
   </section>
 </main>
 
-<footer>
-  <p>Team Hawk AI &middot; NUTECH University &middot; Capital Youth Expo 2026</p>
-  <p>Hashir Shahzad (Team Lead, AI backend) &middot; Muhammad Anus Manan &middot; Shaban Faqar &middot; Syed Ruidar Ali Shah &middot; Muhammad Azfar</p>
+<footer class="site-footer">
+  <div class="f-top">
+    <div class="f-brand">
+      <a class="brand" href="#top">
+        <img src="assets/img/favicon.svg" alt="" width="34" height="34">
+        <span>HisaabKitaab <b>AI</b></span>
+      </a>
+      <p>An Urdu-first AI money manager for every Pakistani home. Track spending, catch scam SMS, and check your electricity bill.</p>
+      <a class="btn f-btn" href="https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download APK
+      </a>
+    </div>
+    <div class="f-col">
+      <h4>App</h4>
+      <a href="#features">Features</a>
+      <a href="#demo">Demo video</a>
+      <a href="#install">How to install</a>
+      <a href="#faq">Questions</a>
+    </div>
+    <div class="f-col">
+      <h4>Features</h4>
+      <a href="#features">Quick entry</a>
+      <a href="#features">Scam SMS shield</a>
+      <a href="#features">Bill check</a>
+      <a href="#features">Can I afford it?</a>
+    </div>
+    <div class="f-col">
+      <h4>Team</h4>
+      <span>Team Hawk AI</span>
+      <span>NUTECH Islamabad</span>
+      <span>CYE 2026 Hackathon</span>
+      <a href="https://github.com/HashirShahzad-08/hisaabkitaab-ai">Source code on GitHub</a>
+        <a href="HisaabKitaab-AI-Pitch-Deck.pdf">Pitch deck (PDF)</a>
+    </div>
+  </div>
+  <p class="f-members"><b>Team Hawk AI:</b> Hashir Shahzad (Team Lead) &middot; Muhammad Anus Manan &middot; Shaban Faqar &middot; Syed Ruidar Ali Shah &middot; Muhammad Azfar</p>
+  <div class="f-big" aria-hidden="true">HisaabKitaab</div>
+  <div class="f-bottom">
+    <span>&copy; 2026 Team Hawk AI. Built for the CYE 2026 Hackathon Innovation Sprint.</span>
+    <span>Hisaab bhi, hifazat bhi.</span>
+  </div>
 </footer>
+
+<div class="mbar" id="mbar">
+  <div class="mbar-text"><b>HisaabKitaab AI</b><small>Free · Android</small></div>
+  <a class="btn" href="https://github.com/HashirShahzad-08/hisaabkitaab-ai/releases/latest/download/hisaabkitaab-ai.apk">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Download
+  </a>
+</div>
+
+<script src="assets/js/main.js"></script>
 </body>
 </html>
