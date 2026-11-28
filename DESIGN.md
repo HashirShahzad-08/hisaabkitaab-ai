@@ -7,8 +7,8 @@
 
 ## 1. Design principles
 
-1. **Numbers first.** Money amounts are the biggest, boldest thing on any screen.
-2. **One action per screen.** Each screen has one clear primary button.
+1. **Numbers first** Money amounts are the biggest, boldest thing on any screen.
+2. **One action per screen** Each screen has one clear primary button.
 3. **Calm by default, loud only for danger.** Charcoal and blue everywhere; amber for budgets, red only for scams and overbilling.
 4. **Two complete languages.** The whole app exists in **English** and in **Urdu (Urdu script, right-to-left)**. The user picks one in Settings and every screen, label, alert and AI reply follows it. No mixing within one language mode (see section 10).
 5. **Every tap gives feedback.** Animation, haptic, or a snackbar — never silence.
